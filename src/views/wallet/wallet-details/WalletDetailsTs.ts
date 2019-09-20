@@ -34,7 +34,7 @@ export class WalletDetailsTs extends Vue {
     showMnemonicDialog: boolean = false
     showKeystoreDialog: boolean = false
     showPrivatekeyDialog: boolean = false
-    functionShowList = [true, false, false]
+    functionShowList = [true, false]
 
     get wallet() {
         return this.activeAccount.wallet

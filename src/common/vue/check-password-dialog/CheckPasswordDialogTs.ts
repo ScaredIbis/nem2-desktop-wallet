@@ -5,7 +5,7 @@ import {Component, Vue, Prop, Watch} from 'vue-property-decorator'
 import {AppWallet} from '@/core/utils/wallet.ts'
 import {getAbsoluteMosaicAmount} from "@/core/utils/mosaics"
 import {AppLock} from "@/core/utils/appLock"
-import {AppAccounts} from "@/core/services/account"
+import {AppAccounts} from "@/core/model"
 
 @Component({
     computed: {...mapState({activeAccount: 'account'})},

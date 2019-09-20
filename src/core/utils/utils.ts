@@ -79,7 +79,7 @@ export const copyTxt = (txt) => {
 export const formatNumber = (number) => {
     {
         if (!/^(\+|-)?(\d+)(\.\d+)?$/.test(number)) {
-            return number
+            return 0
         }
         var a = RegExp.$1, b = RegExp.$2, c = RegExp.$3
         // @ts-ignore
@@ -251,38 +251,6 @@ export const formatNemDeadline = function (deadline) {
     return date + time
 }
 
-// @TODO check current xem situation
-// export const formatTransactions = function (transactionList, accountAddress, currentXEM1, currentXem) {
-//     let transferTransaction = []
-//     transactionList.map((item) => {
-//         // TODO if mosaic is null
-//         if (item.type == TransactionType.TRANSFER) {
-//             item.isReceipt = item.recipient.address == accountAddress
-//             item.signerAddress = item.signer.address.address
-//             item.recipientAddress = item.recipient.address
-//             item.oppositeAddress = item.isReceipt ? item.signerAddress : item.recipient.address
-//             item.time = formatNemDeadline(item.deadline)
-//             item.mosaicAmount = 'mix'
-//             if (item.mosaics.length == 1) {
-//                 item.mosaicAmount = 'loading...'
-//             }
-//             item.mosaic = item.mosaics && item.mosaics[0] && currentXEM1.toUpperCase() !== item.mosaics[0].id.id.toHex().toUpperCase() ?
-//                 item.mosaics.map(item => {
-//                     const amount = item.amount.compact()
-//                     const hex = item.id.id.toHex()
-//                     if (hex == currentXEM1) {
-//                         return currentXem + `(${amount})`
-//                     }
-//                     return item.id.id.toHex() + `(${amount})`
-//                 }).join(',') : currentXem
-//             // todo get mosaic name like nem.xem(123456)
-//             item.date = new Date(item.time)
-//             transferTransaction.push(item)
-//         }
-//     })
-//     return transferTransaction
-// }
-
 export const formateNemTimestamp = (timestamp, offset) => {
     return formatDate(covertOffset(timestamp + Deadline.timestampNemesisBlock * 1000, offset))
 }
@@ -382,12 +350,6 @@ export const getCurrentTimeZone = () => {
 
 export const cloneData = object => JSON.parse(JSON.stringify(object))
 
-
 export const getTopValueInObject = (object: any) => {
-    let topValue: any = {}
-    for (let key in object) {
-        topValue = object[key]
-        break
-    }
-    return topValue
+    return Object.values(object)[0]
 }

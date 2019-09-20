@@ -66,7 +66,7 @@ export class InputLockTs extends Vue {
             this.$router.push('walletCreate')
             return
         }
-        this.$store.commit('SET_WALLET', getTopValueInObject(accountMap).wallets[0])
+        this.$store.commit('SET_WALLET', accountMap[currentAccountName].wallets[0])
         this.$router.push('monitorPanel')
     }
 
@@ -124,7 +124,7 @@ export class InputLockTs extends Vue {
 
     created() {
         const {accountMap} = this
-        this.formItem.currentAccountName = getTopValueInObject(accountMap).accountName
+        this.formItem.currentAccountName = getTopValueInObject(accountMap)['accountName']
     }
 
     clearCache() {

@@ -69,14 +69,10 @@
           <li :class="['left',functionShowList[1]?'active':''] " @click="showFunctionIndex(1)">
             {{$t('Filter_management')}}
           </li>
-          <li :class="['left',functionShowList[2]?'active':''] " @click="showFunctionIndex(2)">
-            {{$t('Modify_the_private_key_wallet_password')}}
-          </li>
         </ul>
       </div>
       <WalletAlias v-if="functionShowList[0]"></WalletAlias>
       <WalletFilter v-if="functionShowList[1]"></WalletFilter>
-      <WalletUpdatePassword v-if="functionShowList[2]"></WalletUpdatePassword>
     </div>
     <MnemonicDialog :showMnemonicDialog="showMnemonicDialog"
                     @closeMnemonicDialog="closeMnemonicDialog"></MnemonicDialog>

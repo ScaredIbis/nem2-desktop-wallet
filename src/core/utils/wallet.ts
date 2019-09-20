@@ -43,8 +43,8 @@ export class AppWallet {
     accountTitle: string
 
 
-    generateWalletTitle(craeteType: string, coinType: string, netType: string) {
-        return `${craeteType}-${coinType}-${netType}`
+    generateWalletTitle(createType: string, coinType: string, netType: string) {
+        return `${createType}-${coinType}-${netType}`
     }
 
     createFromPrivateKey(name: string,

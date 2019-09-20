@@ -19,10 +19,6 @@
         <div class="exchange">
           ${{mosaicList[0]?formatNumber(mosaicList[0].balance*xemUsdPrice):0}}
         </div>
-        <!-- @TODO: Account Alias (update when method available) -->
-        <!--<div class="account_alias" v-show="isShowAccountAlias">
-          {{$t('alias')}}：wallet.name
-        </div>-->
       </div>
       <div class="bottom_account_info radius" ref="bottomAccountInfo">
         <div v-if="isShowAccountInfo" class="mosaicListWrap">

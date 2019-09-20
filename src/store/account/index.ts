@@ -8,7 +8,7 @@ declare interface account {
     // @TODO: the currentXem should be renamed
     currentXem: string,
     currentXEM1: string,
-    account: Account,
+    account: Account | any,
     wallet: any,
     mosaics: Record<string, AppMosaic>,
     namespaces: any[],
@@ -61,6 +61,16 @@ export default {
         }
     },
     mutations: {
+        RESET_ACCOUNT(state: account) {
+            state.account = {}
+            state.wallet = {}
+            state.mosaics = {}
+            state.namespaces = []
+            state.addressAliasMap = {}
+            state.transactionList = []
+            state.accountName = ''
+        }
+        ,
         SET_ACCOUNT(state: account, account: Account): void {
             state.account = account
         },
@@ -148,7 +158,7 @@ export default {
             const txIndex = newStateTransactions
                 .findIndex(({txHeader}) => newTx.txHeader.hash === txHeader.hash)
 
-            if(txIndex > -1 && newStateTransactions[txIndex].isTxUnconfirmed) {
+            if (txIndex > -1 && newStateTransactions[txIndex].isTxUnconfirmed) {
                 newStateTransactions.splice(txIndex, 1)
             }
 
