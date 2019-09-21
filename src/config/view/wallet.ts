@@ -23,6 +23,10 @@ export const walletImportNavagatorConfig = [
         title: 'keystore',
         name: 'walletImportKeystore',
         isSelected: false
+    }, {
+        title: 'hardware',
+        name: 'walletImportHardware',
+        isSelected: false
     }
 ]
 
