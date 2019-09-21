@@ -1,9 +1,7 @@
 import {mapState} from 'vuex'
 import {Component, Vue} from 'vue-property-decorator'
 import {networkTypeConfig} from '@/config/view/setting';
-import TrezorConnect from 'trezor-connect';
-
-console.log(TrezorConnect);
+import trezor from '@/core/utils/trezor';
 
 @Component({
     computed: {
@@ -42,5 +40,18 @@ export class AccountImportHardwareTs extends Vue {
 
     toBack() {
         this.$router.push('initAccount')
+    }
+
+    async loginToTrezor() {
+        console.log(trezor);
+        // TODO: use a randomly generated challenge from a server
+        // see https://github.com/trezor/connect/blob/develop/docs/methods/requestLogin.md
+        const result = await trezor.requestLogin({
+            challengeHidden: '0123456789abcdef',
+            challengeVisual: 'Login to',
+        });
+
+        // a successful result will contain
+        console.log('RESULT', result);
     }
 }
