@@ -36,7 +36,7 @@
 
     <div class="bottom_button ">
       <span class="back left" @click="toBack"> {{$t('back')}}</span>
-      <span class="import right" @click="getAccountFromTrezor">{{$t('connect_trezor_prompt')}}</span>
+      <span class="import right" @click="importAccountFromTrezor">{{$t('connect_trezor_prompt')}}</span>
     </div>
   </div>
 

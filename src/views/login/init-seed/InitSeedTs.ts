@@ -34,7 +34,7 @@ export class InitSeedTs extends Vue {
     isCreated(form) {
         this.createForm = form
         this.walletCreated = true
-        this.updatePageIndex(2)
+        this.updatePageIndex(-1)
     }
 
     updatePageIndex(index) {
@@ -50,7 +50,6 @@ export class InitSeedTs extends Vue {
     }
 
     goToPage(item, index) {
-        console.log("RUNNING THIS", index)
         for (let i in this.navList) {
             if (this.navList[i].to == item.to) {
                 this.navList[i].active = true
