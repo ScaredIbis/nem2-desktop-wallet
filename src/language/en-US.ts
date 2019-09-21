@@ -715,7 +715,9 @@ export const en_US = {
     //trezor
     connect_trezor_title: 'Connect to a Trezor Hardware Wallet',
     connect_trezor_prompt: 'Connect to Trezor',
+    connect_trezor_description: 'Import a wallet from a Trezor device',
     trezor_description: 'Trezor will keep your private keys secure and only expose them for signing transactions',
+    choose_account_index: 'Choose account index (0 - 1,000,000)',
 
     Please_choose_account_name: 'Please choose account name',
     account_password: 'account password',

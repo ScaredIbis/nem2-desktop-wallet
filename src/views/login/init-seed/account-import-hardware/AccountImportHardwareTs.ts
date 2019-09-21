@@ -1,7 +1,9 @@
 import {mapState} from 'vuex'
 import {Component, Vue} from 'vue-property-decorator'
-import {networkTypeConfig} from '@/config/view/setting';
+import {formDataConfig} from "@/config/view/form";
+import {networkTypeConfig} from '@/config/view/setting'
 import trezor from '@/core/utils/trezor';
+
 
 @Component({
     computed: {
@@ -17,6 +19,9 @@ export class AccountImportHardwareTs extends Vue {
     NetworkTypeList = networkTypeConfig
     account = {}
     showCheckPWDialog = false
+    // TODO: prefill values (account Index and wallet name)
+    // based on existing trezor accounts
+    trezorForm = formDataConfig.trezorImportForm
 
     get getNode() {
         return this.activeAccount.node
@@ -42,16 +47,36 @@ export class AccountImportHardwareTs extends Vue {
         this.$router.push('initAccount')
     }
 
-    async loginToTrezor() {
+    async getAccountFromTrezor() {
+        const { accountIndex, networkType, walletName } = this.trezorForm
         console.log(trezor);
-        // TODO: use a randomly generated challenge from a server
-        // see https://github.com/trezor/connect/blob/develop/docs/methods/requestLogin.md
-        const result = await trezor.requestLogin({
-            challengeHidden: '0123456789abcdef',
-            challengeVisual: 'Login to',
-        });
 
-        // a successful result will contain
-        console.log('RESULT', result);
+        try {
+            // TODO: turn it on for real when we have a device
+
+            // const result = await trezor.nemGetAddress({
+            //     path: `m/44'/43'/${accountIndex}'`,
+            //     network: networkType
+            // })
+
+            // this is the shape of a successful device interaction
+            const result = {
+                success: true,
+                payload: {
+                    address: 'TDS7OQUHKNYMSC2WPJA6QUTLJIO22S27B4FMU2AJ',
+                    path: [44, 43, accountIndex], // example path from from nemSignTransaction docs
+                    // https://github.com/trezor/connect/blob/develop/docs/methods/nemSignTransaction.md
+                    // https://github.com/bitcoin/bips/blob/master/bip-0044.mediawiki
+                    serializedPath: `m/44'/43'/${accountIndex}`,
+                }
+            }
+
+            // a successful result will contain
+            console.log('RESULT', result);
+
+        } catch (err) {
+
+        }
+
     }
 }
