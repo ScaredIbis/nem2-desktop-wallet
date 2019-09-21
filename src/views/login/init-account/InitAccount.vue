@@ -2,7 +2,7 @@
   <div class="init_account radius">
     <div class="methodDiv">
 
-      <div class=" createDiv">
+      <div class="createDiv">
         <div class="createIcon">
           <img src="@/common/img/login/guide-into/guideIntoCreate.png">
         </div>
@@ -29,7 +29,7 @@
         </div>
         <p class="importTit">{{$t('WLT_file')}}</p>
         <p class="importTxt">{{$t('Import_a_seed_file_from_a_WLT_file_or_hardware_wallet')}}</p>
-        <div class="button disabled un_click" @click="">{{$t('import_wallet')}}</div>
+        <div class="button pointer" @click="jumpToOtherPage(2)">{{$t('import_wallet')}}</div>
       </div>
     </div>
   </div>

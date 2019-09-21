@@ -11,6 +11,7 @@ import apostille2Icon from "@/common/img/service/apostille2.png";
 export const walletFnNavConfig = [
     { name: 'create', to: '/walletCreate', active: true },
     { name: 'import', to: '/walletImportKeystore', active: false },
+    { name: 'hardware', to: '/walletImportHardware', active: false },
 ]
 
 export const walletImportNavagatorConfig = [

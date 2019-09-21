@@ -53,6 +53,7 @@ export const en_US = {
     // the_more_you_set_the_cost_the_higher_the_processing_priority: 'Increasing the fee makes the transaction processing quicker.(1000000 gas = 1.0xem)',
     the_more_you_set_the_cost_the_higher_the_processing_priority: '',
     create: 'Create',
+    hardware: 'Hardware',
     all: 'All',
     processing: 'Processing',
     already_involved: 'Voted',
@@ -710,6 +711,11 @@ export const en_US = {
     set_wallet_path: 'Set wallet path',
     please_set_your_wallet_path: 'Please set your wallet path',
     please_accurately_copy_the_hd_wallet_path: 'Please accurately copy the hd-wallet path',
+
+    //trezor
+    connect_trezor_title: 'Connect to a Trezor Hardware Wallet',
+    connect_trezor_prompt: 'Connect to Trezor',
+    trezor_description: 'Trezor will keep your private keys secure and only expose them for signing transactions',
 
     Please_choose_account_name: 'Please choose account name',
     account_password: 'account password',

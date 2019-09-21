@@ -21,8 +21,13 @@
               @updatePageIndex="updatePageIndex"
       >
       </AccountImportMnemonic>
+      <AccountImportHardware
+              v-if="pageIndex === 2  "
+              @updatePageIndex="updatePageIndex"
+      >
+      </AccountImportHardware>
       <SeedCreatedGuide
-              v-if="pageIndex === 2 "
+              v-if="pageIndex === 3 "
               :createForm='createForm'
               @updatePageIndex="updatePageIndex"
       >
