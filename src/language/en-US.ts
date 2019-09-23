@@ -167,7 +167,7 @@ export const en_US = {
     remote_modal_pass: 'password',
     remote_modal_confirm: 'confirm',
     remote_modal_cancel: 'cancel',
-    public:'From',
+    public: 'From',
     remote_modal_place1: 'Please enter or paste a remote public key',
     remote_modal_place2: 'Please enter your wallet password',
     Unlink_now: 'Unlink now',
@@ -219,7 +219,7 @@ export const en_US = {
     //setting-panel
     change_password: 'Change password',
     general_settings: 'General settings',
-    lock_password: 'Lock password',
+    lock_password: 'Password',
     network_settings: 'Network settings',
     about: 'About',
     setting: 'Setting',
@@ -354,7 +354,7 @@ export const en_US = {
     wallet_name: 'Wallet name',
     switch_point: 'Switch Node',
     current_point: 'Current Node',
-    please_enter_a_custom_nod_address: 'Please input Node url',
+    please_enter_a_custom_nod_address: 'The default port is 3000',
     point_null_error: 'Node null error',
     //check pw dialog
     please_enter_your_wallet_password_to_ensure_your_own_operation_and_keep_your_wallet_safe: 'Please enter your wallet password to ensure your own operation and keep your wallet safe.',
@@ -408,6 +408,7 @@ export const en_US = {
     keep_it_in_a_safe_place_on_the_isolated_network_private_key: 'Keep it in a safe place on the isolated network. Do not share and store private key in a networked environment, such as emails, photo albums, social applications, etc.',
     please_accurately_copy_the_secure_backup_private_key: 'Please accurately copy the secure backup private key',
     display_private_key_QR_code: 'Display QR code',
+    copy_private_key: 'Copy private key',
     display_private_key: 'Private Key',
     This_password_is_used_to_encrypt_your_private_key_keystore: 'This password is your wallet and the decryption password when exporting the keystore again. Please avoid using an overly simple password.',
     // wallet create
@@ -420,7 +421,6 @@ export const en_US = {
     password_hint: '%{min} characters minimum',
     please_set_your_wallet_password: 'Please set your wallet password',
     please_enter_your_password_again: 'Please enter your password again',
-    repeat_the_password: 'Repeat the password',
     walletCreateNetTypeRemind: 'Please select a wallet network! ',
     walletCreateWalletNameRemind: 'Wallet name input error! ',
     accountCreateWalletNameRemind: 'Account name input error! ',
@@ -466,7 +466,7 @@ export const en_US = {
     Wallet_address: 'Address',
     publickey: 'PublicKey',
     Address_QR_code: 'Address QR code',
-    Function_and_backup: 'Function and backup',
+    Function_and_backup: 'Backup',
     Export_mnemonic: 'Export mnemonic',
     Export_private_key: 'Export private key',
     Export_Keystore: 'Export Keystore',
@@ -526,7 +526,7 @@ export const en_US = {
 
     Create_namespace: 'Create namespace',
     Create_subNamespace: 'Create subNamespace',
-    Namespace_list: 'Namespace list',
+    Namespace_list: 'My namespaces',
     New_root_space: 'New root space',
     Subspace: 'Subspace',
     Input_space_name: 'Input space name',
@@ -720,15 +720,15 @@ export const en_US = {
     choose_account_index: 'Choose account index (0 - 1,000,000)',
 
     Please_choose_account_name: 'Please choose account name',
-    account_password: 'account password',
-    hint: 'hint',
-    path: 'path',
+    account_password: 'Account password',
+    hint: 'Hint',
+    path: 'Path',
     hd_wallet_path_error:'HD wallet path error',
-
     unconfirmed: 'unconfirmed',
     from_to_action: 'From/To (action)',
     amount_asset: 'Amount (asset)',
     confirmations_height: 'Confirmations/Height',
     hash_deadline: 'Hash/Deadline',
-    transaction_record: 'Transaction records'
+    transaction_record: 'Transaction records',
+    import_mnemonic:'import mnemonic'
 }
