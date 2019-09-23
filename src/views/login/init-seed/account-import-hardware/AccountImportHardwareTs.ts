@@ -52,38 +52,17 @@ export class AccountImportHardwareTs extends Vue {
         const { accountIndex, networkType, walletName } = this.trezorForm
         console.log(trezor);
 
-        // TODO: turn it on for real when we have a device
+        // TODO: disable the interface and tell user to interact with the trezor device
 
-        // const publicKeyResult = await trezor.getPublicKey({
-        //     path: `m/44'/43'/${accountIndex}`,
-        //     network: networkType,
-        //     coin: "NEM"
-        // })
-
-        const publicKeyResult = {
-            success: true,
-            payload: {
-                path: [44, 43, 1, 0, accountIndex], // example path from from nemSignTransaction docs
-                // https://github.com/trezor/connect/blob/develop/docs/methods/nemSignTransaction.md
-                // https://github.com/bitcoin/bips/blob/master/bip-0044.mediawiki
-                serializedPath: `m/44'/43'/1'/0/${accountIndex}`,
-                // xpub: string,        // xpub in legacy format
-                // xpubSegwit?: string, // optional for segwit accounts: xpub in segwit format
-                // chainCode: string,   // BIP32 serialization format
-                // childNum: number,    // BIP32 serialization format
-                publicKey: 'D783A98F4322B212FCBC3296918401F3B46979385393A953DC37339CA050D9B3',   // BIP32 serialization format
-                // fingerprint: number, // BIP32 serialization format
-                // depth: number,
-            }
-        }
-
-        const accountResult = await trezor.nemGetAddress({
-            path: `m/44'/43'/${accountIndex}`,
-            network: networkType
+        const publicKeyResult = await trezor.getPublicKey({
+            path: `m/44'/43'/${accountIndex}'`,
+            coin: "NEM"
         })
 
-        // a successful result will contain
-        console.log('RESULT', accountResult, publicKeyResult);
+        const accountResult = await trezor.nemGetAddress({
+            path: `m/44'/43'/${accountIndex}'`,
+            network: networkType
+        })
 
         if(accountResult.success && publicKeyResult.success) {
             const { serializedPath, address } = accountResult.payload;
