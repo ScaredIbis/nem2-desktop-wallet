@@ -34,6 +34,8 @@ export const en_US = {
     successful_operation: 'Request succeeded',
     operation_failed: 'Request Failed',
     address_alias_not_exist: 'Address alias not exist',
+    wrong_wallet_name_error: 'Wallet name is incorrect',
+
     // vote
     over: 'Over',
     initiation_address: 'Initiation address',
@@ -265,6 +267,7 @@ export const en_US = {
     alias_selection: 'Alias selection',
     password: 'Password',
     please_enter_your_wallet_password: 'Please enter your wallet password',
+    please_enter_your_wallet_name: 'Please enter your wallet name',
     bind: 'Bind',
     mosaic_alias_operation: 'Mosaic alias operation',
     binding_success: 'Binding success',
