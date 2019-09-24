@@ -2,25 +2,22 @@ import {Message} from "@/config/index.ts"
 import {localRead, localSave} from "@/core/utils/utils.ts"
 import {
     Account,
-    Address,
     Crypto,
     NetworkType,
     Transaction,
     SimpleWallet,
     Password,
     WalletAlgorithm,
-    Listener, Mosaic, MosaicInfo
+    Listener,
 } from 'nem2-sdk'
 import CryptoJS from 'crypto-js'
 import {AccountApiRxjs} from "@/core/api/AccountApiRxjs.ts"
-import {NamespaceApiRxjs} from "@/core/api/NamespaceApiRxjs.ts"
 import {MultisigApiRxjs} from "@/core/api/MultisigApiRxjs.ts"
 import {TransactionApiRxjs} from '@/core/api/TransactionApiRxjs.ts'
-import {MosaicApiRxjs} from "@/core/api/MosaicApiRxjs"
 import {createSubWalletByPath} from "@/core/utils/hdWallet.ts"
 import {AppLock} from "@/core/utils/appLock"
-import {CreateWalletType} from "@/core/model/CreateWalletType";
-import {CoinType} from "@/core/model/CoinType";
+import {CreateWalletType} from "@/core/model/CreateWalletType"
+import {CoinType} from "@/core/model/CoinType"
 
 export class AppWallet {
     constructor(wallet?: {
@@ -43,6 +40,7 @@ export class AppWallet {
     path: string
     accountTitle: string
     sourceType: string
+    createTimestamp: number
 
 
     generateWalletTitle(createType: string, coinType: string, netType: string) {
@@ -61,8 +59,9 @@ export class AppWallet {
             this.publicKey = Account.createFromPrivateKey(privateKey, networkType).publicKey
             this.networkType = networkType
             this.active = true
-            this.accountTitle = this.generateWalletTitle(CreateWalletType.privateKey, CoinType.xem, NetworkType[networkType])
             this.sourceType = CreateWalletType.privateKey
+            this.createTimestamp = new Date().valueOf()
+            this.accountTitle = this.accountTitle || this.generateWalletTitle(CreateWalletType.privateKey, CoinType.xem, NetworkType[networkType])
             this.addNewWalletToList(store)
             return this
         } catch (error) {
@@ -87,6 +86,7 @@ export class AppWallet {
             this.publicKey = account.publicKey
             this.networkType = networkType
             this.active = true
+            this.createTimestamp = new Date().valueOf()
             this.path = path
             this.accountTitle = this.generateWalletTitle(CreateWalletType.seed, CoinType.xem, NetworkType[networkType])
             this.sourceType = CreateWalletType.seed
@@ -116,6 +116,7 @@ export class AppWallet {
             this.publicKey = account.publicKey
             this.networkType = networkType
             this.active = true
+            this.createTimestamp = new Date().valueOf()
             this.path = path
             this.accountTitle = this.generateWalletTitle(CreateWalletType.seed, CoinType.xem, NetworkType[networkType])
             this.sourceType = CreateWalletType.seed
@@ -279,7 +280,6 @@ export class AppWallet {
 
         let newWallet = walletList[newWalletIndex]
         newWallet.active = true
-
         let newWalletList = [...walletList]
         newWalletList
             .filter(wallet => wallet.address !== newActiveWalletAddress)
@@ -320,6 +320,26 @@ export class AppWallet {
             // do nothing
         }
     }
+
+    updateWalletName(
+        accountName: string,
+        newWalletName: string,
+        walletAddress: string,
+        store: any
+    ) {
+        let accountMap = JSON.parse(localRead('accountMap'))
+        accountMap[accountName]['wallets'].every((item, index) => {
+            if (item.address == walletAddress) {
+                accountMap[accountName]['wallets'][index].name = newWalletName
+                return false
+            }
+            return true
+        })
+
+        localSave('accountMap', JSON.stringify(accountMap))
+        store.commit('SET_WALLET_LIST', accountMap[accountName]['wallets'])
+    }
+
 
     updateWallet(store: any) {
         const accountName = store.state.account.accountName
@@ -392,55 +412,6 @@ export class AppWallet {
     }
 }
 
-export const getNamespaces = async (address: string, node: string) => {
-    let list = []
-    let namespace = {}
-    await new NamespaceApiRxjs().getNamespacesFromAccount(
-        Address.createFromRawAddress(address),
-        node
-    ).then((namespacesFromAccount) => {
-        namespacesFromAccount.result.namespaceList
-            .sort((a, b) => {
-                return a['namespaceInfo']['depth'] - b['namespaceInfo']['depth']
-            }).map((item, index) => {
-            if (!item) {
-                return
-            }
-            if (!namespace.hasOwnProperty(item.namespaceInfo.id.toHex())) {
-                namespace[item.namespaceInfo.id.toHex()] = item.namespaceName
-            } else {
-                return
-            }
-            let namespaceName = ''
-            item.namespaceInfo.levels.map((item, index) => {
-                namespaceName += namespace[item.id.toHex()] + '.'
-            })
-            namespaceName = namespaceName.slice(0, namespaceName.length - 1)
-            const newObj = {
-                id: item.namespaceInfo.id,
-                hex: item.namespaceInfo.id.toHex(),
-                value: namespaceName,
-                label: namespaceName,
-                namespaceInfo: item.namespaceInfo,
-                isActive: item.namespaceInfo.active,
-                alias: item.namespaceInfo.alias,
-                levels: item.namespaceInfo.levels.length,
-                endHeight: item.namespaceInfo.endHeight.compact(),
-            }
-            list.push(newObj)
-
-        })
-    })
-    return list
-}
-
-export const createRootNamespace = (namespaceName, duration, networkType, maxFee) => {
-    return new NamespaceApiRxjs().createdRootNamespace(namespaceName, duration, networkType, maxFee)
-}
-
-export const createSubNamespace = (rootNamespaceName, subNamespaceName, networkType, maxFee) => {
-    return new NamespaceApiRxjs().createdSubNamespace(subNamespaceName, rootNamespaceName, networkType, maxFee)
-}
 export const multisigAccountInfo = (address, node) => {
     return new MultisigApiRxjs().getMultisigAccountInfo(address, node).subscribe((multisigInfo) => {
         return multisigInfo
@@ -453,66 +424,4 @@ export const createBondedMultisigTransaction = (transaction: Array<Transaction>,
 
 export const createCompleteMultisigTransaction = (transaction: Array<Transaction>, multisigPublickey: string, networkType: NetworkType, fee: number) => {
     return new MultisigApiRxjs().completeMultisigTransaction(networkType, fee, multisigPublickey, transaction)
-}
-
-export const getMosaicList = async (address: string, node: string) => {
-    let mosaicList: Mosaic[] = []
-    await new AccountApiRxjs().getAccountInfo(address, node).toPromise().then(accountInfo => {
-        mosaicList = accountInfo.mosaics
-    }).catch((_) => {
-        return
-    })
-    return mosaicList
-}
-
-export const getMosaicInfoList = async (node: string, mosaicList: Mosaic[], currentHeight: any, isShowExpired: boolean = true) => {
-    let mosaicInfoList: MosaicInfo[] = []
-
-
-    let mosaicIds: any = mosaicList.map((item) => {
-        return item.id
-    })
-    await new MosaicApiRxjs().getMosaics(node, mosaicIds).toPromise().then(mosaics => {
-        if (!isShowExpired) {
-            mosaics.map((mosaic) => {
-                const duration = mosaic['properties'].duration.compact()
-                const createHeight = mosaic.height.compact()
-                if (duration === 0 || duration + createHeight > Number(currentHeight)) {
-                    mosaicInfoList.push(mosaic)
-                }
-            })
-            return
-        } else {
-            mosaicInfoList = mosaics
-        }
-    }).catch((_) => {
-        return
-    })
-    return mosaicInfoList
-}
-
-export const buildMosaicList = (mosaicList: Mosaic[], coin1: string, currentXem: string): any => {
-    const mosaicListRst = mosaicList.map((mosaic: any) => {
-        mosaic._amount = mosaic.amount.compact()
-        mosaic.value = mosaic.id.toHex()
-        if (mosaic.value == coin1) {
-            mosaic.label = currentXem + ' (' + mosaic._amount + ')'
-        } else {
-            mosaic.label = mosaic.id.toHex() + ' (' + mosaic._amount + ')'
-        }
-        return mosaic
-    })
-    let isCoinExist = mosaicListRst.every((mosaic) => {
-        if (mosaic.value == coin1) {
-            return false
-        }
-        return true
-    })
-    if (isCoinExist) {
-        mosaicListRst.unshift({
-            value: coin1,
-            label: 'nem.xem'
-        })
-    }
-    return mosaicListRst
 }

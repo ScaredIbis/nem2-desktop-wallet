@@ -10,7 +10,7 @@
                 class="asset_type"
         >
           <Option v-for="item in multisigPublickeyList" :value="item.value" :key="item.value">
-            {{ item.label }}
+            {{ item.label.substring(0,20) }}******{{item.label.substr(-20,20) }}
           </Option>
        </Select>
       </span>
@@ -92,8 +92,8 @@
           <div class="mosaic_list_item_container scroll">
 
             <div class="mosaic_list_item radius" v-for="(m,index) in formItem.mosaicTransferList">
-              <span class="mosaic_name overflow_ellipsis">{{m.id.id.toHex()}}</span>
-              <span class="mosaic_amount overflow_ellipsis">{{m.amount.compact()}}</span>
+              <span class="mosaic_name overflow_ellipsis">{{mosaics[m.id.id.toHex()].name||m.id.id.toHex()}}</span>
+              <span class="mosaic_amount overflow_ellipsis">{{getRelativeMosaicAmount(m.amount.compact(),mosaics[currentMosaic].properties.divisibility)}}</span>
               <span class="icon_delete" @click="removeMosaic(index)"></span>
             </div>
 

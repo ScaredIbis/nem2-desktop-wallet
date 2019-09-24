@@ -3,7 +3,7 @@ import WalletImportKeystore from '@/views/wallet/wallet-import-keystore/WalletIm
 import WalletImportPrivatekey from '@/views/wallet/wallet-import-privatekey/WalletImportPrivatekey.vue'
 import AccountImportHardware from '@/views/login/init-seed/account-import-hardware/AccountImportHardware.vue'
 import { networkTypeConfig } from '@/config/view/setting'
-import { walletImportNavagatorConfig } from '@/config/view/wallet'
+import { walletImportNavigatorConfig } from '@/config/view/wallet'
 
 @Component({
     components: {
@@ -16,7 +16,7 @@ export class WalletImportTs extends Vue {
     tabIndex = 0
     currentTab = 'mnemonic'
     netType = networkTypeConfig
-    navagatorList = walletImportNavagatorConfig
+    navagatorList = walletImportNavigatorConfig
     currentHeadText = ''
     mnemonic = {
         mnemonic: '',

@@ -4,7 +4,7 @@ import {formDataConfig} from "@/config/view/form";
 import {networkTypeConfig} from '@/config/view/setting'
 import trezor from '@/core/utils/trezor';
 
-import { AppWallet } from '@/core/utils/wallet';
+import { AppWallet } from '@/core/model/AppWallet';
 
 @Component({
     computed: {
@@ -21,7 +21,7 @@ export class AccountImportHardwareTs extends Vue {
     account = {}
     showCheckPWDialog = false
     // TODO: prefill values (account Index and wallet name)
-    // based on existing trezor accounts
+    // based on number of existing trezor accounts
     trezorForm = formDataConfig.trezorImportForm
 
     get getNode() {
@@ -52,7 +52,7 @@ export class AccountImportHardwareTs extends Vue {
         const { accountIndex, networkType, walletName } = this.trezorForm
         console.log(trezor);
 
-        // TODO: disable the interface and tell user to interact with the trezor device
+        // TODO: disable the wallet UI and prompt user to interact with the trezor device
 
         const publicKeyResult = await trezor.getPublicKey({
             path: `m/44'/43'/${accountIndex}'`,

@@ -1,15 +1,15 @@
 import {Password} from 'nem2-sdk'
-import {AppWallet} from '@/core/utils/wallet.ts'
 import {Message} from "@/config/index.ts"
 import {Component, Vue, Prop, Watch} from 'vue-property-decorator'
 import {mapState} from 'vuex'
+import {AppWallet} from "@/core/model"
 
 @Component({
     computed: {
         ...mapState({activeAccount: 'account'})
     }
 })
-export class DeleteWalletCheckTs extends Vue {
+export class TheWalletDeleteTs extends Vue {
     activeAccount: any
     stepIndex = 0
     show = false
@@ -31,13 +31,14 @@ export class DeleteWalletCheckTs extends Vue {
     get confirmationPrompt() {
         switch(this.getWallet.sourceType) {
             case 'Trezor':
-                return 'please_enter_your_wallet_name'
+                return 'please_confirm_your_wallet_name'
             default:
                 return 'please_enter_your_wallet_password'
         }
     }
 
     checkPasswordDialogCancel() {
+        this.$emit('closeCheckPWDialog')
     }
 
     deleteByPassword() {
