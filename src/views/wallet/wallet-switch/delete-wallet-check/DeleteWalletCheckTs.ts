@@ -13,8 +13,8 @@ export class DeleteWalletCheckTs extends Vue {
     activeAccount: any
     stepIndex = 0
     show = false
-    wallet = {
-        password: ''
+    confirmation = {
+        value: ''
     }
 
     @Prop()
@@ -28,12 +28,21 @@ export class DeleteWalletCheckTs extends Vue {
         return this.activeAccount.wallet
     }
 
+    get confirmationPrompt() {
+        switch(this.getWallet.sourceType) {
+            case 'Trezor':
+                return 'please_enter_your_wallet_name'
+            default:
+                return 'please_enter_your_wallet_password'
+        }
+    }
+
     checkPasswordDialogCancel() {
     }
 
-    submit() {
+    deleteByPassword() {
         try {
-            const password = new Password(this.wallet.password)
+            const password = new Password(this.confirmation.value)
             const isPasswordCorrect = new AppWallet(this.walletToDelete).checkPassword(password)
             if (isPasswordCorrect) {
                 new AppWallet(this.walletToDelete).delete(this.$store, this)
@@ -50,9 +59,38 @@ export class DeleteWalletCheckTs extends Vue {
         }
     }
 
+    deleteByWalletNameConfirmation(){
+        try {
+            const isWalletNameCorrect = this.confirmation.value === this.getWallet.name
+            if (isWalletNameCorrect) {
+                new AppWallet(this.walletToDelete).delete(this.$store, this)
+                this.$emit('closeCheckPWDialog')
+            } else {
+                this.$Notice.error({
+                    title: this.$t(Message.WRONG_WALLET_NAME_ERROR) + ''
+                })
+            }
+        } catch (error) {
+            this.$Notice.error({
+                title: this.$t(Message.WRONG_WALLET_NAME_ERROR) + ''
+            })
+        }
+    }
+
+    submit() {
+        // based on source of wallet, use different protection mechanisms
+        switch(this.getWallet.sourceType) {
+            case 'Trezor':
+                return this.deleteByWalletNameConfirmation()
+            default:
+                return this.deleteByPassword()
+        }
+    }
+
     @Watch('showCheckPWDialog')
     onShowCheckPWDialogChange() {
-        this.wallet.password = ''
+        this.confirmation.value = '';
+
         this.show = this.showCheckPWDialog
     }
 }
