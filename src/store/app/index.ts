@@ -22,6 +22,7 @@ declare interface appInfo {
     transactionsLoading: boolean,
     xemUsdPrice: Number,
     namespaceLoading: boolean
+    multisigLoading: boolean
 }
 
 export default {
@@ -46,6 +47,7 @@ export default {
         transactionsLoading: false,
         namespaceLoading: true,
         xemUsdPrice: 0,
+        multisigLoading: true,
         _ENABLE_TREZOR_: localRead("_ENABLE_TREZOR_") === "true"
     },
     getters: {},
@@ -81,6 +83,9 @@ export default {
         },
         SET_TRANSACTIONS_LOADING(state: appInfo, bool: boolean) {
             state.transactionsLoading = bool
+        },
+        SET_MULTISIG_LOADING(state: appInfo, bool: boolean) {
+            state.multisigLoading = bool
         },
         SET_XEM_USD_PRICE(state: appInfo, value: number) {
             state.xemUsdPrice = value
