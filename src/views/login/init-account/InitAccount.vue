@@ -23,22 +23,21 @@
         <div class="button pointer" @click="jumpToOtherPage(1)">{{$t('import_wallet')}}</div>
       </div>
 
-      <!-- <div class="importHardware">
-        <div class="importIcon">
-          <img src="@/common/img/login/guide-into/guideIntoImport.png">
-        </div>
-        <p class="importTit">{{$t('WLT_file')}}</p>
-        <p class="importTxt">{{$t('Import_a_seed_file_from_a_WLT_file_or_hardware_wallet')}}</p>
-        <div class="button pointer" @click="jumpToOtherPage(2)">{{$t('import_wallet')}}</div>
-      </div> -->
-
-      <div class="importTrezor">
+      <div v-if="$store.state.app._ENABLE_TREZOR_" class="importTrezor">
         <div class="importIcon">
           <img src="@/common/img/login/guide-into/guideIntoImport.png">
         </div>
         <p class="importTit">{{$t('connect_trezor_prompt')}}</p>
         <p class="importTxt">{{$t('connect_trezor_description')}}</p>
         <div class="button pointer" @click="jumpToOtherPage(2)">{{$t('import_wallet')}}</div>
+      </div>
+      <div v-else class="importHardware">
+        <div class="importIcon">
+          <img src="@/common/img/login/guide-into/guideIntoImport.png">
+        </div>
+        <p class="importTit">{{$t('WLT_file')}}</p>
+        <p class="importTxt">{{$t('Import_a_seed_file_from_a_WLT_file_or_hardware_wallet')}}</p>
+        <div class="button disabled un_click" @click="">{{$t('import_wallet')}}</div>
       </div>
     </div>
   </div>

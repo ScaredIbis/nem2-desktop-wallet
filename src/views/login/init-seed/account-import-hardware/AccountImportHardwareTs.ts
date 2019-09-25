@@ -3,6 +3,7 @@ import {Component, Vue} from 'vue-property-decorator'
 import {formDataConfig} from "@/config/view/form";
 import {networkTypeConfig} from '@/config/view/setting'
 import trezor from '@/core/utils/trezor';
+import { RawAddress } from "nem2-sdk";
 
 import { AppWallet } from '@/core/model/AppWallet';
 
@@ -50,7 +51,6 @@ export class AccountImportHardwareTs extends Vue {
 
     async importAccountFromTrezor() {
         const { accountIndex, networkType, walletName } = this.trezorForm
-        console.log(trezor);
 
         // TODO: disable the wallet UI and prompt user to interact with the trezor device
 
@@ -59,25 +59,25 @@ export class AccountImportHardwareTs extends Vue {
             coin: "NEM"
         })
 
-        const accountResult = await trezor.nemGetAddress({
-            path: `m/44'/43'/${accountIndex}'`,
-            network: networkType
-        })
 
-        if(accountResult.success && publicKeyResult.success) {
-            const { serializedPath, address } = accountResult.payload;
-            const { publicKey } = publicKeyResult.payload;
+        if(publicKeyResult.success) {
+            const { publicKey, serializedPath } = publicKeyResult.payload;
+
+            const addressArray = RawAddress.publicKeyToAddress(publicKey, networkType);
+
+            const addressString = addressArray
+            .reduce((accumulated, chunk) => `${accumulated}${chunk.toString(16)}`, "");
 
             new AppWallet().createFromTrezor(
                 walletName,
                 networkType,
                 serializedPath,
                 publicKey,
-                address,
+                addressString,
                 this.$store
             );
         } else {
-            console.log('AUTHENTICATION FAILED: ', accountResult);
+            console.log('AUTHENTICATION FAILED: ', publicKeyResult);
         }
     }
 }
