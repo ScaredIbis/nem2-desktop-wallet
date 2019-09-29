@@ -10,7 +10,7 @@
             :mask-closable="false"
             >
 
-      <div class="uiDisabledMessage">{{$t($store.state.app.uiDisabledMessage)}}</div>
+      <div class="uiDisabledMessage">{{$t(message)}}</div>
     </Modal>
 
   </div>

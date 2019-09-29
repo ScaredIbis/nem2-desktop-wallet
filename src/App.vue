@@ -1,11 +1,7 @@
 <template>
   <div id="app" :class="[isWindows?'windows':'mac']">
     <router-view/>
-    <DisabledUiOverlay
-      :showOverlay='$store.state.app.isUiDisabled'
-      :message='$store.state.app.uiDisabledMessage'
-    >
-    </DisabledUiOverlay>
+    <DisabledUiOverlay/>
   </div>
 </template>
 

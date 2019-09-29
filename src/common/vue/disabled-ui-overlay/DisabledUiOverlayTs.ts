@@ -1,16 +1,15 @@
 import {mapState} from "vuex"
-import {Component, Prop, Vue} from 'vue-property-decorator'
+import {Component, Vue} from 'vue-property-decorator'
 
 @Component({
-    computed: {...mapState({activeAccount: 'account'})},
+    computed: {...mapState({app: 'app'})},
 })
-export class DisabledUiOverlayTs extends Vue {
 
-    @Prop({ default: false })
-    showOverlay: boolean
+export class DisabledUiOverlayTs extends Vue {
+    app: any;
 
     get show() {
-        return this.showOverlay
+        return this.app.isUiDisabled
     }
 
     set show(val) {
@@ -18,4 +17,9 @@ export class DisabledUiOverlayTs extends Vue {
             this.$emit('close')
         }
     }
+
+    get message() {
+        return this.app.uiDisabledMessage
+    }
+
 }
