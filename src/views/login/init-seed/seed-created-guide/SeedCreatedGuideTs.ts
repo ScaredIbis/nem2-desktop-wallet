@@ -3,7 +3,8 @@ import {Password} from "nem2-sdk"
 import {Component, Prop, Vue} from 'vue-property-decorator'
 import {randomMnemonicWord} from "@/core/utils/hdWallet.ts"
 import {mapState} from "vuex"
-import {AppWallet} from "@/core/model"
+import {AppWallet, AppInfo, StoreAccount} from "@/core/model"
+import {localRead} from "@/core/utils"
 
 @Component({
     computed: {
@@ -14,8 +15,8 @@ import {AppWallet} from "@/core/model"
     }
 })
 export class SeedCreatedGuideTs extends Vue {
-    app: any
-    activeAccount: any
+    app: AppInfo
+    activeAccount: StoreAccount
     tags = 0
     mosaics = []
     storeWallet = {}
@@ -37,6 +38,10 @@ export class SeedCreatedGuideTs extends Vue {
 
     get formInfo() {
         return this.createForm
+    }
+
+    get accountName() {
+        return this.activeAccount.accountName
     }
 
     get walletList() {
@@ -107,14 +112,15 @@ export class SeedCreatedGuideTs extends Vue {
     }
 
     createFromMnemonic() {
-        const {seed, password, currentNetType} = this.formInfo
-        console.log(seed, password, currentNetType)
+        const {accountName} = this
+        const {seed, password} = this.formInfo
+        const currentNetType = JSON.parse(localRead('accountMap'))[accountName].currentNetType
         try {
             new AppWallet().createFromMnemonic(
                 'seedWallet',
-                new Password(this.createForm.password),
-                this.createForm.seed,
-                this.createForm.currentNetType,
+                new Password(password),
+                seed,
+                currentNetType,
                 this.$store,
             )
         } catch (error) {
@@ -128,6 +134,6 @@ export class SeedCreatedGuideTs extends Vue {
     }
 
     toBack() {
-        this.$emit('updatePageIndex', 0)
+        this.$router.back()
     }
 }

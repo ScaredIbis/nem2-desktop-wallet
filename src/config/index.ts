@@ -89,18 +89,21 @@ export const Message = {
     MOSAIC_LIST_NULL_ERROR: 'The_mosaic_to_be_sent_is_empty',
     ADDRESS_ALIAS_NOT_EXIST_ERROR: 'address_alias_not_exist',
     MOSAIC_ALIAS_NOT_EXIST_ERROR: 'mosaic_alias_not_exist',
-    HD_WALLET_PATH_ERROR: 'hd_wallet_path_error'
+    HD_WALLET_PATH_ERROR: 'hd_wallet_path_error',
+    NODE_EXISTS_ERROR:'node_exists_error',
+    SEED_WALLET_OVERFLOW_ERROR:'seed_wallet_can_not_be_more_than_10'
 }
 
 export const defaultNetworkConfig = {
     currentXem: 'nem.xem',
     currentXEM1: '',
     XEM: 'XEM',
-    gas2xemRate: 20000   //  1xem=20000gas
+    gas2xemRate: 20000,   //  1xem=20000gas
+    networkConfirmations: 10,
 }
 
 export const networkConfig = {
-    currentGenerateTime: 12,
+    targetBlockTime: 12,
     publicKey: "",
     generationHash: "",
     enableVerifiableState: true,
@@ -147,7 +150,7 @@ export const networkConfig = {
     maxNamespaceDepth: 3,
     minNamespaceDuration: "1m",
     maxNamespaceDuration: "365d",
-    namespaceGracePeriodDuration: 432000,//s
+    namespaceGracePeriodDuration: 156000,//s
     reservedRootNamespaceNames: ["xem", "nem", "user", "account", "org", "com", "biz", "net", "edu", "mil", "gov", "info"],
     testMnemonicStirng: 'this is a test string his is a test string this is',
     namespaceRentalFeeSinkPublicKey: "3E82E1C1E4A75ADAA3CBA8C101C3CD31D9817A2EB966EB3B511FB2ED45B8E262",
@@ -156,7 +159,8 @@ export const networkConfig = {
     maxAccountRestrictionValues: 512,
     maxMosaicRestrictionValues: 20,
     maxMessageSize: 1024,
-    namespaceListSize: 9
+    namespaceListSize: 9,
+    seedWalletMaxAmount:10
 }
 
 

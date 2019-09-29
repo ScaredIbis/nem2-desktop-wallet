@@ -4,8 +4,12 @@ import {formDataConfig} from "@/config/view/form";
 import {networkTypeConfig} from '@/config/view/setting'
 import trezor from '@/core/utils/trezor';
 import { RawAddress } from "nem2-sdk";
+<<<<<<< HEAD
 
 import { AppWallet } from '@/core/model/AppWallet';
+=======
+import {AppInfo, StoreAccount, AppWallet} from "@/core/model"
+>>>>>>> upstream/master
 
 @Component({
     computed: {
@@ -16,8 +20,13 @@ import { AppWallet } from '@/core/model/AppWallet';
     }
 })
 export class AccountImportHardwareTs extends Vue {
+<<<<<<< HEAD
     activeAccount: any
     app: any
+=======
+    activeAccount: StoreAccount
+    app: AppInfo
+>>>>>>> upstream/master
     NetworkTypeList = networkTypeConfig
     account = {}
     showCheckPWDialog = false
@@ -62,9 +71,7 @@ export class AccountImportHardwareTs extends Vue {
 
         if(publicKeyResult.success) {
             const { publicKey, serializedPath } = publicKeyResult.payload;
-
             const addressArray = RawAddress.publicKeyToAddress(publicKey, networkType);
-
             const addressString = addressArray
             .reduce((accumulated, chunk) => `${accumulated}${chunk.toString(16)}`, "");
 

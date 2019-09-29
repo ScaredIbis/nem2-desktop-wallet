@@ -12,7 +12,7 @@ import NamespaceAddressAliasDialog
     from '@/views/service/namespace/namespace-function/namespace-list/namespace-address-alias-dialog/NamespaceAddressAliasDialog.vue'
 import {AppMosaics} from '@/core/services/mosaics'
 import {MosaicNamespaceStatusType} from "@/core/model/MosaicNamespaceStatusType"
-import {sortByBindType, sortByduration, sortByName, sortByOwnerShip} from "@/core/services/namespace"
+import {sortByBindInfo, sortByBindType, sortByduration, sortByName, sortByOwnerShip} from "@/core/services/namespace"
 import {namespaceSortType} from "@/config/view/namespace"
 
 @Component({
@@ -44,11 +44,10 @@ export class NamespaceListTs extends Vue {
     isShowAddressAliasDialog = false
     StatusString = MosaicNamespaceStatusType
     namespaceGracePeriodDuration = networkConfig.namespaceGracePeriodDuration
-    newList: any
     namespaceSortType = namespaceSortType
     currentNamespacelist = []
     currentSortType = ''
-    isShowExpiredNamesapce = false
+    isShowExpiredNamesapce = true
     isShowMosaicAlias = false
     dataLength = 0
 
@@ -116,22 +115,22 @@ export class NamespaceListTs extends Vue {
 
     getSortType(type) {
         this.currentSortType = type
-        this.dataLength = this.currentNamespacelist.length
+        const currentNamespacelist = [...this.currentNamespacelist]
         switch (type) {
             case namespaceSortType.byName:
-                this.currentNamespacelist = sortByName(this.namespaceList)
+                this.currentNamespacelist = sortByName(currentNamespacelist)
                 break
             case namespaceSortType.byDuration:
-                this.currentNamespacelist = sortByduration(this.namespaceList)
+                this.currentNamespacelist = sortByduration(currentNamespacelist)
                 break
             case namespaceSortType.byBindInfo:
-                this.currentNamespacelist = sortByBindType(this.namespaceList)
+                this.currentNamespacelist = sortByBindInfo(currentNamespacelist)
                 break
             case namespaceSortType.byBindType:
-                this.currentNamespacelist = sortByBindType(this.namespaceList)
+                this.currentNamespacelist = sortByBindType(currentNamespacelist)
                 break
             case namespaceSortType.byOwnerShip:
-                this.currentNamespacelist = sortByOwnerShip(this.namespaceList)
+                this.currentNamespacelist = sortByOwnerShip(currentNamespacelist)
                 break
         }
     }
@@ -201,10 +200,19 @@ export class NamespaceListTs extends Vue {
         this.isShowExpiredNamesapce = !isShowExpiredNamesapce
     }
 
-    created() {
+    @Watch('namespaceList', {deep: true})
+    onNamespaceListChange() {
+
+        this.initNamespace()
+    }
+
+    initNamespace() {
         this.getSortType(namespaceSortType.byDuration)
         this.toggleIsShowExpiredNamesapce()
     }
 
+    mounted() {
+        this.initNamespace()
+    }
 
 }

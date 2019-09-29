@@ -5,6 +5,7 @@ import {Address, AddressAlias, AliasActionType, NamespaceId, Password} from "nem
 import {formatAddress, formatSeconds} from "@/core/utils/utils.ts"
 import {mapState} from "vuex"
 import {AppWallet} from "@/core/model"
+import {getAbsoluteMosaicAmount, getRelativeMosaicAmount} from "@/core/utils"
 
 @Component({
     computed: {
@@ -54,6 +55,10 @@ export class NamespaceAddressAliasDialogTs extends Vue {
 
     get aliasList() {
         return this.namespaceList.filter(namespace => namespace.alias instanceof AddressAlias)
+    }
+
+    get xemDivisibility() {
+        return this.activeAccount.xemDivisibility
     }
 
     showUnLink(index) {
@@ -130,6 +135,7 @@ export class NamespaceAddressAliasDialogTs extends Vue {
     }
 
     addressAlias(type) {
+        const fee = getAbsoluteMosaicAmount(this.formItem.fee, this.xemDivisibility)
         let transaction = new NamespaceApiRxjs().addressAliasTransaction(
             type ? AliasActionType.Link : AliasActionType.Unlink,
             new NamespaceId(this.formItem.alias),

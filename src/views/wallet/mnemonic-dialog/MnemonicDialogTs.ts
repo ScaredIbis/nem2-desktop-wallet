@@ -1,9 +1,13 @@
-import {Component, Vue, Prop, Watch} from 'vue-property-decorator'
+import {Component, Vue, Prop} from 'vue-property-decorator'
 import {mapState} from "vuex"
 import {Password} from "nem2-sdk"
 import {AppLock} from '@/core/utils/appLock'
 import {randomMnemonicWord} from "@/core/utils/hdWallet.ts"
-import {AppWallet} from "@/core/model"
+import {AppWallet, StoreAccount} from "@/core/model"
+import {copyTxt} from "@/core/utils"
+import {Message} from "@/config"
+import {MnemonicPassPhrase} from 'nem2-hd-wallets'
+import {MnemonicQR} from 'nem2-qr-library'
 
 @Component({
     computed: {
@@ -13,8 +17,7 @@ import {AppWallet} from "@/core/model"
     }
 })
 export class MnemonicDialogTs extends Vue {
-    activeAccount: any
-    show = false
+    activeAccount: StoreAccount
     stepIndex = 0
     mnemonic = ''
     mnemonicRandomArr = []
@@ -22,8 +25,19 @@ export class MnemonicDialogTs extends Vue {
         password: '',
         mnemonicWords: ''
     }
+
     @Prop()
     showMnemonicDialog: boolean
+
+    get show() {
+        return this.showMnemonicDialog
+    }
+
+    set show(val) {
+        if (!val) {
+            this.$emit('close')
+        }
+    }
 
     get getWallet() {
         return this.activeAccount.wallet
@@ -31,6 +45,20 @@ export class MnemonicDialogTs extends Vue {
 
     get path() {
         return this.getWallet.path
+    }
+
+    get generationHash() {
+        return this.activeAccount.generationHash
+    }
+
+    get QRCode(): string {
+        const {generationHash, getWallet} = this
+        const {networkType} = getWallet
+        const {password, mnemonicWords} = this.wallet
+        if (password.length < 8) return ''
+        const mnemonic = new MnemonicPassPhrase(mnemonicWords)
+        return new MnemonicQR(mnemonic, new Password(password), networkType, generationHash)
+            .toBase64()
     }
 
     mnemonicDialogCancel() {
@@ -70,6 +98,16 @@ export class MnemonicDialogTs extends Vue {
         this.mnemonic = AppLock.decryptString(this.getWallet.encryptedMnemonic, this.wallet.password)
         this.mnemonicRandomArr = randomMnemonicWord(this.mnemonic.split(' '))
         this.stepIndex = 1
+    }
+
+    copyMnemonic() {
+        copyTxt(this.mnemonic).then((data) => {
+            this.$Notice.success({
+                title: this.$t(Message.COPY_SUCCESS) + ''
+            })
+        }).catch((error) => {
+            console.log(error)
+        })
     }
 
     checkInput() {
@@ -140,11 +178,5 @@ export class MnemonicDialogTs extends Vue {
             return false
         }
         return true
-    }
-
-    // @TODO: use v-model
-    @Watch('showMnemonicDialog')
-    onShowMnemonicDialogChange() {
-        this.show = this.showMnemonicDialog
     }
 }

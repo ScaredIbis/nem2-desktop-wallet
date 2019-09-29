@@ -9,7 +9,7 @@ import {MessageType} from "nem2-sdk/dist/src/model/transaction/MessageType"
 import {NamespaceApiRxjs} from "@/core/api/NamespaceApiRxjs"
 import {standardFields} from "@/core/validation"
 import ErrorTooltip from '@/views/other/forms/errorTooltip/ErrorTooltip.vue'
-import {createBondedMultisigTransaction, createCompleteMultisigTransaction, AppMosaic, AppWallet} from "@/core/model"
+import {createBondedMultisigTransaction, createCompleteMultisigTransaction, AppMosaic, AppWallet, AppInfo, StoreAccount} from "@/core/model"
 import {formDataConfig} from '@/config/view/form'
 
 @Component({
@@ -26,7 +26,8 @@ import {formDataConfig} from '@/config/view/form'
 })
 export class TransactionFormTs extends Vue {
     @Provide() validator: any = this.$validator
-    activeAccount: any
+    activeAccount: StoreAccount
+    app: AppInfo
     isShowPanel = true
     transactionList = []
     transactionDetail = {}
@@ -40,7 +41,6 @@ export class TransactionFormTs extends Vue {
     isAddressMapNull = true
     formItem = formDataConfig.multisigTransferForm
     standardFields: object = standardFields
-    app: any
     getRelativeMosaicAmount = getRelativeMosaicAmount
 
     get addressAliasMap() {
@@ -51,8 +51,8 @@ export class TransactionFormTs extends Vue {
         }
         this.isAddressMapNull = true
         return addressAliasMap
-    } 
-    
+    }
+
     get isSelectedAccountMultisig(): boolean {
         return this.activeAccount.activeMultisigAccount ? true : false
     }
@@ -68,11 +68,11 @@ export class TransactionFormTs extends Vue {
           : null
     }
 
-    get multisigMosaicList(): AppMosaic[] {
+    get multisigMosaicList(): Record<string, AppMosaic> {
         const {activeMultisigAccountAddress} = this
         const {multisigAccountsMosaics} = this.activeAccount
-        if (!activeMultisigAccountAddress) return []
-        return multisigAccountsMosaics[activeMultisigAccountAddress] || []
+        if (!activeMultisigAccountAddress) return {}
+        return multisigAccountsMosaics[activeMultisigAccountAddress] || {}
     }
 
     get currentMinApproval(): number {
@@ -156,7 +156,7 @@ export class TransactionFormTs extends Vue {
         // @TODO: would be better to return a loading indicator
         // instead of an empty array ([] = "no matching data" in the select dropdown)
         const {mosaics, currentHeight, multisigMosaicList, isSelectedAccountMultisig} = this
-        const mosaicMap = isSelectedAccountMultisig ? multisigMosaicList : mosaics 
+        const mosaicMap = isSelectedAccountMultisig ? multisigMosaicList : mosaics
         const mosaicList: any = Object.values(mosaicMap)
         // @TODO: refactor, make it an AppMosaic method
         return [...mosaicList]
@@ -388,7 +388,7 @@ export class TransactionFormTs extends Vue {
             })
         }
         this.initForm()
-    } 
+    }
 
 
     @Watch('formItem.multisigPublickey')
