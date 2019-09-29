@@ -4,12 +4,7 @@ import {formDataConfig} from "@/config/view/form";
 import {networkTypeConfig} from '@/config/view/setting'
 import trezor from '@/core/utils/trezor';
 import { RawAddress } from "nem2-sdk";
-<<<<<<< HEAD
-
-import { AppWallet } from '@/core/model/AppWallet';
-=======
 import {AppInfo, StoreAccount, AppWallet} from "@/core/model"
->>>>>>> upstream/master
 
 @Component({
     computed: {
@@ -20,13 +15,8 @@ import {AppInfo, StoreAccount, AppWallet} from "@/core/model"
     }
 })
 export class AccountImportHardwareTs extends Vue {
-<<<<<<< HEAD
-    activeAccount: any
-    app: any
-=======
     activeAccount: StoreAccount
     app: AppInfo
->>>>>>> upstream/master
     NetworkTypeList = networkTypeConfig
     account = {}
     showCheckPWDialog = false
