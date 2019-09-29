@@ -3,8 +3,8 @@ import {Component, Vue} from 'vue-property-decorator'
 import {formDataConfig} from "@/config/view/form";
 import {networkTypeConfig} from '@/config/view/setting'
 import trezor from '@/core/utils/trezor';
-import { Address } from "nem2-sdk";
-import {AppInfo, StoreAccount, AppWallet} from "@/core/model"
+import { Address } from 'nem2-sdk';
+import {AppInfo, StoreAccount, AppWallet} from '@/core/model'
 
 @Component({
     computed: {
@@ -51,7 +51,10 @@ export class AccountImportHardwareTs extends Vue {
     async importAccountFromTrezor() {
         const { accountIndex, networkType, walletName } = this.trezorForm
 
-        // TODO: disable the wallet UI and prompt user to interact with the trezor device
+        this.$store.commit('SET_UI_DISABLED', {
+            isDisabled: true,
+            message: "trezor_awaiting_interaction"
+        });
 
         const publicKeyResult = await trezor.getPublicKey({
             path: `m/44'/43'/${accountIndex}'`,
@@ -70,8 +73,11 @@ export class AccountImportHardwareTs extends Vue {
                 address.plain(),
                 this.$store
             );
-        } else {
-            console.log('AUTHENTICATION FAILED: ', publicKeyResult);
         }
+
+        this.$store.commit('SET_UI_DISABLED', {
+            isDisabled: false,
+            message: ""
+        });
     }
 }
