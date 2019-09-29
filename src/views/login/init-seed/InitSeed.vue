@@ -11,23 +11,34 @@
       </ul>
     </div>
     <div class="walletFnContent radius">
-      <AccountCreateMnemonic
-              v-if="pageIndex === 0  "
-              @isCreated="isCreated"
-              @updatePageIndex="updatePageIndex">
-      </AccountCreateMnemonic>
-      <AccountImportMnemonic
-              v-if="pageIndex === 1  "
-              @updatePageIndex="updatePageIndex"
-      >
-      </AccountImportMnemonic>
       <SeedCreatedGuide
-              v-if="pageIndex === 2 "
+              v-if="pageIndex === -1"
               :createForm='createForm'
               @updatePageIndex="updatePageIndex"
       >
       </SeedCreatedGuide>
+<!--      <AccountCreateMnemonic-->
+<!--              v-if="pageIndex === 0"-->
+<!--              @isCreated="isCreated"-->
+<!--              @updatePageIndex="updatePageIndex">-->
+<!--      </AccountCreateMnemonic>-->
+      <AccountImportMnemonic
+              v-if="pageIndex === 1"
+              @updatePageIndex="updatePageIndex"
+      >
+      </AccountImportMnemonic>
+      <AccountImportHardware
+              v-if="pageIndex === 2"
+              @updatePageIndex="updatePageIndex"
+      >
+      </AccountImportHardware>
     </div>
+    <CheckPasswordDialog
+            :showCheckPWDialog="showCheckPWDialog"
+            :isOnlyCheckPassword="true"
+            @closeCheckPWDialog="closeCheckPWDialog"
+            @checkEnd="checkEnd"
+    ></CheckPasswordDialog>
   </div>
 </template>
 

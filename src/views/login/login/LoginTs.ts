@@ -1,9 +1,10 @@
-import {localSave} from '@/core/utils/utils.ts'
+import {localRead, localSave} from '@/core/utils/utils.ts'
 import {Component, Vue} from 'vue-property-decorator'
 import GetStart from './login-view/get-start/GetStart.vue'
 import InputLock from './login-view/input-lock/InputLock.vue'
 import {mapState} from "vuex"
-import {languageConfig} from "@/config/view/language";
+import {languageConfig} from "@/config/view/language"
+import {AppInfo} from "@/core/model"
 
 @Component({
     components: {
@@ -17,7 +18,7 @@ import {languageConfig} from "@/config/view/language";
     }
 })
 export class LoginTs extends Vue {
-    app: any
+    app: AppInfo
     languageList = languageConfig
     isShowDialog = true
     indexShowList = [true, false]
@@ -56,5 +57,9 @@ export class LoginTs extends Vue {
 
     mounted() {
         this.isCallShowIndexView()
+    }
+
+    created() {
+        if (localRead('accountMap')) this.indexShowList = [false, true]
     }
 }

@@ -2,8 +2,8 @@ import {Message} from "@/config/index.ts"
 import {Password} from "nem2-sdk"
 import {Component, Prop, Vue} from 'vue-property-decorator'
 import {randomMnemonicWord} from "@/core/utils/hdWallet.ts"
-import {AppWallet} from "@/core/utils/wallet.ts"
 import {mapState} from "vuex"
+import {AppWallet, AppInfo, StoreAccount} from "@/core/model"
 
 @Component({
     computed: {
@@ -14,8 +14,8 @@ import {mapState} from "vuex"
     }
 })
 export class WalletCreatedTs extends Vue {
-    app:any
-    activeAccount:any
+    app:AppInfo
+    activeAccount:StoreAccount
     tags = 0
     mosaics = []
     storeWallet = {}
@@ -57,7 +57,13 @@ export class WalletCreatedTs extends Vue {
         wordSpan.onclick = () => {
             this.$refs['mnemonicWordDiv']['removeChild'](wordSpan)
         }
-        this.$refs['mnemonicWordDiv']['append'](wordSpan)
+        const inputArray = this
+            .$refs['mnemonicWordDiv']['innerText']
+            .replace(' ', '')
+            .split("\n")
+
+        const wordInInputArray = inputArray.find(x => x === word)
+        if (wordInInputArray === undefined) this.$refs['mnemonicWordDiv']['append'](wordSpan)
     }
 
     checkMnemonic() {

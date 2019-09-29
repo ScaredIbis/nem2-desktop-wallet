@@ -4,7 +4,7 @@
     <div class="left_container radius">
       <img id="qrImg" :src="QRCode" alt="">
       <div class="qr_info">
-        <div class="amount">{{qrInfo.mosaicAmount}}({{qrInfo.mosaicHex}})</div>
+        <div class="amount">{{qrInfo.mosaicHex}} : {{qrInfo.mosaicAmount}}</div>
         <div class="address_text" id="address_text">
           {{accountAddress}}
         </div>
@@ -20,7 +20,7 @@
     </div>
     <CollectionRecord :transactionType="TransferType.RECEIVED"></CollectionRecord>
 
-    <div class="modal">
+    <div class="modal scroll">
       <div class="modal_title">{{$t('set_amount')}}</div>
       <div class="asset flex_center">
         <span class="title">{{$t('asset_type')}}</span>
@@ -56,13 +56,12 @@
       </div>
     </div>
 
-    <CollectionRecord :transactionType="TransferType.RECEIVED"/>
   </div>
 </template>
 
 <script lang="ts">
     import "./MonitorInvoice.less"
-    // @ts-ignore
+
     import {MonitorInvoiceTs} from '@/views/monitor/monitor-invoice/MonitorInvoiceTs.ts'
 
     export default class MonitorInvoice extends MonitorInvoiceTs {

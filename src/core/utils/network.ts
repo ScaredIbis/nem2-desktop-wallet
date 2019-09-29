@@ -1,12 +1,11 @@
-import {QueryParams, TransactionType, NamespaceService, NamespaceHttp} from "nem2-sdk"
+import {QueryParams, TransactionType, NamespaceService, NamespaceHttp, ChainHttp, BlockHttp} from "nem2-sdk"
 import {BlockApiRxjs} from '@/core/api/BlockApiRxjs.ts'
 import {Message} from "@/config/index.ts"
-import {AppMosaic} from '@/core/model'
-import {WebClient} from "@/core/utils/web"
-import {apiServerConfig} from "@/config/index"
+import {AppMosaic, ChainStatus} from '@/core/model'
 
 export const getNetworkGenerationHash = async (node: string, that: any): Promise<void> => {
     try {
+        that.$store.commit('SET_IS_NODE_HEALTHY', false)
         const block = await new BlockApiRxjs().getBlockByHeight(node, 1).toPromise()
         that.$store.commit('SET_IS_NODE_HEALTHY', true)
         that.$Notice.success({
@@ -54,15 +53,14 @@ export const getCurrentNetworkMosaic = async (currentNode: string, store: any) =
 
 // TODO nedd remove from here
 export const getCurrentBlockHeight = async (currentNode: string, store: any) => {
-    const resStr = await WebClient.request('', {
-        url: `${currentNode}/chain/height`,
-        method: 'GET',
-        headers: {
-            'Content-Type': 'application/x-www-form-urlencoded'
-        }
-    }).catch(
+    try {
+        const {node} = store.getters
+        const heightUint = await new ChainHttp(node).getBlockchainHeight().toPromise()
+        const height = heightUint.compact()
+        store.commit('SET_CHAIN_HEIGHT', height)
+        const blockInfo = await new BlockHttp(node).getBlockByHeight(height).toPromise()
+        store.commit('SET_CHAIN_STATUS', new ChainStatus(blockInfo))
+    } catch (error) {
         store.commit('SET_CHAIN_HEIGHT', 0)
-    )
-    const height = resStr ? JSON.parse(resStr + '').height[0] : 0
-    store.commit('SET_CHAIN_HEIGHT', height)
+    }
 }

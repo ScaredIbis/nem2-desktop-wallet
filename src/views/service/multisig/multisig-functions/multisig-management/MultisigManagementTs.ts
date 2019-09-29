@@ -4,20 +4,17 @@ import {
     MultisigCosignatoryModificationType,
     MultisigCosignatoryModification,
     PublicAccount,
-    Address,
     Deadline,
     ModifyMultisigAccountTransaction,
     UInt64
 } from 'nem2-sdk'
 import {
-    createBondedMultisigTransaction,
-    createCompleteMultisigTransaction,
-    multisigAccountInfo,
     getAbsoluteMosaicAmount,
 } from "@/core/utils"
 import {Message} from "@/config/index.ts"
 import CheckPWDialog from '@/common/vue/check-password-dialog/CheckPasswordDialog.vue'
 import {formDataConfig} from "@/config/view/form";
+import {createBondedMultisigTransaction, createCompleteMultisigTransaction, StoreAccount} from "@/core/model"
 
 @Component({
     components: {
@@ -30,7 +27,7 @@ import {formDataConfig} from "@/config/view/form";
     }
 })
 export class MultisigManagementTs extends Vue {
-    activeAccount: any
+    activeAccount: StoreAccount
     isShowPanel = true
     transactionList = []
     currentPublickey = ''
@@ -105,7 +102,6 @@ export class MultisigManagementTs extends Vue {
             lockFee: lockFee
         }
         const {hasAddCosigner} = this
-        const {cosignerList} = this.formItem
         if (this.currentMinApproval == 0) {
             return
         }
@@ -145,7 +141,7 @@ export class MultisigManagementTs extends Vue {
 
     createBondedModifyTransaction() {
         let {cosignerList, bondedFee, innerFee, minApprovalDelta, minRemovalDelta} = this.formItem
-        const {networkType, node, publicKey,xemDivisibility} = this
+        const {networkType, publicKey,xemDivisibility} = this
         innerFee = getAbsoluteMosaicAmount(innerFee, xemDivisibility)
         bondedFee = getAbsoluteMosaicAmount(bondedFee, xemDivisibility)
         const multisigCosignatoryModificationList = cosignerList.map(cosigner => new MultisigCosignatoryModification(
@@ -247,39 +243,11 @@ export class MultisigManagementTs extends Vue {
         return publickeyFlag
     }
 
-    async getMultisigAccountList() {
-        const that = this
-        const {address, node} = this
-        const multisigInfo = await multisigAccountInfo(address, node)
-        if (multisigInfo['multisigAccounts'].length == 0) {
-            that.isShowPanel = false
-            return
-        }
-        that.publickeyList = multisigInfo['multisigAccounts'].map((item) => {
-            item.value = item.publicKey
-            item.label = item.publicKey
-            return item
-        })
-    }
-
     @Watch('formItem.multisigPublickey')
-    async onMultisigPublickeyChange() {
-        const that = this
-        const {multisigPublickey} = this.formItem
-        if (multisigPublickey.length !== 64) {
-            return
-        }
-        const {networkType, node} = this
-        let address = Address.createFromPublicKey(multisigPublickey, networkType)['address']
-        const multisigInfo = await multisigAccountInfo(address, node)
-        that.existsCosignerList = multisigInfo['cosignatories'].map((item) => {
-            item.value = item.publicKey
-            item.label = item.publicKey
-            return item
-        })
-        that.currentMinApproval = multisigInfo['minApproval']
-        that.currentMinRemoval = multisigInfo['minRemoval']
-        that.currentCosignatoryList = multisigInfo['cosignatories']
+    @Watch('formItem.multisigPublickey')
+    onMultisigPublickeyChange(newPublicKey, oldPublicKey) {
+        if (!newPublicKey || newPublicKey === oldPublicKey) return
+        this.$store.commit('SET_ACTIVE_MULTISIG_ACCOUNT', newPublicKey)
     }
 
     @Watch('formItem', {immediate: true, deep: true})
@@ -287,10 +255,5 @@ export class MultisigManagementTs extends Vue {
         const {multisigPublickey, cosignerList, bondedFee, lockFee, innerFee, minApprovalDelta, minRemovalDelta} = this.formItem
         // isCompleteForm
         this.isCompleteForm = multisigPublickey.length === 64 && cosignerList.length !== 0 && bondedFee + '' !== '' && lockFee + '' !== '' && innerFee + '' !== '' && minApprovalDelta + '' !== '' && minRemovalDelta + '' !== ''
-    }
-
-    // @TODO multisig account list at higher level
-    mounted() {
-        this.getMultisigAccountList()
     }
 }

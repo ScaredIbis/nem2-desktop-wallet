@@ -1,20 +1,22 @@
 import {Component, Vue} from 'vue-property-decorator'
 import WalletImportKeystore from '@/views/wallet/wallet-import-keystore/WalletImportKeystore.vue'
 import WalletImportPrivatekey from '@/views/wallet/wallet-import-privatekey/WalletImportPrivatekey.vue'
+import AccountImportHardware from '@/views/login/init-seed/account-import-hardware/AccountImportHardware.vue'
 import { networkTypeConfig } from '@/config/view/setting'
-import { walletImportNavagatorConfig } from '@/config/view/wallet'
+import { walletImportNavigatorConfig } from '@/config/view/wallet'
 
 @Component({
     components: {
         WalletImportKeystore,
-        WalletImportPrivatekey
+        WalletImportPrivatekey,
+        AccountImportHardware
     },
 })
 export class WalletImportTs extends Vue {
     tabIndex = 0
     currentTab = 'mnemonic'
     netType = networkTypeConfig
-    navagatorList = walletImportNavagatorConfig
+    navigatorList = walletImportNavigatorConfig
     currentHeadText = ''
     mnemonic = {
         mnemonic: '',
@@ -32,13 +34,13 @@ export class WalletImportTs extends Vue {
 
 
     jumpToView(n, index) {
-        let list = this.navagatorList
+        let list = this.navigatorList
         list.map((item) => {
             item.isSelected = false
             return item
         })
         list[index].isSelected = true
-        this.navagatorList = list
+        this.navigatorList = list
         this.currentHeadText = n.title
         this.tabIndex = index
     }
@@ -96,7 +98,7 @@ export class WalletImportTs extends Vue {
     }
 
     mounted() {
-        this.jumpToView(this.navagatorList[0], 0)
-        this.currentHeadText = this.navagatorList[0].title
+        this.jumpToView(this.navigatorList[0], 0)
+        this.currentHeadText = this.navigatorList[0].title
     }
 }

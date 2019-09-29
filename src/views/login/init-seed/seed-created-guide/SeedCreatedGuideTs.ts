@@ -2,8 +2,9 @@ import {Message} from "@/config/index.ts"
 import {Password} from "nem2-sdk"
 import {Component, Prop, Vue} from 'vue-property-decorator'
 import {randomMnemonicWord} from "@/core/utils/hdWallet.ts"
-import {AppWallet} from "@/core/utils/wallet.ts"
 import {mapState} from "vuex"
+import {AppWallet, AppInfo, StoreAccount} from "@/core/model"
+import {localRead} from "@/core/utils"
 
 @Component({
     computed: {
@@ -14,8 +15,8 @@ import {mapState} from "vuex"
     }
 })
 export class SeedCreatedGuideTs extends Vue {
-    app: any
-    activeAccount: any
+    app: AppInfo
+    activeAccount: StoreAccount
     tags = 0
     mosaics = []
     storeWallet = {}
@@ -39,6 +40,10 @@ export class SeedCreatedGuideTs extends Vue {
         return this.createForm
     }
 
+    get accountName() {
+        return this.activeAccount.accountName
+    }
+
     get walletList() {
         return this.app.walletList
     }
@@ -54,7 +59,13 @@ export class SeedCreatedGuideTs extends Vue {
         wordSpan.onclick = () => {
             this.$refs['mnemonicWordDiv']['removeChild'](wordSpan)
         }
-        this.$refs['mnemonicWordDiv']['append'](wordSpan)
+        const inputArray = this
+            .$refs['mnemonicWordDiv']['innerText']
+            .replace(' ', '')
+            .split("\n")
+
+        const wordInInputArray = inputArray.find(x => x === word)
+        if (wordInInputArray === undefined) this.$refs['mnemonicWordDiv']['append'](wordSpan)
     }
 
     checkMnemonic() {
@@ -101,14 +112,15 @@ export class SeedCreatedGuideTs extends Vue {
     }
 
     createFromMnemonic() {
-        const {seed, password, currentNetType} = this.formInfo
-        console.log(seed, password, currentNetType)
+        const {accountName} = this
+        const {seed, password} = this.formInfo
+        const currentNetType = JSON.parse(localRead('accountMap'))[accountName].currentNetType
         try {
             new AppWallet().createFromMnemonic(
                 'seedWallet',
-                new Password(this.createForm.password),
-                this.createForm.seed,
-                this.createForm.currentNetType,
+                new Password(password),
+                seed,
+                currentNetType,
                 this.$store,
             )
         } catch (error) {
@@ -122,6 +134,6 @@ export class SeedCreatedGuideTs extends Vue {
     }
 
     toBack() {
-        this.$emit('updatePageIndex', 0)
+        this.$router.back()
     }
 }

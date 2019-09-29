@@ -1,11 +1,10 @@
-import {localRead} from '@/core/utils/utils.ts'
 import {Component, Vue, Watch} from 'vue-property-decorator'
 import GuideInto from '@/views/login/guide-into/GuideInto.vue'
 import WalletFn from '@/views/wallet/wallet-fn/WalletFn.vue'
 import WalletSwitch from '@/views/wallet/wallet-switch/WalletSwitch.vue'
 import WalletDetails from '@/views/wallet/wallet-details/WalletDetails.vue'
-import {getNamespaces} from "@/core/utils/wallet.ts"
 import {mapState} from "vuex"
+import {AppInfo, StoreAccount} from '@/core/model'
 
 @Component({
     components: {
@@ -22,8 +21,8 @@ import {mapState} from "vuex"
     }
 })
 export class WalletPanelTs extends Vue {
-    activeAccount: any
-    app: any
+    activeAccount: StoreAccount
+    app: AppInfo
     tabIndex = 0
     toMethod = false
 
@@ -33,10 +32,6 @@ export class WalletPanelTs extends Vue {
 
     get walletList() {
         return this.app.walletList
-    }
-
-    get reloadWalletPage() {
-        return this.app.reloadWalletPage
     }
 
     get node() {

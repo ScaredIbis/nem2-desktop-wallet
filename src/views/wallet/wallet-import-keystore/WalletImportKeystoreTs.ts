@@ -1,11 +1,11 @@
 import {Message} from "@/config/index.ts"
-import {AppWallet} from '@/core/utils/wallet.ts'
 import {Password} from "nem2-sdk"
 import {mapState} from 'vuex'
 import {Component, Vue} from 'vue-property-decorator'
 import CheckPasswordDialog from '@/common/vue/check-password-dialog/CheckPasswordDialog.vue'
 import {importKeystoreConfig} from '@/config/view/wallet'
 import {networkTypeConfig} from '@/config/view/setting'
+import {AppWallet, AppInfo, StoreAccount} from "@/core/model"
 
 @Component({
     computed: {
@@ -19,8 +19,8 @@ import {networkTypeConfig} from '@/config/view/setting'
     }
 })
 export class WalletImportKeystoreTs extends Vue {
-    activeAccount: any
-    app: any
+    activeAccount: StoreAccount
+    app: AppInfo
     file = ''
     fileList = []
     NetworkTypeList = networkTypeConfig

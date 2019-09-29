@@ -2,16 +2,17 @@ import {TransactionType} from 'nem2-sdk'
 import {mapState} from "vuex"
 import {Component, Vue} from 'vue-property-decorator'
 import {formatNumber, renderMosaics} from '@/core/utils'
-import {FormattedTransaction} from '@/core/model';
+import {FormattedTransaction, AppInfo, StoreAccount} from '@/core/model'
 import TransactionModal from '@/views/monitor/monitor-transaction-modal/TransactionModal.vue'
+import {defaultNetworkConfig} from '@/config/index'
 
 @Component({
     computed: {...mapState({activeAccount: 'account', app: 'app'})},
-    components: { TransactionModal },
+    components: {TransactionModal},
 })
 export class TransactionListTs extends Vue {
-    app: any
-    activeAccount: any
+    app: AppInfo
+    activeAccount: StoreAccount
     pageSize: number = 10
     highestPrice = 0
     isLoadingModalDetailsInfo = false
@@ -19,7 +20,7 @@ export class TransactionListTs extends Vue {
     formatNumber = formatNumber
     renderMosaics = renderMosaics
     TransactionType = TransactionType
-
+    scroll: any
     showDialog: boolean = false
     activeTransaction: FormattedTransaction = null
 
@@ -58,18 +59,27 @@ export class TransactionListTs extends Vue {
         const {currentHeight} = this
         if (!currentHeight) return height
         const confirmations = currentHeight - height
-        if (confirmations > 500) return height.toLocaleString() //@TODO 500 shouldn't be hardcoded
-        return `${confirmations} / ${height.toLocaleString()}`
+        const {networkConfirmations} = defaultNetworkConfig
+        if (confirmations > networkConfirmations) return height.toLocaleString()
+        return `(${confirmations}/${networkConfirmations}) - ${height.toLocaleString()}`
     }
 
     // @TODO: move out from there
     miniHash(hash: string): string {
-        return `${hash.substring(0, 8).toLowerCase()}...${hash.substring(54).toLowerCase()}`;
+        return `${hash.substring(0, 18).toLowerCase()}...${hash.substring(49).toLowerCase()}`
     }
 
     // @TODO: Changing tab should reset the newly selected tab's pagination to 1
-    // @TODO: Scroll to top of the list when changing page
     async changePage(page) {
         this.page = page
+        this.scrollTop()
+    }
+
+    divScroll(div) {
+        this.scroll = div
+    }
+
+    scrollTop() {
+        this.scroll.target.scrollTop = 0
     }
 }

@@ -9,8 +9,7 @@
     >
       <div class="transfer_type ">
         <span class="title">{{$t('transfer_type')}}</span>
-        <span class="value overflow_ellipsis">cdsc
-          {{activeTransaction.dialogDetailMap
+        <span class="value overflow_ellipsis">{{activeTransaction.dialogDetailMap
             ? $t(activeTransaction.dialogDetailMap.transfer_type) :'-'}}
         </span>
       </div>
@@ -67,9 +66,14 @@
           class="other_info"
           :key="key"
         >
-          <div v-if="key !=='transfer_type'">
-            <span class="title overflow_ellipsis">{{$t(key)}}</span>
+          <div v-if="key !== 'transfer_type' && key !== 'mosaic'">
+            <span class="title">{{$t(key)}}</span>
             <span class="value overflow_ellipsis">{{value}}</span>
+          </div>
+          <div v-if="key === 'mosaic'">
+            <span class="title">{{$t(key)}}</span>
+            <span class="value overflow_ellipsis">{{ renderMosaics(value, mosaicList, currentXem) }}
+            </span>
           </div>
         </div>
       </div>

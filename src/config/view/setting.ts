@@ -53,8 +53,8 @@ export const settingPanelNavigationBarConfig: Array<{
             name: 'settingNormal',
             isSelected: true
         }, {
-            navigatorTitle: 'change_password',
-            title: 'lock_password',
+            navigatorTitle: 'account_password',
+            title: 'account_password',
             name: 'settingLock',
             isSelected: false
         }, {
@@ -106,12 +106,12 @@ export const networkStatusConfig: Array<{
             icon: dashboardBlockTime,
             descript: 'average_block_time',
             data: 12,
-            variable: 'currentGenerateTime'
+            variable: 'targetBlockTime'
         }, {
             icon: dashboardPointAmount,
             descript: 'point',
             data: 4,
-            variable: 'nodeAmount'
+            variable: 'nodeNumber'
         }, {
             icon: dashboardTransactionAmount,
             descript: 'number_of_transactions',

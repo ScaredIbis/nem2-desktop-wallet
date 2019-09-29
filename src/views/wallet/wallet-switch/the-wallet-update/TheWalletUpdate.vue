@@ -5,22 +5,16 @@
             class-name="vertical-center-modal"
             :footer-hide="true"
             :transfer="false"
-            @on-cancel="checkPasswordDialogCancel">
+            @on-cancel="updateDialogCancel">
       <div slot="header" class="checkPWDialogHeader">
-        <span class="title">{{$t('delete_wallet')}} : {{getWallet.name}}</span>
+        <span class="title">{{$t('update_wallet_name')}} : {{walletToUpdate.name}}</span>
       </div>
       <div class="checkPWDialogBody">
         <div class="stepItem1">
-          <div class="checkPWImg">
-            <img src="@/common/img/wallet/walletDeleteIcon.png">
-          </div>
-          <p class="checkRemind">
-            {{$t('delete_wallet_tip', {walletName :getWallet.name})}}
-            {{$t('delete_wallet_tip')}}</p>
           <Form :model="wallet">
             <FormItem>
-              <Input v-model="wallet.password" type="password" required
-                     :placeholder="$t('please_enter_your_wallet_password')"></Input>
+              <Input v-model="wallet.name" required
+                     :placeholder="$t('please_enter_your_new_wallet_name')"></Input>
             </FormItem>
             <FormItem>
               <Button type="success" @click="submit"> {{$t('confirm')}}</Button>
@@ -34,9 +28,8 @@
 
 
 <script lang="ts">
-    import "./DeleteWalletCheck.less"
-    //@ts-ignore
-    import {DeleteWalletCheckTs} from '@/views/wallet/wallet-switch/delete-wallet-check/DeleteWalletCheckTs.ts'
+    import "./TheWalletUpdate.less"
+    import {TheWalletUpdateTs} from '@/views/wallet/wallet-switch/the-wallet-update/TheWalletUpdateTs.ts'
 
     /**
      @Prop: showCheckPWDialog
@@ -44,7 +37,7 @@
      @return: checkEnd(privatekey:string)
      */
 
-    export default class DeleteWalletCheck extends DeleteWalletCheckTs {
+    export default class TheWalletUpdate extends TheWalletUpdateTs {
     }
 </script>
 

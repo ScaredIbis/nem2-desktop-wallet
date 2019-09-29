@@ -1,5 +1,5 @@
 <template>
-  <div class="mosaic_transaction_container secondary_page_animate">
+  <div class="mosaic_transaction_container radius secondary_page_animate">
     <div class="left_switch_type">
       <div class="type_list_item " v-for="(b,index) in typeList">
         <span :class="['name',b.isSelected?'active':'','pointer']" @click="switchType(index)">{{$t(b.name)}}</span>
@@ -33,9 +33,9 @@
         </div>
 
         <div class="form_item">
-          <span class="key">{{$t('severability')}}</span>
+          <span class="key">{{$t('mosaic_divisibility')}}</span>
           <span class="value">
-            <input v-model="formItem.divisibility" type="text" :placeholder="$t('severability')">
+            <input v-model="formItem.divisibility" type="text" :placeholder="$t('mosaic_divisibility')">
             <span class="number_controller">
               <img @click="addSeverabilityAmount " class="pointer"
                    src="@/common/img/monitor/market/marketAmountUpdateArrow.png"/>
@@ -50,9 +50,6 @@
           <Checkbox class="check_box_item" v-model="formItem.transferable">{{$t('transmittable')}}</Checkbox>
           <Checkbox class="check_box_item" v-model="formItem.supplyMutable">{{$t('variable_supply')}}</Checkbox>
           <Checkbox class="check_box_item" v-model="formItem.permanent">{{$t('duration_permanent')}}</Checkbox>
-        </div>
-
-        <div class="check_box">
           <Checkbox class="check_box_item" v-model="formItem.restrictable">{{$t('restrictable')}}</Checkbox>
         </div>
 

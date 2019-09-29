@@ -1,7 +1,7 @@
 import {FormattedTransaction} from '@/core/model'
 import {getRelativeMosaicAmount} from '@/core/utils'
 import {Address, RegisterNamespaceTransaction} from 'nem2-sdk'
-import {nodeConfig} from '@/config/index.ts';
+import {defaultNetworkConfig} from '@/config/index.ts';
 
 export class FormattedAggregateBonded extends FormattedTransaction {
     dialogDetailMap: any
@@ -10,12 +10,13 @@ export class FormattedAggregateBonded extends FormattedTransaction {
     constructor( tx: RegisterNamespaceTransaction,
                 address: Address,
                 currentXem: string,
-                xemDivisibility: number) {
-        super(tx, address, currentXem, xemDivisibility)
+                xemDivisibility: number,
+                store: any) {
+        super(tx, address, currentXem, xemDivisibility, store)
 
         this.dialogDetailMap = {
             'transfer_type': this.txHeader.tag,
-            'fee': getRelativeMosaicAmount(tx.maxFee.compact(), xemDivisibility) + nodeConfig.XEM,
+            'fee': getRelativeMosaicAmount(tx.maxFee.compact(), xemDivisibility) + defaultNetworkConfig.XEM,
             'block': this.txHeader.block,
             'hash': this.txHeader.hash,
         }

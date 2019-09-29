@@ -1,17 +1,22 @@
 .aliasTable {
   padding: 0 20px;
-  .ivu-select-selection{
+  position: relative;
+
+  .ivu-select-selection {
     height: 50px;
     line-height: 50px;
-    .ivu-select-selected-value, .ivu-select-placeholder{
+
+    .ivu-select-selected-value, .ivu-select-placeholder {
       height: 50px;
       line-height: 50px;
     }
   }
-  .unLinkP{
+
+  .unLinkP {
     height: 50px;
     line-height: 50px;
   }
+
   .tableTit {
     height: 52px;
     line-height: 52px;
@@ -23,27 +28,21 @@
       padding-left: 60px;
     }
 
-    .alias_add,
-    .alias_delete {
+    .icon_add {
       display: inline-block;
-      width: 30px;
-      height: 30px;
+      width: 20px;
+      height: 20px;
       background: rgba(38, 180, 176, 1);
       border-radius: 4px;
+      position: relative;
+      left: 200px;
+      bottom: 60px;
       background-image: url("../../../../../common/img/wallet/wallet-detail/walletDetailAdd.png");
       background-size: 60%;
       background-position: center center;
       background-repeat: no-repeat;
     }
 
-    .alias_delete {
-      background: rgba(230, 108, 98, 1);
-      background-image: url("../../../../../common/img/wallet/wallet-detail/walletDetailDel.png");
-      background-size: 60%;
-      background-position: center center;
-      background-repeat: no-repeat;
-      margin-left: 30px;
-    }
   }
 
   .table_body {
@@ -109,17 +108,19 @@
       }
     }
   }
+
   .cancel {
     color: #989898;
     background: rgba(238, 238, 238, 1);
     margin-right: 20px;
   }
 
-  .checkBtn{
-    color:#fff;
-    background:#20B5AC;
+  .checkBtn {
+    color: #fff;
+    background: #20B5AC;
     margin-right: 20px;
   }
+
   .noData {
     width: 76px;
     text-align: center;
@@ -149,4 +150,33 @@
       white-space: nowrap;
     }
   }
+
+  .alias_name {
+    margin-left: 10px;
+  }
+
+  .green {
+    color: #26B4B0;
+  }
+
+  .page_list_container {
+    position: absolute;
+    top: 385px;
+    left: 600px;
+
+    .ivu-page-prev,
+    .ivu-page-item {
+      border: none;
+    }
+
+    .ivu-page-item-active a,
+    .ivu-page-item-active:hover a {
+      color: #26B4B0;
+    }
+
+    .ivu-page-next, .ivu-page-prev {
+      display: none;
+    }
+  }
+
 }

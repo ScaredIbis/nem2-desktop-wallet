@@ -6,23 +6,28 @@
 
 <script lang="ts">
     import 'animate.css'
+    import {Address} from 'nem2-sdk'
     import {mapState} from 'vuex'
     import {asyncScheduler} from 'rxjs'
     import {throttleTime} from 'rxjs/operators'
     import {isWindows} from "@/config/index.ts"
     import {
-        AppWallet,
-        checkInstall, getCurrentBlockHeight, getCurrentNetworkMosaic, getNamespaces,
+        checkInstall,
+        getCurrentBlockHeight,
+        getCurrentNetworkMosaic,
         getNetworkGenerationHash,
         getObjectLength,
-        getTopValueInObject, localRead,
+        getTopValueInObject,
+        localRead,
     } from '@/core/utils'
-    import {Component, Vue, Watch} from 'vue-property-decorator'
+    import {Component, Vue} from 'vue-property-decorator'
     import {ChainListeners} from '@/core/services/listeners.ts'
-    import {initMosaic} from '@/core/services/mosaics'
+    import {initMosaic, mosaicsAmountViewFromAddress, AppMosaics} from '@/core/services/mosaics'
     import {getMarketOpenPrice} from '@/core/services/marketData.ts'
     import {setTransactionList} from '@/core/services/transactions'
-    import {AppMosaic} from '@/core/model'
+    import {getNamespacesFromAddress} from '@/core/services'
+    import {AppMosaic, AppWallet, AppInfo, StoreAccount} from '@/core/model'
+    import {MultisigApiRxjs} from "@/core/api/MultisigApiRxjs"
 
     @Component({
         computed: {
@@ -31,13 +36,12 @@
     })
     export default class App extends Vue {
         isWindows = isWindows
-        activeAccount: any
-        app: any
+        activeAccount: StoreAccount
+        app: AppInfo
         unconfirmedTxListener = null
         confirmedTxListener = null
         txStatusListener = null
         chainListeners: ChainListeners = null
-
         get node(): string {
             return this.activeAccount.node
         }
@@ -50,6 +54,10 @@
             return this.activeAccount.wallet
         }
 
+        get activeMultisigAccount(): string {
+            return this.activeAccount.activeMultisigAccount
+        }
+
         get currentXem() {
             return this.activeAccount.currentXem
         }
@@ -60,14 +68,6 @@
 
         get namespaceList() {
             return this.activeAccount.namespaces
-        }
-
-        get preBlockInfo() {
-            return this.app.chainStatus.preBlockInfo
-        }
-
-        get currentBlockInfo() {
-            return this.app.chainStatus.currentBlockInfo
         }
 
         get currentNode() {
@@ -114,6 +114,7 @@
                     this.$store.commit('SET_BALANCE_LOADING', true),
                     this.$store.commit('SET_MOSAICS_LOADING', true),
                     this.$store.commit('SET_NAMESPACE_LOADING', true),
+                    this.$store.commit('SET_MULTISIG_LOADING', true),
                 ])
 
                 //@TODO: moove from there
@@ -126,7 +127,7 @@
                 const initMosaicsAndNamespaces = await Promise.all([
                     // @TODO make it an AppWallet methods
                     initMosaic(newWallet, this),
-                    getNamespaces(newWallet.address, this.node),
+                    getNamespacesFromAddress(newWallet.address, this.node),
                     setTransactionList(newWallet.address, this)
                 ])
 
@@ -135,30 +136,71 @@
                     this.$store.commit('SET_MOSAICS_LOADING', false),
                     this.$store.commit('SET_NAMESPACE_LOADING', false),
                 ])
+
                 new AppWallet(newWallet).setMultisigStatus(this.node, this.$store)
+                
                 if (!this.chainListeners) {
                     this.chainListeners = new ChainListeners(this, newWallet.address, this.node)
                     this.chainListeners.start()
                     this.chainListeners.startTransactionListeners()
-                } else {
-                    this.chainListeners.switchAddress(newWallet.address)
+                    return
                 }
+
+                this.chainListeners.switchAddress(newWallet.address)
             } catch (error) {
-                this.$store.commit('SET_TRANSACTIONS_LOADING', false)
-                this.$store.commit('SET_BALANCE_LOADING', false)
-                this.$store.commit('SET_MOSAICS_LOADING', false)
-                this.$store.commit('SET_NAMESPACE_LOADING', false)
+                console.error("App -> onWalletChange -> error", error)
+                Promise.all([
+                    this.$store.commit('SET_TRANSACTIONS_LOADING', false),
+                    this.$store.commit('SET_BALANCE_LOADING', false),
+                    this.$store.commit('SET_MOSAICS_LOADING', false),
+                    this.$store.commit('SET_NAMESPACE_LOADING', false),
+                    this.$store.commit('SET_MULTISIG_LOADING', false),
+                ])
+
                 if (!this.chainListeners) {
                     this.chainListeners = new ChainListeners(this, newWallet.address, this.node)
                     this.chainListeners.start()
-                } else {
-                    this.chainListeners.switchAddress(newWallet.address)
+                    return
                 }
-                console.error("App -> onWalletChange -> error", error)
+
+                this.chainListeners.switchAddress(newWallet.address)
             }
         }
 
+        async onActiveMultisigAccountChange(publicKey: string): Promise<void> {
+            try {
+                const {node} = this
+                const {networkType} = this.wallet
+                const accountAddress = Address.createFromPublicKey(publicKey, networkType)
+                const address = accountAddress.plain()
 
+                const promises = await Promise.all([
+                    getNamespacesFromAddress(address, node),
+                    mosaicsAmountViewFromAddress(node, accountAddress),
+                ])
+
+                const appNamespaces = promises[0] 
+                // @TODO: refactor
+                const mosaicAmountViews = promises[1]
+                const appMosaics = mosaicAmountViews.map(x => AppMosaic.fromMosaicAmountView(x))
+                
+                await Promise.all([
+                    this.$store.commit('UPDATE_MULTISIG_ACCOUNT_MOSAICS', {
+                      address, mosaics: appMosaics,
+                    }),
+                    this.$store.commit('SET_MULTISIG_ACCOUNT_NAMESPACES', {
+                      address, namespaces: appNamespaces,
+                    }),
+                ])
+
+                const appMosaicsFromNamespaces = await AppMosaics().fromAppNamespaces(appNamespaces)
+                await this.$store.commit('UPDATE_MULTISIG_ACCOUNT_MOSAICS', {
+                      address, mosaics: appMosaicsFromNamespaces,
+                })
+            } catch (error) {
+                throw new Error(error) 
+            }
+        }
 
         checkIfWalletExist() {
             if (!this.wallet.address) {
@@ -166,6 +208,22 @@
             }
         }
 
+        async getMultisigAccountMultisigAccountInfo(publicKey) {
+            const {networkType} = this.wallet
+            const accountAddress = Address.createFromPublicKey(publicKey, networkType).plain()
+
+            try {
+                const multisigAccountInfo = await new MultisigApiRxjs()
+                    .getMultisigAccountInfo(accountAddress, this.node).toPromise()
+                this.$store.commit('SET_MULTISIG_ACCOUNT_INFO', {
+                    address: accountAddress, multisigAccountInfo,
+                })
+            } catch (error) {
+                this.$store.commit('SET_MULTISIG_ACCOUNT_INFO', {
+                    address: accountAddress, multisigAccountInfo: null,
+                })
+            }
+        }
         /**
          * Add namespaces and divisibility to transactions and balances
          */
@@ -188,16 +246,18 @@
             const {node} = this
 
             getMarketOpenPrice(this)
-            await getCurrentBlockHeight(node, this.$store)
-            await getNetworkGenerationHash(node, this)
-            await getCurrentNetworkMosaic(node, this.$store)
+
+            // @TODO: refactor
+            await Promise.all([
+                getNetworkGenerationHash(node, this),
+                getCurrentBlockHeight(node, this.$store),
+                getCurrentNetworkMosaic(node, this.$store),
+            ])
 
             if (this.wallet && this.wallet.address) {
                 this.onWalletChange(this.wallet)
             }
-            /**
-             * START EVENTS LISTENERS
-             */
+
             this.$watchAsObservable('wallet')
                 .pipe(
                     throttleTime(6000, asyncScheduler, {leading: true, trailing: true}),
@@ -216,6 +276,17 @@
                 }
             })
 
+            this.$watchAsObservable('activeMultisigAccount')
+                .pipe(
+                    throttleTime(6000, asyncScheduler, {leading: true, trailing: true}),
+                ).subscribe(({newValue, oldValue}) => {
+                if (!newValue) return
+
+                if (oldValue !== newValue) {
+                    this.onActiveMultisigAccountChange(newValue)
+                    this.getMultisigAccountMultisigAccountInfo(newValue)
+                }
+            })
 
             this.$store.subscribe(async (mutation, state) => {
                 switch (mutation.type) {
@@ -229,6 +300,7 @@
                                 await getNetworkGenerationHash(node, this)
                                 // @TODO: Handle generationHash change
                                 await getCurrentNetworkMosaic(node, this.$store)
+                                await getCurrentBlockHeight(node, this.$store)
                                 this.chainListeners = new ChainListeners(this, this.wallet.address, node)
                                 this.chainListeners.start()
                             } catch (error) {

@@ -1,5 +1,4 @@
 import {
-    Listener,
     MultisigCosignatoryModification,
     MultisigCosignatoryModificationType,
     PublicAccount,
@@ -9,9 +8,10 @@ import {mapState} from "vuex"
 import {Component, Vue, Watch} from 'vue-property-decorator'
 import {Message} from "@/config/index.ts"
 import {MultisigApiRxjs} from '@/core/api/MultisigApiRxjs.ts'
-import {getAbsoluteMosaicAmount, createBondedMultisigTransaction} from '@/core/utils'
 import CheckPWDialog from '@/common/vue/check-password-dialog/CheckPasswordDialog.vue'
 import { formDataConfig } from '@/config/view/form'
+import {createBondedMultisigTransaction, StoreAccount} from "@/core/model"
+import {getAbsoluteMosaicAmount} from "@/core/utils"
 
 @Component({
     components: {
@@ -24,9 +24,8 @@ import { formDataConfig } from '@/config/view/form'
     }
 })
 export class MultisigConversionTs extends Vue {
-    activeAccount: any
+    activeAccount: StoreAccount
     currentAddress = ''
-    isMultisig = false
     isCompleteForm = false
     showCheckPWDialog = false
     transactionDetail = {}
@@ -48,6 +47,10 @@ export class MultisigConversionTs extends Vue {
 
     get address() {
         return this.activeAccount.wallet.address
+    }
+
+    get isMultisig() {
+        return this.activeAccount.wallet.multisigAccountInfo ? true : false
     }
 
     get node() {
@@ -92,7 +95,7 @@ export class MultisigConversionTs extends Vue {
         if (!this.isCompleteForm) return
         if (!this.checkForm()) return
         const {address} = this.wallet
-        const {publickeyList, minApproval, minRemoval, bondedFee, lockFee, innerFee} = this.formItem
+        const {publickeyList, minApproval, minRemoval, lockFee, innerFee} = this.formItem
         this.transactionDetail = {
             "address": address,
             "min_approval": minApproval,
@@ -103,8 +106,8 @@ export class MultisigConversionTs extends Vue {
         this.otherDetails = {
             lockFee: lockFee
         }
-        this.initForm()
         this.sendMultisignConversionTransaction()
+        this.initForm()
         this.showCheckPWDialog = true
     }
 
@@ -179,20 +182,6 @@ export class MultisigConversionTs extends Vue {
         }
     }
 
-    getMultisigAccountList() {
-        const that = this
-        if (!this.wallet) return
-        const {node, address} = this
-        new MultisigApiRxjs().getMultisigAccountInfo(
-            address,
-            node
-        ).subscribe((multisigInfo) => {
-            if (multisigInfo.cosignatories.length !== 0) {
-                that.isMultisig = true
-            }
-        })
-    }
-
     sendMultisignConversionTransaction() {
         const {xemDivisibility} = this
         // here lock fee should be relative param
@@ -200,7 +189,6 @@ export class MultisigConversionTs extends Vue {
         bondedFee = getAbsoluteMosaicAmount(bondedFee, xemDivisibility)
         innerFee = getAbsoluteMosaicAmount(innerFee, xemDivisibility)
         const {networkType, node, publickey} = this
-        const listener = new Listener(node.replace('http', 'ws'), WebSocket)
         const multisigCosignatoryModificationList = publickeyList.map(cosigner => new MultisigCosignatoryModification(
             MultisigCosignatoryModificationType.Add,
             PublicAccount.createFromPublicKey(cosigner, networkType),
@@ -233,10 +221,5 @@ export class MultisigConversionTs extends Vue {
         // isCompleteForm
         this.isCompleteForm = publickeyList.length !== 0 && minApproval + '' !== '' && minRemoval + '' !== '' && innerFee + '' !== '' && bondedFee + '' !== '' && lockFee + '' !== ''
         return
-    }
-
-    // @TODO multisig account list at higher level
-    mounted() {
-        this.getMultisigAccountList()
     }
 }

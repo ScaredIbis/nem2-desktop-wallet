@@ -1,9 +1,13 @@
-import {AppWallet} from "@/core/utils/wallet.ts"
-import {Component, Vue, Prop, Watch} from 'vue-property-decorator'
+import {Component, Vue, Prop} from 'vue-property-decorator'
 import {mapState} from "vuex"
 import {Password} from "nem2-sdk"
 import {AppLock} from '@/core/utils/appLock'
 import {randomMnemonicWord} from "@/core/utils/hdWallet.ts"
+import {AppWallet, StoreAccount} from "@/core/model"
+import {copyTxt} from "@/core/utils"
+import {Message} from "@/config"
+import {MnemonicPassPhrase} from 'nem2-hd-wallets'
+import {MnemonicQR} from 'nem2-qr-library'
 
 @Component({
     computed: {
@@ -13,8 +17,7 @@ import {randomMnemonicWord} from "@/core/utils/hdWallet.ts"
     }
 })
 export class MnemonicDialogTs extends Vue {
-    activeAccount: any
-    show = false
+    activeAccount: StoreAccount
     stepIndex = 0
     mnemonic = ''
     mnemonicRandomArr = []
@@ -22,8 +25,19 @@ export class MnemonicDialogTs extends Vue {
         password: '',
         mnemonicWords: ''
     }
+
     @Prop()
     showMnemonicDialog: boolean
+
+    get show() {
+        return this.showMnemonicDialog
+    }
+
+    set show(val) {
+        if (!val) {
+            this.$emit('close')
+        }
+    }
 
     get getWallet() {
         return this.activeAccount.wallet
@@ -31,6 +45,20 @@ export class MnemonicDialogTs extends Vue {
 
     get path() {
         return this.getWallet.path
+    }
+
+    get generationHash() {
+        return this.activeAccount.generationHash
+    }
+
+    get QRCode(): string {
+        const {generationHash, getWallet} = this
+        const {networkType} = getWallet
+        const {password, mnemonicWords} = this.wallet
+        if (password.length < 8) return ''
+        const mnemonic = new MnemonicPassPhrase(mnemonicWords)
+        return new MnemonicQR(mnemonic, new Password(password), networkType, generationHash)
+            .toBase64()
     }
 
     mnemonicDialogCancel() {
@@ -72,6 +100,16 @@ export class MnemonicDialogTs extends Vue {
         this.stepIndex = 1
     }
 
+    copyMnemonic() {
+        copyTxt(this.mnemonic).then((data) => {
+            this.$Notice.success({
+                title: this.$t(Message.COPY_SUCCESS) + ''
+            })
+        }).catch((error) => {
+            console.log(error)
+        })
+    }
+
     checkInput() {
         if (!this.wallet.password || this.wallet.password == '') {
             this.$Notice.error({
@@ -110,7 +148,13 @@ export class MnemonicDialogTs extends Vue {
         wordSpan.onclick = () => {
             this.$refs['mnemonicWordDiv']['removeChild'](wordSpan)
         }
-        this.$refs['mnemonicWordDiv']['append'](wordSpan)
+        const inputArray = this
+            .$refs['mnemonicWordDiv']['innerText']
+            .replace(' ', '')
+            .split("\n")
+
+        const wordInInputArray = inputArray.find(x => x === word)
+        if (wordInInputArray === undefined) this.$refs['mnemonicWordDiv']['append'](wordSpan)
     }
 
     checkMnemonic() {
@@ -134,11 +178,5 @@ export class MnemonicDialogTs extends Vue {
             return false
         }
         return true
-    }
-
-    // @TODO: use v-model
-    @Watch('showMnemonicDialog')
-    onShowMnemonicDialogChange() {
-        this.show = this.showMnemonicDialog
     }
 }

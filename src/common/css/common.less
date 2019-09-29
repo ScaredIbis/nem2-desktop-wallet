@@ -314,18 +314,21 @@ textarea {
   -webkit-animation: fadeIn .5s;
 }
 
-
-// service namespace_list_container
-.namespace_list_container {
-  .ivu-poptip-popper {
-    top: unset !important;
-    bottom: 40px !important;
-    right: 120px;
-
+.wrap {
+  .ivu-input {
+    border: none;
+    border-radius: 0;
+    border-bottom: 1px solid #ccc;
   }
 
-  .ivu-poptip-inner {
-    width: 180px;
+  .ivu-input:focus {
+    box-shadow: none;
+    border-bottom: 1px solid #ccc;
   }
-
+  .input_point {
+    input {
+      border: none;
+      border-bottom: 1px solid #ccc;
+    }
+  }
 }

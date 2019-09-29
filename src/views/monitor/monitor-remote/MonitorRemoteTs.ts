@@ -1,12 +1,11 @@
 import {Message} from "@/config/index.ts"
 import {Component, Vue} from 'vue-property-decorator'
 import {AccountLinkTransaction, UInt64, LinkAction, Deadline, Password} from "nem2-sdk"
-import {AppWallet} from "@/core/utils/wallet.ts"
 import {AccountApiRxjs} from "@/core/api/AccountApiRxjs.ts"
 import {mapState} from "vuex"
 import {getAbsoluteMosaicAmount} from '@/core/utils'
 import {formDataConfig} from "@/config/view/form";
-
+import {AppWallet, StoreAccount} from "@/core/model"
 
 @Component({
     computed: {
@@ -16,7 +15,7 @@ import {formDataConfig} from "@/config/view/form";
     }
 })
 export class MonitorRemoteTs extends Vue {
-    activeAccount: any
+    activeAccount: StoreAccount
     isLinked = false
     harvestBlockList = []
     isLinkToRemote = false
