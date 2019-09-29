@@ -3,7 +3,7 @@ import {Component, Vue} from 'vue-property-decorator'
 import {formDataConfig} from "@/config/view/form";
 import {networkTypeConfig} from '@/config/view/setting'
 import trezor from '@/core/utils/trezor';
-import { RawAddress } from "nem2-sdk";
+import { Address } from "nem2-sdk";
 import {AppInfo, StoreAccount, AppWallet} from "@/core/model"
 
 @Component({
@@ -58,19 +58,16 @@ export class AccountImportHardwareTs extends Vue {
             coin: "NEM"
         })
 
-
         if(publicKeyResult.success) {
             const { publicKey, serializedPath } = publicKeyResult.payload;
-            const addressArray = RawAddress.publicKeyToAddress(publicKey, networkType);
-            const addressString = addressArray
-            .reduce((accumulated, chunk) => `${accumulated}${chunk.toString(16)}`, "");
+            const address = Address.createFromPublicKey(publicKey, networkType);
 
             new AppWallet().createFromTrezor(
                 walletName,
                 networkType,
                 serializedPath,
                 publicKey,
-                addressString,
+                address.plain(),
                 this.$store
             );
         } else {
