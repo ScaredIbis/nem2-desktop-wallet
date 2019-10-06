@@ -51,13 +51,18 @@ export class AccountImportHardwareTs extends Vue {
 
         if(publicKeyResult.success) {
             const { publicKey, serializedPath } = publicKeyResult.payload;
-            const address = Address.createFromPublicKey(publicKey, networkType);
+
+            // @see https://github.com/bitcoin/bips/blob/master/bip-0032.mediawiki
+            // ser-p(P) serializes the coordinate and prepends either 0x02 or 0x03 to it.
+            // drop first byte for 32-bytes public key
+            const rawPublicKey = publicKey.slice(2).toUpperCase();
+            const address = Address.createFromPublicKey(rawPublicKey, networkType);
 
             new AppWallet().createFromTrezor(
                 walletName,
                 networkType,
                 serializedPath,
-                publicKey,
+                rawPublicKey,
                 address.plain(),
                 this.$store
             );

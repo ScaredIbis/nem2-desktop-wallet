@@ -1,4 +1,4 @@
-import {AppInfo, ChainStatus, AppState} from '@/core/model'
+import {AppInfo, ChainStatus, AppState, FormattedTransaction} from '@/core/model'
 import {localRead} from "@/core/utils";
 import { GetterTree, MutationTree } from 'vuex';
 
@@ -74,7 +74,8 @@ const mutations: MutationTree<AppInfo> = {
     SET_UI_DISABLED(state: AppInfo, { isDisabled, message }: { isDisabled: boolean, message: string}) {
         state.isUiDisabled = isDisabled;
         state.uiDisabledMessage = message;
-    }
+    },
+    SET_STAGED_TRANSACTION(state: AppInfo, transaction: FormattedTransaction)
 }
 
 export const appState = {state}
