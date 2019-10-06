@@ -1,6 +1,7 @@
 import {AppInfo, ChainStatus, AppState, FormattedTransaction} from '@/core/model'
 import {localRead} from "@/core/utils";
 import { GetterTree, MutationTree } from 'vuex';
+import { Transaction } from 'nem2-sdk';
 
 const state: AppInfo = {
     timeZone: new Date().getTimezoneOffset() / 60,   // current time zone
@@ -19,7 +20,11 @@ const state: AppInfo = {
     multisigLoading: true,
     _ENABLE_TREZOR_: localRead("_ENABLE_TREZOR_") === "true",
     isUiDisabled: false,
-    uiDisabledMessage: ''
+    uiDisabledMessage: '',
+    stagedTransaction: {
+        isAwaitingConfirmation: false,
+        data: null,
+    }
 }
 
 const mutations: MutationTree<AppInfo> = {
@@ -75,7 +80,12 @@ const mutations: MutationTree<AppInfo> = {
         state.isUiDisabled = isDisabled;
         state.uiDisabledMessage = message;
     },
-    SET_STAGED_TRANSACTION(state: AppInfo, transaction: FormattedTransaction)
+    SET_STAGED_TRANSACTION(state: AppInfo,
+        { data, isAwaitingConfirmation}:
+        {data: Transaction|null, isAwaitingConfirmation: boolean}) {
+        state.stagedTransaction.data = data;
+        state.stagedTransaction.isAwaitingConfirmation = isAwaitingConfirmation;
+    }
 }
 
 export const appState = {state}

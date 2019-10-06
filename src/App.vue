@@ -2,6 +2,7 @@
   <div id="app" :class="[isWindows?'windows':'mac']">
     <router-view/>
     <DisabledUiOverlay/>
+    <TransactionConfirmation/>
   </div>
 </template>
 
@@ -23,13 +24,15 @@
     import {AppMosaic, AppWallet, AppInfo, StoreAccount} from '@/core/model'
     import {MultisigApiRxjs} from "@/core/api/MultisigApiRxjs"
     import DisabledUiOverlay from '@/common/vue/disabled-ui-overlay/DisabledUiOverlay.vue';
+    import TransactionConfirmation from '@/common/vue/transaction-confirmation/TransactionConfirmation.vue';
 
     @Component({
         computed: {
             ...mapState({activeAccount: 'account', app: 'app'}),
         },
         components: {
-            DisabledUiOverlay
+            DisabledUiOverlay,
+            TransactionConfirmation
         }
     })
     export default class App extends Vue {
@@ -108,7 +111,7 @@
                 this.$store.commit('SET_NAMESPACES', initMosaicsAndNamespaces[1] || [])
                 this.$store.commit('SET_MOSAICS_LOADING', false)
                 this.$store.commit('SET_NAMESPACE_LOADING', false)
-                
+
                 const appWallet = new AppWallet(newWallet)
                 appWallet.setMultisigStatus(this.node, this.$store)
                 appWallet.setAccountInfo(this.$store)

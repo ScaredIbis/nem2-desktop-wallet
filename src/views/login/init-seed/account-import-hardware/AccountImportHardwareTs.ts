@@ -3,8 +3,9 @@ import {Component, Vue} from 'vue-property-decorator'
 import {formDataConfig} from "@/config/view/form";
 import {networkTypeConfig} from '@/config/view/setting'
 import trezor from '@/core/utils/trezor';
-import { Address } from 'nem2-sdk';
+import { Address, Transaction } from 'nem2-sdk';
 import {AppInfo, StoreAccount, AppWallet} from '@/core/model'
+import { signTransaction } from '@/core/services/transactions';
 
 @Component({
     computed: {
@@ -37,40 +38,43 @@ export class AccountImportHardwareTs extends Vue {
     }
 
     async importAccountFromTrezor() {
-        const { accountIndex, networkType, walletName } = this.trezorForm
+        const signedTransaction = await signTransaction({ key: "VALUE" }, "hash", this.$store)
 
-        this.$store.commit('SET_UI_DISABLED', {
-            isDisabled: true,
-            message: "trezor_awaiting_interaction"
-        });
+        console.log("GOT A SIGNED TX", signedTransaction);
+        // const { accountIndex, networkType, walletName } = this.trezorForm
 
-        const publicKeyResult = await trezor.getPublicKey({
-            path: `m/44'/43'/${accountIndex}'`,
-            coin: "NEM"
-        })
+        // this.$store.commit('SET_UI_DISABLED', {
+        //     isDisabled: true,
+        //     message: "trezor_awaiting_interaction"
+        // });
 
-        if(publicKeyResult.success) {
-            const { publicKey, serializedPath } = publicKeyResult.payload;
+        // const publicKeyResult = await trezor.getPublicKey({
+        //     path: `m/44'/43'/${accountIndex}'`,
+        //     coin: "NEM"
+        // })
 
-            // @see https://github.com/bitcoin/bips/blob/master/bip-0032.mediawiki
-            // ser-p(P) serializes the coordinate and prepends either 0x02 or 0x03 to it.
-            // drop first byte for 32-bytes public key
-            const rawPublicKey = publicKey.slice(2).toUpperCase();
-            const address = Address.createFromPublicKey(rawPublicKey, networkType);
+        // if(publicKeyResult.success) {
+        //     const { publicKey, serializedPath } = publicKeyResult.payload;
 
-            new AppWallet().createFromTrezor(
-                walletName,
-                networkType,
-                serializedPath,
-                rawPublicKey,
-                address.plain(),
-                this.$store
-            );
-        }
+        //     // @see https://github.com/bitcoin/bips/blob/master/bip-0032.mediawiki
+        //     // ser-p(P) serializes the coordinate and prepends either 0x02 or 0x03 to it.
+        //     // drop first byte for 32-bytes public key
+        //     const rawPublicKey = publicKey.slice(2).toUpperCase();
+        //     const address = Address.createFromPublicKey(rawPublicKey, networkType);
 
-        this.$store.commit('SET_UI_DISABLED', {
-            isDisabled: false,
-            message: ""
-        });
+        //     new AppWallet().createFromTrezor(
+        //         walletName,
+        //         networkType,
+        //         serializedPath,
+        //         rawPublicKey,
+        //         address.plain(),
+        //         this.$store
+        //     );
+        // }
+
+        // this.$store.commit('SET_UI_DISABLED', {
+        //     isDisabled: false,
+        //     message: ""
+        // });
     }
 }
