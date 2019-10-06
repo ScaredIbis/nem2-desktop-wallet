@@ -13,7 +13,7 @@
 
         <div class="split"></div>
         <div class="XEM_amount overflow_ellipsis">
-          <span>XEM</span>
+          <span>{{ticker}}</span>
           <span class="amount">{{mosaicList[0]?formatNumber(mosaicList[0].balance):0}}</span>
         </div>
         <div class="exchange">
@@ -77,7 +77,7 @@
                   @click="toggleShowMosaic(mosaic)"
                 >
                 <span class="namege_img "  >
-                 <img class="small_icon " :src="mosaic.hide?monitorUnselected:monitorSeleted">
+                 <img class="small_icon " :src="mosaic.hide?monitorUnselected:monitorSelected">
                   <img v-if="index == 0" class="mosaicIcon"
                        src="@/common/img/monitor/monitorMosaicIcon.png">
                   <img v-else class="mosaicIcon" src="@/common/img/monitor/mosaicDefault.png">

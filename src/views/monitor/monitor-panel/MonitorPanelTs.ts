@@ -1,6 +1,6 @@
 import {Message} from "@/config/index.ts"
 import {Component, Vue} from 'vue-property-decorator'
-import monitorSeleted from '@/common/img/monitor/monitorSeleted.png'
+import monitorSelected from '@/common/img/monitor/monitorSelected.png'
 import monitorUnselected from '@/common/img/monitor/monitorUnselected.png'
 import {copyTxt, formatXemAmount, formatNumber, localRead, localSave} from '@/core/utils/utils.ts'
 import {mapState} from "vuex"
@@ -25,14 +25,19 @@ export class MonitorPanelTs extends Vue {
     // isShowAccountAlias = false @TODO: Account Alias (update when method available)
     isShowManageMosaicIcon = false
     isChecked = true
-    monitorSeleted = monitorSeleted
+    monitorSelected = monitorSelected
     monitorUnselected = monitorUnselected
     navigatorList: any = monitorPanelNavigatorConfig
+    formatXemAmount = formatXemAmount
 
     get xemUsdPrice() {
         return this.app.xemUsdPrice
     }
 
+    get ticker() {
+        return this.activeAccount.networkCurrency.ticker
+    }
+    
     get balanceLoading() {
         return this.app.balanceLoading
     }
@@ -41,24 +46,8 @@ export class MonitorPanelTs extends Vue {
         return this.app.mosaicsLoading
     }
 
-    get getWallet() {
-        return this.activeAccount.wallet
-    }
-
-    get XEMamount() {
-        return this.activeAccount.wallet.balance
-    }
-
     get address() {
         return this.activeAccount.wallet.address
-    }
-
-    get node() {
-        return this.activeAccount.node
-    }
-
-    get currentXEM1() {
-        return this.activeAccount.currentXEM1
     }
 
     get mosaicMap() {
@@ -151,7 +140,6 @@ export class MonitorPanelTs extends Vue {
     }
 
     toggleShowMosaic(mosaic) {
-        const {accountName} = this
         const accountMap = JSON.parse(localRead('accountMap'))
         let wallets = accountMap.wallets
         const updatedList: any = {...this.mosaicMap}
@@ -186,10 +174,6 @@ export class MonitorPanelTs extends Vue {
     showErrorMessage(message) {
         this.$Notice.destroy()
         this.$Notice.error({title: this.$t(message) + ''})
-    }
-
-    formatXemAmount(text) {
-        return formatXemAmount(text)
     }
 
     mounted() {

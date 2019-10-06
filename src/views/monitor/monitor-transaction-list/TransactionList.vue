@@ -6,7 +6,7 @@
             @close="showDialog = false"
     />
 
-    <div class="bottom_transactions radius scroll" >
+    <div class="bottom_transactions radius scroll">
       <div class="splite_page">
         <span>{{$t('total')}}：{{transactionList.length}} {{$t('data')}}</span>
         <Page @on-change="changePage" :total="transactionList.length" class="page_content"/>
@@ -47,7 +47,7 @@
                           v-if="c.rawTx.type === TransactionType.TRANSFER"
                           class="col2-item bottom overflow_ellipsis"
                   >
-                    -> {{ c.rawTx.recipient.address }}
+                    -> {{ c.rawTx.recipientAddress.address || c.rawTx.recipientAddress.id.toHex() }}
                 </span>
                   <span
                           v-if="c.rawTx.type !== TransactionType.TRANSFER"
@@ -60,10 +60,10 @@
                 <!-- THIRD COLUMN -->
                 <div class="col3">
                 <span
-                        :class="['overflow_ellipsis',!c.isReceipt ? 'green' : 'red']"
+                        :class="['overflow_ellipsis', c.txHeader.isReceipt ? 'green' : 'red']"
                         v-if="c.rawTx.type === TransactionType.TRANSFER"
                 >
-                    {{ renderMosaics(c.rawTx.mosaics, mosaicList, currentXem) }}
+                    {{ c.txHeader.isReceipt ? '' : '-' }} {{ renderMosaics(c.rawTx.mosaics, $store) }}
                 </span>
                   <span
                           class="red "

@@ -1,7 +1,6 @@
 import routers from '@/router/routers.ts'
 import {Message, isWindows} from "@/config/index.ts"
-import {BlockApiRxjs} from '@/core/api/BlockApiRxjs.ts'
-import monitorSeleted from '@/common/img/window/windowSelected.png'
+import monitorSelected from '@/common/img/window/windowSelected.png'
 import monitorUnselected from '@/common/img/window/windowUnselected.png'
 import {localRead, localSave} from "@/core/utils/utils.ts"
 import {Component, Vue} from 'vue-property-decorator'
@@ -11,8 +10,7 @@ import {NetworkType} from "nem2-sdk"
 import {languageConfig} from "@/config/view/language"
 import {LanguageType} from "@/core/model/LanguageType"
 import {nodeListConfig} from "@/config/view/node"
-import {getCurrentBlockHeight, getCurrentNetworkMosaic, getNetworkGenerationHash} from "@/core/utils"
-import {AppWallet} from "@/core/model"
+import {StoreAccount, AppWallet, AppInfo} from "@/core/model"
 
 @Component({
     computed: {
@@ -24,16 +22,16 @@ import {AppWallet} from "@/core/model"
 })
 export class MenuBarTs extends Vue {
     NetworkType = NetworkType
-    app: any
+    app: AppInfo
     nodeList = []
-    activeAccount: any
+    activeAccount: StoreAccount
     isShowNodeList = false
     isWindows = isWindows
     inputNodeValue = ''
     isNowWindowMax = false
     isShowDialog = true
     activePanelList = [false, false, false, false, false, false, false,]
-    monitorSeleted = monitorSeleted
+    monitorSelected = monitorSelected
     monitorUnselected = monitorUnselected
     accountAddress = ''
     txStatusListener = null
@@ -79,14 +77,13 @@ export class MenuBarTs extends Vue {
     }
 
     get currentWalletAddress() {
-        if (!this.wallet) return false
+        if (!this.wallet) return null
         return this.activeAccount.wallet.address
     }
 
     get accountName() {
         return this.activeAccount.accountName
     }
-
 
     set currentWalletAddress(newActiveWalletAddress) {
         AppWallet.switchWallet(newActiveWalletAddress, this.walletList, this.$store)
@@ -169,13 +166,6 @@ export class MenuBarTs extends Vue {
         this.$store.commit('RESET_ACCOUNT')
         this.$router.push({
             name: "login"
-        })
-    }
-
-    async getGenerationHash(node) {
-        const that = this
-        await new BlockApiRxjs().getBlockByHeight(node, 1).subscribe((blockInfo) => {
-            that.$store.commit('SET_GENERATION_HASH', blockInfo.generationHash)
         })
     }
 

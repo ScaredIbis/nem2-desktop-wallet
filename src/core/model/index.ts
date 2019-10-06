@@ -10,6 +10,9 @@ export * from './TransactionHeader'
 export * from './TransferType'
 export * from './VoteType'
 export * from './formattedTransactions'
+export * from './MosaicProperties'
 export * from './types'
 export * from './AppNamespace'
 export * from './ChainStatus'
+
+

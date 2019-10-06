@@ -1,14 +1,13 @@
 import {mapState} from 'vuex'
 import {Component, Vue} from 'vue-property-decorator'
 import TheWalletDelete from '@/views/wallet/wallet-switch/the-wallet-delete/TheWalletDelete.vue'
-import {formatXemAmount, formatNumber, localRead} from '@/core/utils/utils.ts'
-import {AppWallet, AppInfo, StoreAccount, AppAccounts} from "@/core/model"
+import {formatNumber, formatXemAmount, localRead} from '@/core/utils/utils.ts'
+import {AppWallet, AppInfo, StoreAccount} from "@/core/model"
 import {CreateWalletType} from "@/core/model/CreateWalletType"
 import {walletStyleSheetType} from '@/config/view/wallet.ts'
 import {MultisigAccountInfo, Password} from 'nem2-sdk'
 import TheWalletUpdate from "@/views/wallet/wallet-switch/the-wallet-update/TheWalletUpdate.vue"
 import {Message, networkConfig} from "@/config"
-import {AppLock} from "@/core/utils"
 import CheckPasswordDialog from '@/common/vue/check-password-dialog/CheckPasswordDialog.vue'
 
 @Component({
@@ -27,21 +26,21 @@ export class WalletSwitchTs extends Vue {
     showUpdateDialog = false
     showCheckPWDialog = false
     deleteIndex = -1
-    deletecurrent = -1
     walletToDelete: AppWallet | boolean = false
     thirdTimestamp = 0
     walletStyleSheetType = walletStyleSheetType
     walletToUpdate = {}
     pathToCreate = ''
+    scroll: any
 
     get walletList() {
         let {walletList} = this.app
         walletList.sort((a, b) => {
-            return b.createTimestamp - a.createTimestamp
+            return a.createTimestamp - b.createTimestamp
         })
+
         return walletList.map(item => {
-            const walletType = item.accountTitle.substring(0, item.accountTitle.indexOf('-'))
-            switch (walletType) {
+            switch (item.sourceType) {
                 case CreateWalletType.keyStore:
                 case CreateWalletType.privateKey:
                     item.stylesheet = walletStyleSheetType.otherWallet
@@ -62,12 +61,12 @@ export class WalletSwitchTs extends Vue {
         return this.activeAccount.accountName
     }
 
-    get currentXEM1() {
-        return this.activeAccount.currentXEM1
-    }
-
     get cipherMnemonic() {
         return this.app.mnemonic
+    }
+
+    get networkCurrency() {
+        return this.activeAccount.networkCurrency
     }
 
     isMultisig(address: string): boolean {
@@ -130,7 +129,7 @@ export class WalletSwitchTs extends Vue {
             return false
         })
         pathToCreate = flag ? seedPathList.length : pathToCreate
-        this.pathToCreate = `m/44'/43'/1'/0/` + pathToCreate
+        this.pathToCreate = `m/44'/43'/0'/0/` + pathToCreate
         this.showCheckPWDialog = true
     }
 
@@ -138,8 +137,6 @@ export class WalletSwitchTs extends Vue {
         if (!password) return
         const {accountName, pathToCreate, cipherMnemonic} = this
         const currentNetType = JSON.parse(localRead('accountMap'))[accountName].currentNetType
-        const seed = AppLock.decryptString(cipherMnemonic, password)
-        const appAccounts = AppAccounts()
         try {
             new AppWallet().createFromPath(
                 'seedWallet-' + pathToCreate.substr(-1),
@@ -152,6 +149,10 @@ export class WalletSwitchTs extends Vue {
         } catch (error) {
             throw new Error(error)
         }
+    }
 
+    mounted() {
+        // scroll to current wallet
+        this.$refs.walletScroll["scrollTop"] = this.walletList.findIndex(item => item.active) * 40
     }
 }

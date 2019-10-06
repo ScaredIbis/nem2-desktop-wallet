@@ -13,11 +13,15 @@
             <span class="select_date pointer">
               <div class="month_value">
                 <img src="@/common/img/monitor/market/marketCalendar.png" alt="">
-              <span>{{currentMonth}}</span>
+              <span>{{ displayedDate }}</span>
               </div>
               <div class="date_selector">
-                <DatePicker @on-change="changeCurrentMonth" type="month" placeholder="" :value="currentMonth"
-                            style="width: 70px"></DatePicker>
+                <DatePicker
+                    v-model="chosenDate"
+                    type="month"
+                    placeholder=""
+                    style="width: 70px"
+                />
               </div>
             </span>
         <span class="search_input un_click" @click.stop="">
@@ -47,7 +51,7 @@
         <img src="@/common/img/monitor/transaction/txUnConfirmed.png" alt="">
         <div class="flex_content">
           <div class="left left_components">
-            <div class="top overflow_ellipsis">{{ renderMosaicNames(c.rawTx.mosaics, mosaicList, currentXem) }}</div>
+            <div class="top overflow_ellipsis">{{ renderMosaicNames(c.rawTx.mosaics, $store) }}</div>
             <div class="bottom overflow_ellipsis"> {{c.txHeader.time.slice(0, c.txHeader.time.length - 3)}}</div>
           </div>
           <div class="right">
@@ -68,7 +72,7 @@
         <img src="@/common/img/monitor/transaction/txConfirmed.png" alt="">
         <div class="flex_content">
           <div class="left left_components">
-            <div class="top overflow_ellipsis">{{ renderMosaicNames(c.rawTx.mosaics, mosaicList, currentXem) }}</div>
+            <div class="top overflow_ellipsis">{{ renderMosaicNames(c.rawTx.mosaics, $store) }}</div>
             <div class="bottom overflow_ellipsis"> {{c.txHeader.time.slice(0, c.txHeader.time.length - 3)}}</div>
           </div>
           <div class="right">

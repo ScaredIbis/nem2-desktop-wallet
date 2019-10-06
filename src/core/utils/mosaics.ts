@@ -1,17 +1,19 @@
 import {Mosaic} from "nem2-sdk"
-import {AppMosaic} from '@/core/model'
+import {AppMosaic, AppState} from '@/core/model'
+import {Store} from 'vuex'
 
 /**
  * Transforms an array of mosaics to an inline representation,
  * setting networkCurrency as the first item
  * eg: nem.xem (1,000), 04d3372253f1bb69 (2,123)
  * @param mosaics
- * @param mosaicList
- * @param currentXem
+ * @param store
  */
-export const renderMosaics = (mosaics: Mosaic[],
-                              mosaicList: AppMosaic[],
-                              currentXem: string): string => {
+export const renderMosaics = (
+    mosaics: Mosaic[],
+    store: Store<AppState>): any => {
+    const mosaicList = store.state.account.mosaics
+
     const items = mosaics
         .map((mosaic) => {
             const hex = mosaic.id.toHex()
@@ -26,13 +28,12 @@ export const renderMosaics = (mosaics: Mosaic[],
 
     if (!items.length) return 'Loading...'
 
-    const networkMosaicIndex = items.findIndex(({name}) => name === currentXem)
-
+    const networkMosaicIndex = items.findIndex(({name}) => name === store.state.account.networkCurrency.hex)
     if (networkMosaicIndex <= 0) {
         return items.map(({name, amount}) => `${amount} [${name}]`).join(', ')
     }
-    const networkMosaic = items.splice(networkMosaicIndex, 1)
-    items.unshift(networkMosaic[0])
+    const networkCurrency = items.splice(networkMosaicIndex, 1)
+    items.unshift(networkCurrency[0])
     return items.map(({name, amount}) => `${amount} [${name}]`).join(', ')
 }
 
@@ -51,27 +52,26 @@ export const getAbsoluteMosaicAmount = (amount: number, divisibility: number) =>
  * setting networkCurrency as the first item
  * eg: nem.xem, 04d3372253f1bb69
  * @param mosaics
- * @param mosaicList
- * @param currentXem
+ * @param store
  */
-export const renderMosaicNames = ( mosaics: Mosaic[],
-                                   mosaicList: AppMosaic[],
-                                   currentXem: string): string => {
-  const items = mosaics
-    .map(mosaic => {
-        const hex = mosaic.id.toHex()
-        if(!mosaicList[hex]) return
-        const appMosaic = mosaicList[hex]
-        return appMosaic.name || appMosaic.hex
-    })
-    .filter(x => x)
+export const renderMosaicNames = (mosaics: Mosaic[],
+                                  store: Store<AppState>): string => {
+    const mosaicList = store.state.account.mosaics
+    const items = mosaics
+        .map(mosaic => {
+            const hex = mosaic.id.toHex()
+            if (!mosaicList[hex]) return
+            const appMosaic = mosaicList[hex]
+            return appMosaic.name || appMosaic.hex
+        })
+        .filter(x => x)
 
-  if (!items.length) return 'N/A'
-  const networkMosaicIndex = items.indexOf(currentXem)
-  if (networkMosaicIndex <= 0) return items.join(', ')
-  const networkMosaic = items.splice(networkMosaicIndex, 1)
-  items.unshift(networkMosaic[0])
-  return items.join(', ')
+    if (!items.length) return 'N/A'
+    const networkMosaicIndex = items.indexOf(store.state.account.networkCurrency.hex)
+    if (networkMosaicIndex <= 0) return items.join(', ')
+    const networkCurrency = items.splice(networkMosaicIndex, 1)
+    items.unshift(networkCurrency[0])
+    return items.join(', ')
 }
 
 /**
@@ -80,11 +80,11 @@ export const renderMosaicNames = ( mosaics: Mosaic[],
  * @param mosaicList
  */
 export const renderMosaicAmount = (mosaics: Mosaic[], mosaicList: AppMosaic[]): string => {
-  if(!mosaics.length) return '0'
-  if(mosaics.length > 1) return 'mix' 
-  const hex = mosaics[0].id.toHex()
-  if(!mosaicList[hex] || !mosaicList[hex].properties) return 'Loading...'
-  const appMosaic = mosaicList[hex]
-  return getRelativeMosaicAmount(mosaics[0].amount.compact(), appMosaic.properties.divisibility)
-      .toLocaleString()
+    if (!mosaics.length) return '0'
+    if (mosaics.length > 1) return 'mix'
+    const hex = mosaics[0].id.toHex()
+    if (!mosaicList[hex] || !mosaicList[hex].properties) return 'Loading...'
+    const appMosaic = mosaicList[hex]
+    return getRelativeMosaicAmount(mosaics[0].amount.compact(), appMosaic.properties.divisibility)
+        .toLocaleString()
 }

@@ -1,7 +1,7 @@
 import {mapState} from "vuex"
 import {Component, Vue, Prop} from 'vue-property-decorator'
 import {renderMosaics} from '@/core/utils'
-import {FormattedTransaction, AppInfo, StoreAccount} from '@/core/model';
+import {FormattedTransaction, AppInfo, StoreAccount} from '@/core/model'
 
 @Component({
     computed: {...mapState({activeAccount: 'account', app: 'app'})},
@@ -12,7 +12,6 @@ export class TransactionModalTs extends Vue {
     isShowInnerDialog = false
     currentInnerTransaction = {}
     renderMosaics = renderMosaics
-
     @Prop({default: false})
     visible: boolean
 
@@ -29,14 +28,10 @@ export class TransactionModalTs extends Vue {
         }
     }
 
-    get mosaicList() {
-        return this.activeAccount.mosaics
+    get publicKey() {
+        return this.activeAccount.wallet.publicKey
     }
 
-    get currentXem() {
-        return this.activeAccount.currentXem
-    }
-    
     showInnerDialog(currentInnerTransaction) {
         this.isShowInnerDialog = true
         this.currentInnerTransaction = currentInnerTransaction

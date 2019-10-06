@@ -1,10 +1,8 @@
 import {Message} from "@/config/index.ts"
 import {Component, Vue, Watch} from 'vue-property-decorator'
-import {EmptyAlias} from "nem2-sdk/dist/src/model/namespace/EmptyAlias"
-import {Address, AddressAlias, AliasActionType, NamespaceId, Password} from "nem2-sdk"
 import {formatAddress, formatSeconds} from "@/core/utils/utils.ts"
 import {mapState} from "vuex"
-import {AppWallet, readLocaAlias, removeLink, saveLocaAlias} from "@/core/model"
+import {StoreAccount, AppInfo, removeLink, saveLocalAlias, readLocalAlias} from "@/core/model"
 import {networkConfig} from "@/config/index"
 
 @Component({
@@ -16,9 +14,9 @@ import {networkConfig} from "@/config/index"
     }
 })
 export class WalletAliasTs extends Vue {
+    activeAccount: StoreAccount
+    app: AppInfo
     pageSize = 5
-    activeAccount: any
-    app: any
     isShowDialog = false
     isShowDeleteIcon = false
     showCheckPWDialog = false
@@ -37,11 +35,7 @@ export class WalletAliasTs extends Vue {
         return this.activeAccount.wallet
     }
 
-    get xemDivisibility() {
-        return this.activeAccount.xemDivisibility
-    }
-
-    get namespaceList() {
+    get NamespaceList() {
         return this.activeAccount.namespaces
     }
 
@@ -113,7 +107,7 @@ export class WalletAliasTs extends Vue {
 
     addAliasToLocalStorage() {
         const {address, tag, alias} = this.formItem
-        saveLocaAlias(
+        saveLocalAlias(
             this.getWallet.address,
             {
                 tag: tag,
@@ -140,7 +134,7 @@ export class WalletAliasTs extends Vue {
 
     initLocalAlias() {
         this.currentPage = 1
-        const addressBook = readLocaAlias(this.getWallet.address)
+        const addressBook = readLocalAlias(this.getWallet.address)
         this.aliasList = addressBook && addressBook.aliasMap ? Object.values(addressBook.aliasMap) : []
     }
 

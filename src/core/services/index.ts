@@ -1,3 +1,7 @@
 export * from './transactions'
 export * from './mosaics'
 export * from './namespace'
+export * from './wallets'
+export * from './network'
+export * from './marketData'
+export * from './listeners'

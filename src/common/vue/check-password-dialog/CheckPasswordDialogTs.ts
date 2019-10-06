@@ -4,7 +4,7 @@ import {TransactionType, Password} from "nem2-sdk"
 import {Component, Vue, Prop, Watch} from 'vue-property-decorator'
 import {getAbsoluteMosaicAmount} from "@/core/utils/mosaics"
 import {AppLock} from "@/core/utils/appLock"
-import {AppAccounts, AppWallet} from "@/core/model"
+import {AppAccounts, AppWallet, StoreAccount} from "@/core/model"
 
 @Component({
     computed: {...mapState({activeAccount: 'account'})},
@@ -12,7 +12,7 @@ import {AppAccounts, AppWallet} from "@/core/model"
 export class CheckPasswordDialogTs extends Vue {
     stepIndex = 0
     show = false
-    activeAccount: any
+    activeAccount: StoreAccount
     walletInputInfo = {
         password: ''
     }
@@ -48,10 +48,6 @@ export class CheckPasswordDialogTs extends Vue {
         return this.activeAccount.wallet
     }
 
-    get currentXEM1() {
-        return this.activeAccount.currentXEM1
-    }
-
     get networkType() {
         return this.activeAccount.wallet.networkType
     }
@@ -60,16 +56,12 @@ export class CheckPasswordDialogTs extends Vue {
         return this.activeAccount.generationHash
     }
 
-    get xemDivisibility() {
-        return this.activeAccount.xemDivisibility
-    }
-
-    get mnemonicCipher() {
-        return this.activeAccount.mnemonic
-    }
-
     get accountName() {
         return this.activeAccount.accountName
+    }
+
+    get networkCurrency() {
+        return this.activeAccount.networkCurrency
     }
 
     checkPasswordDialogCancel() {
@@ -136,25 +128,19 @@ export class CheckPasswordDialogTs extends Vue {
     }
 
     switchAnnounceType() {
-        const {node, generationHash, transactionList, currentXEM1, xemDivisibility} = this
+        const {node, generationHash, transactionList} = this
         const password = new Password(this.walletInputInfo.password)
-        const {networkType} = this.wallet
-        let {lockFee} = this.otherDetails  // lockFee param should be relative
-        lockFee = getAbsoluteMosaicAmount(lockFee, xemDivisibility)
+        let {lockFee} = this.otherDetails
         if (transactionList[0].type !== TransactionType.AGGREGATE_BONDED) {
             // normal transaction
             new AppWallet(this.wallet).signAndAnnounceNormal(password, node, generationHash, transactionList, this)
             return
         }
         // bonded transaction
-        new AppWallet(this.wallet).signAndAnnounceBonded(
-            password,
-            lockFee,
-            node,
-            generationHash,
-            transactionList,
-            currentXEM1,
-            networkType
+        new AppWallet(this.wallet).signAndAnnounceBonded( password,
+                                                          lockFee,
+                                                          transactionList,
+                                                          this.$store
         )
     }
 

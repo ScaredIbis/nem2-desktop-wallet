@@ -27,18 +27,6 @@ export class WalletImportPrivatekeyTs extends Vue {
     showCheckPWDialog = false
     NetworkTypeList = networkTypeConfig
 
-    get getNode() {
-        return this.activeAccount.node
-    }
-
-    get currentXEM1() {
-        return this.activeAccount.currentXEM1
-    }
-
-    get walletList() {
-        return this.app.walletList
-    }
-
     submit() {
         if (!this.checkImport()) return
         this.showCheckPWDialog = true
@@ -73,7 +61,7 @@ export class WalletImportPrivatekeyTs extends Vue {
     }
 
     checkImport() {
-        const {walletName, privateKey,} = this.form
+        const {walletName} = this.form
         if (!walletName || walletName == '') {
             this.showNotice(this.$t(Message.WALLET_NAME_INPUT_ERROR))
             return false
@@ -117,6 +105,7 @@ export class WalletImportPrivatekeyTs extends Vue {
         })
         this.$store.commit('SET_HAS_WALLET', true)
         this.$emit('toWalletDetails')
+        this.closeCheckPWDialog()
     }
 
     toBack() {

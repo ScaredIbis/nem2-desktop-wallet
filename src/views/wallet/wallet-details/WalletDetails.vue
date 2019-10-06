@@ -20,12 +20,6 @@
                 <span v-else>0</span>
               </span>
             </p>
-<!--            <p>-->
-<!--              <span class="tit" v-if="wallet&&wallet.path">{{$t('path')}}</span>-->
-<!--              <span>-->
-<!--                {{wallet.path}}-->
-<!--              </span>-->
-<!--            </p>-->
             <p>
               <span class="tit">{{$t('Wallet_name')}}</span>
               <span class="walletName" v-if="wallet">{{wallet.name}}</span>
@@ -37,8 +31,13 @@
                       src="@/common/img/wallet/copyIcon.png"></i>
             </p>
             <p>
+              <span class="tit">{{$t('Wallet_public_key')}}</span>
+              <span class="walletPublicKey">{{wallet.publicKey}}</span>
+              <i class="copyIcon" @click="copy(wallet.publicKey)"><img
+                      src="@/common/img/wallet/copyIcon.png"></i>
+            </p>
+            <p class="link_text">
               <span class="tit">{{$t('alias')}}</span>
-              <!--              <span class=" alias_delete pointer"></span>-->
               <span class="  alias_add pointer" @click="isShowBindDialog=true"></span>
 
               <span class="walletPublicKey">{{getSelfAlias.join(',')||'-'}}</span>
@@ -68,31 +67,32 @@
           <i><img src="@/common/img/wallet/keystore.png"></i>
           <span>{{$t('Export_Keystore')}}</span>
         </div>
-        <!--TODO -->
-        <div class="other un_click left" @click="">
-          <i><img src="@/common/img/wallet/wallet-detail/walletDetailsFilter.png"></i>
-          <span>{{$t('Filter_management')}}</span>
-        </div>
-
-        <div class="other un_click left" @click="">
-          <i><img src="@/common/img/wallet/wallet-detail/walletDetailsMetaData.png"></i>
-          <span>{{$t('meta_data')}}</span>
-        </div>
       </div>
     </div>
     <div class="accountFn radius" ref="accountFn">
       <div class="accountFnNav">
         <ul class="navList clear">
-          <li class="left" @click="showFunctionIndex(0)">
+          <li :class="['left',functionShowList[0]?'active':''] " @click="showFunctionIndex(0)">
+            <img src="@/common/img/wallet/wallet-detail/walletAddressBook.png">
             {{$t('contact_list')}}
           </li>
           <!--restrict-->
-          <!--          <li :class="['left',functionShowList[1]?'active':''] " @click="showFunctionIndex(1)">-->
-          <!--            {{$t('Filter_management')}}-->
-          <!--          </li>-->
+          <li :class="['left',functionShowList[1]?'active':''] " @click="showFunctionIndex(1)">
+            <img src="@/common/img/wallet/wallet-detail/walletHarvesting.png">
+            {{$t('Harvesting')}}
+          </li>
+          <li :class="['left',functionShowList[2]?'active':'','other'] ">
+         <img src="@/common/img/wallet/wallet-detail/walletDetailsFilter.png">
+            {{$t('Filter_management')}}
+          </li>
+          <li :class="['left',functionShowList[3]?'active':'','other'] ">
+           <img src="@/common/img/wallet/wallet-detail/walletDetailsMetaData.png">
+            {{$t('meta_data')}}
+          </li>
         </ul>
       </div>
       <WalletAlias v-if="functionShowList[0]"></WalletAlias>
+      <WalletHarvesting v-if="functionShowList[1]"></WalletHarvesting>
       <!--      <WalletFilter v-if="functionShowList[1]"></WalletFilter>-->
     </div>
     <MnemonicDialog :showMnemonicDialog="showMnemonicDialog"
@@ -101,8 +101,15 @@
                       @closePrivatekeyDialog="closePrivatekeyDialog"/>
     <KeystoreDialog :showKeystoreDialog="showKeystoreDialog"
                     @closeKeystoreDialog="closeKeystoreDialog"/>
-    <TheBindForm :isShowBindDialog='isShowBindDialog'
-                 @closeBindDialog="closeBindDialog"/>
+    <Alias
+      v-if="isShowBindDialog"
+      :visible='isShowBindDialog'
+      :bind="!getSelfAlias.length"
+      :fromNamespace="false"
+      :mosaic="null"
+      :address="getAddress"
+      @close="closeBindDialog"
+    />
   </div>
 </template>
 

@@ -2,34 +2,29 @@ import {mapState} from "vuex"
 import {Address, AliasType, MosaicId} from "nem2-sdk"
 import {Component, Vue, Watch} from 'vue-property-decorator'
 import EditDialog from './mosaic-edit-dialog/MosaicEditDialog.vue'
-import MosaicAliasDialog from './mosaic-alias-dialog/MosaicAliasDialog.vue'
-import MosaicUnAliasDialog from './mosaic-unAlias-dialog/MosaicUnAliasDialog.vue'
 import {formatNumber} from '@/core/utils'
 import {mosaicSortType} from "@/config/view/mosaic"
-import {
-    sortById,
-    sortBySupply,
-    sortByDivisibility,
-    sortByTransferable,
-    sortBySupplyMutable,
-    sortByDuration,
-    sortByRestrictable,
-    sortByAlias
-} from '@/core/services/mosaics/methods.ts'
 import {networkConfig} from "@/config"
-import {MosaicNamespaceStatusType} from "@/core/model"
+import {MosaicNamespaceStatusType, StoreAccount, AppInfo, AppMosaic, AppNamespace} from "@/core/model"
+import {
+    sortByMosaicAlias, sortByMosaicDivisibility,
+    sortByMosaicDuration,
+    sortByMosaicId, sortByMosaicRestrictable,
+    sortByMosaicSupply, sortByMosaicSupplyMutable,
+    sortByMosaicTransferable
+} from "@/core/services"
+import Alias from '@/views/forms/alias/Alias.vue'
 
 @Component({
     components: {
-        MosaicAliasDialog,
-        MosaicUnAliasDialog,
+        Alias,
         EditDialog
     },
     computed: {...mapState({activeAccount: 'account', app: 'app'})},
 })
 export class MosaicListTs extends Vue {
-    activeAccount: any
-    app: any
+    activeAccount: StoreAccount
+    app: AppInfo
     isLoadingConfirmedTx = false
     currentTab: number = 0
     currentPage: number = 1
@@ -41,42 +36,27 @@ export class MosaicListTs extends Vue {
     showMosaicAliasDialog = false
     showMosaicUnAliasDialog = false
     mosaicMapInfo: any = {}
-    selectedMosaic: any = {}
+    selectedMosaic: AppMosaic = null
     currentSortType = mosaicSortType.byId
     mosaicSortType = mosaicSortType
     currentMosaicList = []
     isShowExpiredMosaic = false
 
-    get currentXem() {
-        return this.activeAccount.currentXem
-    }
+    showAliasDialog: boolean = false
+    bind: boolean = false
+    namespace: AppNamespace = null
+    mosaic: string = null
+    address: string = null
 
     get mosaics() {
         return this.activeAccount.mosaics
     }
 
-    get currentXEM1() {
-        return this.activeAccount.currentXEM1
-    }
-
-    get generationHash() {
-        return this.activeAccount.generationHash
-    }
-
-    get accountAddress() {
-        return this.activeAccount.wallet.address
-    }
-
-    get node() {
-        return this.activeAccount.node
-    }
-
-    get getWallet() {
-        return this.activeAccount.wallet
-    }
-
-    get nowBlockHeight() {
+    get currentHeight() {
         return this.app.chainStatus.currentHeight
+    }
+    get publicKey() {
+        return this.activeAccount.wallet.publicKey
     }
 
     get mosaicsLoading() {
@@ -88,23 +68,15 @@ export class MosaicListTs extends Vue {
         this.activeAccount.namespaces.forEach((item) => {
             switch (item.alias.type) {
                 case (AliasType.Address):
-                    //@ts-ignore
+                    //@ts-ignore @TODO: E3 review
                     namespaceMap[Address.createFromEncoded(item.alias.address).address] = item
                     break
                 case (AliasType.Mosaic):
+                    //@ts-ignore @TODO: E3 review
                     namespaceMap[new MosaicId(item.alias.mosaicId).toHex()] = item
             }
         })
         return namespaceMap
-    }
-
-
-    get currentHeight() {
-        return this.app.chainStatus.currentHeight
-    }
-
-    showCheckDialog() {
-        this.showCheckPWDialog = true
     }
 
     toggleChange(page) {
@@ -115,81 +87,63 @@ export class MosaicListTs extends Vue {
         return formatNumber(number)
     }
 
-
-    closeCheckPWDialog() {
-        this.showCheckPWDialog = false
+    bindItem(mosaic: AppMosaic) {
+        this.bind = true
+        this.namespace = null
+        this.mosaic = mosaic.hex
+        this.address = null
+        this.showAliasDialog = true
     }
 
-    showAliasDialog(item) {
-        document.body.click()
+    unbindItem(mosaic: AppMosaic) {
+        const {namespaces} = this.activeAccount
+        this.bind = false
+        this.namespace = namespaces.find(({name}) => name === mosaic.name)
+        this.mosaic = mosaic.hex
+        this.address = null
+        this.showAliasDialog = true
+    }
+
+    showEditDialog(item: AppMosaic) {
         this.selectedMosaic = item
-        setTimeout(() => {
-            this.showMosaicAliasDialog = true
-        })
+        this.showMosaicEditDialog = true
     }
 
-    showUnAliasDialog(item) {
-        document.body.click()
-        this.selectedMosaic = item
-        setTimeout(() => {
-            this.showMosaicUnAliasDialog = true
-        })
-    }
-
-    closeMosaicAliasDialog() {
-        this.showMosaicAliasDialog = false
-    }
-
-    closeMosaicUnAliasDialog() {
-        this.showMosaicUnAliasDialog = false
-    }
-
-    showEditDialog(item) {
-        document.body.click()
-        this.selectedMosaic = item
-        setTimeout(() => {
-            this.showMosaicEditDialog = true
-        }, 0)
-    }
-
-    closeMosaicEditDialog(item) {
-        this.showMosaicEditDialog = false
-    }
-
-    computeDuration(item) {
+    computeDuration(item: AppMosaic) {
         if (!item.mosaicInfo) return 'Loading...'
-        const {properties, height} = item.mosaicInfo
-        if (properties.duration.compact() === 0) return 'Forever'
-        return (height.compact() + properties.duration.compact()) - this.nowBlockHeight
+        const {properties, mosaicInfo} = item
+        const duration = properties.duration
+        if (duration === 0) return 'Forever'
+        return (mosaicInfo.height.compact() + duration) - this.currentHeight
     }
 
-    getSortType(type) {
+    getSortType(type: number) {
         this.currentSortType = type
         const currentMosaicList = [...this.currentMosaicList]
         switch (type) {
             case mosaicSortType.byId:
-                this.currentMosaicList = sortById(currentMosaicList)
+                this.currentMosaicList = sortByMosaicId(currentMosaicList)
                 break
             case mosaicSortType.byDuration:
-                this.currentMosaicList = sortByDuration(currentMosaicList)
+                this.currentMosaicList = sortByMosaicDuration(currentMosaicList)
                 break
             case mosaicSortType.byAlias:
-                this.currentMosaicList = sortByAlias(currentMosaicList)
+                this.currentMosaicList = sortByMosaicAlias(currentMosaicList)
                 break
             case mosaicSortType.byRestrictable:
-                this.currentMosaicList = sortByRestrictable(currentMosaicList)
+                this.currentMosaicList = sortByMosaicRestrictable(currentMosaicList)
                 break
             case mosaicSortType.bySupply:
-                this.currentMosaicList = sortBySupply(currentMosaicList)
+                this.currentMosaicList = sortByMosaicSupply(currentMosaicList)
                 break
             case mosaicSortType.byTransferable:
-                this.currentMosaicList = sortByTransferable(currentMosaicList)
+                this.currentMosaicList = sortByMosaicTransferable(currentMosaicList)
                 break
             case mosaicSortType.byDivisibility:
-                this.currentMosaicList = sortByDivisibility(currentMosaicList)
+                this.currentMosaicList = sortByMosaicDivisibility(currentMosaicList)
                 break
             case mosaicSortType.bySupplyMutable:
-                this.currentMosaicList = sortBySupplyMutable(currentMosaicList)
+                this.currentMosaicList = sortByMosaicSupplyMutable(currentMosaicList)
                 break
         }
     }
@@ -207,7 +161,7 @@ export class MosaicListTs extends Vue {
     }
 
     @Watch('mosaics', {deep: true})
-    onMosiacsChange() {
+    onMosaicChange() {
         this.intiMosaics()
     }
 

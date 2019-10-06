@@ -6,7 +6,6 @@
         <p class="head_title">{{$t('Namespace_and_Sub_Namespace')}}</p>
         <p class="tips">{{$t('Under_the_current_wallet')}}</p>
       </div>
-
       <div class="tips_icon">
         <Poptip width="290" placement="bottom">
           <img src="@/common/img/service/namespace/namespaceTipIcon.png" alt="">
@@ -19,96 +18,122 @@
       </div>
       <div class="namespace_list_table">
         <div class="table_head">
-        <span @click="getSortType(namespaceSortType.byName)" class="namesapce_name">
-          {{$t('namespace_name')}}
-          <Icon v-if="namespaceSortType.byName == currentSortType" class="active_sort_type" type="md-arrow-dropdown"/>
-        </span>
-          <span @click="getSortType(namespaceSortType.byDuration)" class="duration">
-          {{$t('duration')}}
-             <Icon v-if="namespaceSortType.byDuration == currentSortType" class="active_sort_type"
-                   type="md-arrow-dropdown"/>
-        </span>
-          <span @click="getSortType(namespaceSortType.byOwnerShip)" class="is_active">
-          {{$t('Control')}}
-             <Icon v-if="namespaceSortType.byOwnerShip == currentSortType" class="active_sort_type"
-                   type="md-arrow-dropdown"/>
-        </span>
-          <span @click="getSortType(namespaceSortType.byBindType)" class="link">
-          {{$t('link')}}
-             <Icon v-if="namespaceSortType.byBindType == currentSortType" class="active_sort_type"
-                   type="md-arrow-dropdown"/>
-        </span>
-          <span @click="getSortType(namespaceSortType.byBindInfo)" class="type">
-          {{$t('type')}}
-             <Icon v-if="namespaceSortType.byBindInfo == currentSortType" class="active_sort_type"
-                   type="md-arrow-dropdown"/>
-        </span>
+          <span
+            class="Namespace_name"
+            @click="namespaceSortType = namespaceSortTypes.byName;
+                sortDirection = !sortDirection"
+          >{{$t('namespace_name')}}
+            <Icon
+              v-if="namespaceSortType === namespaceSortTypes.byName"
+              class="active_sort_type"
+              type="md-arrow-dropdown"
+            />
+          </span>
+          <span
+            class="duration"
+            @click="namespaceSortType = namespaceSortTypes.byDuration;
+                sortDirection = !sortDirection"
+          >{{$t('duration')}}
+            <Icon
+              v-if="namespaceSortType === namespaceSortTypes.byDuration"
+              class="active_sort_type"
+              type="md-arrow-dropdown"
+            />
+          </span>
+          <!-- <span
+            class="is_active"
+            @click="namespaceSortType = namespaceSortTypes.byOwnerShip;
+                sortDirection = !sortDirection"
+          >{{$t('Control')}}
+            <Icon
+              v-if="namespaceSortType === namespaceSortTypes.byOwnerShip"
+              class="active_sort_type"
+              type="md-arrow-dropdown"
+            />
+          </span> -->
+          <span
+            class="link"
+            @click="namespaceSortType = namespaceSortTypes.byBindType;
+                sortDirection = !sortDirection"
+          >{{$t('link')}}
+            <Icon
+              v-if="namespaceSortType === namespaceSortTypes.byBindType"
+              class="active_sort_type"
+              type="md-arrow-dropdown"
+            />
+          </span>
+          <span 
+            @click="namespaceSortType = namespaceSortTypes.byBindType;
+                sortDirection = !sortDirection"
+            class="type"
+          >{{$t('type')}}
+             <Icon
+              v-if="namespaceSortType === namespaceSortTypes.byBindInfo"
+              class="active_sort_type"
+              type="md-arrow-dropdown"
+            />
+          </span>
           <span class="more"></span>
-          <!--       this is   a  filter-->
-          <!--          <div class="namespace_filter" @click="toggleIsShowExpiredNamesapce()">-->
-          <!--            <img v-if="!isShowExpiredNamesapce" src="@/common/img/window/windowSelected.png">-->
-          <!--            <img v-else src="@/common/img/window/windowUnselected.png">-->
-          <!--            <span>{{$t('Hide_expired_namespaces')}}</span>-->
-          <!--          </div>-->
         </div>
         <Spin v-if="namespaceLoading" size="large" fix class="absolute"></Spin>
         <div class="table_body ">
-          <div class=" radius"
-               v-for=" n in currentNamespaceListByPage">
+          <div class=" radius" :key="`ns${index}`"
+               v-for="(n, index) in paginatedNamespaceList">
             <div v-if="n" class="table_body_item">
-              <span class="namesapce_name overflow_ellipsis">{{n.label}}</span>
+              <span class="Namespace_name overflow_ellipsis">{{n.label}}</span>
               <span class="duration overflow_ellipsis">
-              {{computeDuration(n) === StatusString.EXPIRED ? $t('overdue') : durationToTime(n.endHeight)}}
+              {{computeDuration(n) === StatusString.EXPIRED
+                  ? $t('overdue') : durationToTime(n.endHeight)}}
             </span>
-              <span class="is_active overflow_ellipsis">
-            <Icon v-if="n.isActive" type="md-checkmark"/>
-            <Icon v-else type="md-close"/>
-            </span>
-              <span class="link overflow_ellipsis">{{n.aliasType}}</span>
-              <span class="type overflow_ellipsis">{{n.aliasTarget}}</span>
+            <!-- <span class="is_active overflow_ellipsis">
+              <Icon v-if="n.isActive" type="md-checkmark"/>
+              <Icon v-else type="md-close"/>
+            </span> -->
+              <span class="link overflow_ellipsis">{{$t(getAliasType(n))}}</span>
+              <span class="type overflow_ellipsis">{{getAliasTarget(n)}}</span>
               <span class="more overflow_ellipsis">
             <Poptip class="poptip_container" placement="top-end">
               <i class="moreFn"></i>
               <div slot="content" max-width="150" class="refresh_sub_container">
-                <span class="fnItem pointer" v-if="n.levels === 1" @click="showEditDialog(n)">
+                <span class="fnItem pointer" v-if="n.levels === 1" @click.stop="showEditDialog(n)">
                   <img src="@/common/img/service/namespace/namespaceRefresh.png">
                   <span>{{$t('update')}}</span>
                 </span>
-               <span v-if="n.isLinked && computeDuration(n) !== StatusString.EXPIRED&&unlinkMosaicList.length"
-                     class="fnItem pointer" @click="showUnlinkDialog(n)">
+               <span
+                    v-if="n.isLinked() && computeDuration(n) !== StatusString.EXPIRED"
+                    class="fnItem pointer"
+                    @click.stop="unbindItem(n)"
+                >
                 <img src="@/common/img/service/namespace/namespaceRefresh.png">
                 <span>{{$t('unbind')}}</span>
               </span>
 
-              <span v-if="!n.isLinked && computeDuration(n) !== StatusString.EXPIRED  && availableMosaics.length"
-                    class="fnItem pointer"
-                    @click="showMosaicLinkDialog(n)">
+              <span
+                  v-if="!n.isLinked() && computeDuration(n) !== StatusString.EXPIRED"
+                  class="fnItem pointer"
+                  @click.stop="bindItem(n)"
+              >
                 <img src="@/common/img/service/namespace/namespaceRefresh.png">
-                <span>{{$t('bind_mosaic')}}</span>
-              </span>
-                  <span v-if="!n.isLinked&& computeDuration(n) !== StatusString.EXPIRED " class="fnItem pointer"
-                        @click="showAddressLinkDialog(n)">
-                <img src="@/common/img/service/namespace/namespaceRefresh.png">
-                <span>{{$t('bind_address')}}</span>
+                <span>{{$t('bind')}}</span>
               </span>
           </div>
           </Poptip>
           </span>
             </div>
           </div>
-          <div v-if="currentNamespaceListByPage.length == 0" class="noData">
+          <div v-if="namespaceList.length == 0" class="noData">
             <p>{{$t('no_data')}}</p>
           </div>
         </div>
       </div>
 
       <div class="page_list_container">
-        <Page class="page_list" :total="currentNamespacelist.length" :page-size="pageSize" @on-change="handleChange"></Page>
+        <Page class="page_list" :total="namespaceList.length" :page-size="pageSize" @on-change="handleChange"></Page>
       </div>
     </div>
 
-    <div class="right_continer radius">
-      <p class="right_continer_head">{{$t('namespace')}}</p>
+    <div class="right_container radius">
+      <p class="right_container_head">{{$t('namespace')}}</p>
       <p class="second_head">{{$t('define')}}</p>
       <p class="green">{{$t('A_namespace_starts_with_a_name_that_you_choose_similar_to_an_internet_domain_name')}}</p>
       <p class="second_head">{{$t('Namespace_description')}}</p>
@@ -118,27 +143,22 @@
       <p class="second_head">{{$t('scenes_to_be_used')}}</p>
       <p>{{$t('Used_to_bind_a_wallet_address')}}</p>
     </div>
-
     <NamespaceEditDialog
-            :currentNamespace="currentNamespace"
+            v-if="showNamespaceEditDialog"
+            :currentNamespace="namespace"
             :showNamespaceEditDialog="showNamespaceEditDialog"
-            @closeNamespaceEditDialog='closeNamespaceEditDialog'/>
-
-    <NamespaceUnAliasDialog
-            :showUnAliasDialog="showUnAliasDialog"
-            :unAliasItem="aliasDialogItem"
-            @closeUnAliasDialog="closeUnAliasDialog"/>
-
-    <NamespaceMosaicAliasDialog
-            :showMosaicAliasDialog="showMosaicAliasDialog"
-            :itemMosaic="aliasDialogItem"
-            @closeMosaicAliasDialog="closeMosaicAliasDialog"/>
-
-    <NamespaceAddressAliasDialog
-            :isShowAddressAliasDialog="isShowAddressAliasDialog"
-            :addressAliasItem="aliasDialogItem"
-            @closeAddressAliasDialog="closeAddressAliasDialog"/>
-
+            @close='showNamespaceEditDialog = false'
+    />
+    <Alias
+        v-if="showAliasDialog"
+        :visible="showAliasDialog"
+        :bind="bind"
+        :fromNamespace="true"
+        :namespace="namespace"
+        :mosaic="mosaic"
+        :address="address"
+        @close="showAliasDialog = false"
+    />
   </div>
 </template>
 

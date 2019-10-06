@@ -1,40 +1,21 @@
 import { NamespaceId, NamespaceInfo, Alias, NamespaceName } from 'nem2-sdk'
+import { EmptyAlias } from 'nem2-sdk/dist/src/model/namespace/EmptyAlias'
 
+// @TODO: review model
 export class AppNamespace {
-  id: NamespaceId
-  hex: string
-  value: string
-  label: string
-  namespaceInfo: NamespaceInfo
-  isActive: boolean
-  alias: Alias
-  levels: number
-  endHeight: number
-  name: string
-  // aliasTarget: string
-  // duration: number
-  // isLinked: boolean
-  constructor(   id: NamespaceId,
-                 hex: string,
-                 value: string,
-                 label: string,
-                 namespaceInfo: NamespaceInfo,
-                 isActive: boolean,
-                 alias: Alias,
-                 levels: number,
-                 endHeight: number,
-                 name: string) {
-    this.id = id
-    this.hex = hex
-    this.value = value
-    this.label = label
-    this.namespaceInfo = namespaceInfo
-    this.isActive = isActive
-    this.alias = alias
-    this.levels = levels
-    this.endHeight = endHeight
-    this.name = name
-  }
+  aliasTarget: string
+  aliasType: string
+
+  constructor(   public id: NamespaceId,
+                 public hex: string,
+                 public value: string,
+                 public label: string,
+                 public namespaceInfo: NamespaceInfo,
+                 public isActive: boolean,
+                 public alias: Alias,
+                 public levels: number,
+                 public endHeight: number,
+                 public name: string) {}
 
   static fromNamespaceInfo( namespaceInfo: NamespaceInfo,
                             namespaceNames: NamespaceName[]): AppNamespace {
@@ -66,4 +47,8 @@ export class AppNamespace {
       .map((namespaceName: NamespaceName) => namespaceName.name)
       .join('.');  
    }
+
+  isLinked(): boolean {
+    return !(this.alias instanceof EmptyAlias)
+  }
 }

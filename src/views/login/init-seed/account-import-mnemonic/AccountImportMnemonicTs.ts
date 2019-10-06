@@ -1,13 +1,11 @@
-import {Message} from "@/config/index.ts"
+import {Message,formDataConfig} from "@/config/index.ts"
 import {mapState} from 'vuex'
 import {Password} from "nem2-sdk"
 import {Component, Vue} from 'vue-property-decorator'
-import {formDataConfig} from "@/config/view/form"
 import {networkTypeConfig} from '@/config/view/setting'
 import {AppLock} from "@/core/utils"
 import {AppInfo, StoreAccount, AppWallet} from "@/core/model"
 import CheckPasswordDialog from '@/common/vue/check-password-dialog/CheckPasswordDialog.vue'
-
 @Component({
     computed: {
         ...mapState({
@@ -26,18 +24,6 @@ export class AccountImportMnemonicTs extends Vue {
     NetworkTypeList = networkTypeConfig
     account = {}
     showCheckPWDialog = false
-
-    get getNode() {
-        return this.activeAccount.node
-    }
-
-    get currentXEM1() {
-        return this.activeAccount.currentXEM1
-    }
-
-    get walletList() {
-        return this.app.walletList
-    }
 
     submit() {
         if (!this.checkImport()) return

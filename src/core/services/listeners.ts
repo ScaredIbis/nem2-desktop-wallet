@@ -2,8 +2,9 @@ import {Address, Listener} from "nem2-sdk"
 import {filter} from 'rxjs/operators'
 import {formatAndSave} from '@/core/services/transactions'
 import {ChainStatus} from '@/core/model'
+
 export class ChainListeners {
-    private readonly app: any
+    private readonly app: any //@TODO: rename and type
     private node: string
     // @TODO address as Address
     private address: string
@@ -84,22 +85,14 @@ export class ChainListeners {
                     .pipe(filter((transaction: any) => transaction.transactionInfo !== undefined))
                     .subscribe(transaction => {
                         that.$Notice.success({
-                            title: receivedTransactionMessage, // quickfix
+                            title: receivedTransactionMessage, // quick fix
                             duration: 20,
                         })
                         formatAndSave(
-                            that.$store.getters.mosaicList,
                             {...transaction, isTxUnconfirmed: true},
-                            that.$store.getters.wallet.address,
-                            that.$store.getters.currentXEM1,
-                            that.$store.getters.xemDivisibility,
-                            that.$store.getters.node,
-                            that.$store.getters.currentXem,
                             that.$store,
                             false
                         )
-
-
                     })
             })
 
@@ -119,17 +112,11 @@ export class ChainListeners {
                     .subscribe((transaction) => {
                         that.$Notice.destroy()
                         that.$Notice.success({
-                            title: receivedTransactionMessage, // quickfix
+                            title: receivedTransactionMessage, // quick fix
                             duration: 4,
                         })
                         formatAndSave(
-                            that.$store.getters.mosaicList,
                             transaction,
-                            that.$store.getters.wallet.address,
-                            that.$store.getters.currentXEM1,
-                            that.$store.getters.xemDivisibility,
-                            that.$store.getters.node,
-                            that.$store.getters.currentXem,
                             that.$store,
                             true
                         )

@@ -1,6 +1,6 @@
 import Vue from 'vue'
 import i18n from '@/language/index.ts'
-import {Address, AliasActionType, Deadline} from 'nem2-sdk'
+import {Address, AliasAction, Deadline} from 'nem2-sdk'
 
 const vueInstance = new Vue({i18n})
 
@@ -230,7 +230,7 @@ export const formatNamespaces = (namespacesInfo, blockHeight) => namespacesInfo.
             isExpandMore: false,
             namespaceName: name,
             aliasActionType:
-                ns.namespaceInfo.alias.type === 0 ? AliasActionType.Link : AliasActionType.Unlink,
+                ns.namespaceInfo.alias.type === 0 ? AliasAction.Link : AliasAction.Unlink,
             currentAliasType: ns.namespaceInfo.alias.type,
             currentAlias: ns.namespaceInfo.alias.type === 0 ? '' : aliasText
         }
@@ -266,16 +266,15 @@ export const formatAddress = function (address) {
     return Address.createFromRawAddress(address).pretty()
 }
 
-export const getCurrentMonthFirst = function (date) {
+export const getCurrentMonthFirst = function (date: Date): Date {
     date.setDate(1)
     return date
 }
 
-export const getCurrentMonthLast = function (date) {
+export const getCurrentMonthLast = function (date: Date): Date {
     let currentMonth = date.getMonth()
     let nextMonth = ++currentMonth
     let nextMonthFirstDay = new Date(date.getFullYear(), nextMonth, 1)
-    let oneDay = 1000 * 60 * 60 * 24
     return new Date(Number(nextMonthFirstDay))
 }
 
@@ -293,8 +292,8 @@ export const isRefreshData = function (localstorageName, refreshTime, borderline
     return false
 }
 
-export const formatSeconds = function (second) {
-    if (!second && second !== 0) return 0
+export const formatSeconds = function (second): string {
+    if (!second && second !== 0) return ''
     let d = 0, h = 0, m = 0
 
     if (second > 86400) {
@@ -325,21 +324,20 @@ export const formatSeconds = function (second) {
     }
 
     return result
-
 }
 
-export const formatXemAmount = (XEMamount) => {
-    if (!Number(XEMamount)) return '0'
-    XEMamount = XEMamount + ''
-    if (XEMamount.includes('.')) {
-        const decimal = XEMamount.split('.')[1]
+export const formatXemAmount = (xemAmount) => {
+    if (!Number(xemAmount)) return '0'
+    xemAmount = xemAmount + ''
+    if (xemAmount.includes('.')) {
+        const decimal = xemAmount.split('.')[1]
         if (decimal.length > 2) {
-            return Number(XEMamount).toFixed(2)
+            return Number(xemAmount).toFixed(2)
         } else {
-            return XEMamount
+            return xemAmount
         }
     } else {
-        return XEMamount
+        return xemAmount
     }
 }
 
