@@ -1,10 +1,11 @@
 import {mapState} from 'vuex'
 import {TransactionType, Password} from "nem2-sdk"
 import {Component, Vue} from 'vue-property-decorator'
+
+import {Message} from "@/config/index.ts"
 import {CreateWalletType} from '@/core/model/CreateWalletType'
 import trezor from '@/core/utils/trezor';
-
-
+import { AppWallet } from '@/core/model/AppWallet';
 import { transactionConfirmationObservable } from '@/core/services/transactions'
 
 @Component({
@@ -99,10 +100,29 @@ export class TransactionConfirmationTs extends Vue {
     }
 
     confirmTransactionViaPassword() {
+
+        let isPasswordValid;
+        try {
+            // TODO: update checkPassword to take a string so it can handle errors
+            // when instantiating a new Password (eg. Password must be at least 8 characters)
+            isPasswordValid = new AppWallet(this.wallet).checkPassword(new Password(this.password));
+        } catch (e) {
+            isPasswordValid = false;
+        }
+
+        if(!isPasswordValid) {
+            this.$Notice.error({
+                title: this.$t(Message.WRONG_PASSWORD_ERROR) + ''
+            })
+            return;
+        }
+
+        const account = new AppWallet(this.wallet).getAccount(new Password(this.password))
+        const signedTransaction = account.sign(this.stagedTransaction, this.account.generationHash)
         // use account to sign stagedTransaction
         transactionConfirmationObservable.next({
             success: true,
-            signedTransaction: this.stagedTransaction,
+            signedTransaction,
             error: null
         });
     }

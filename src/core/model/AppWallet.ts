@@ -8,7 +8,7 @@ import {
     Password,
     WalletAlgorithm,
     Listener,
-    Id, AccountHttp, Address, AggregateTransaction,
+    Id, AccountHttp, Address, AggregateTransaction, SignedTransaction,
 } from 'nem2-sdk'
 import CryptoJS from 'crypto-js'
 import {Message, networkConfig} from "@/config"
@@ -396,6 +396,12 @@ export class AppWallet {
         }
     }
 
+    announceNormal(signedTransaction: SignedTransaction, node: string, that: any): void {
+        new TransactionApiRxjs().announce(signedTransaction, node).subscribe(() => {
+            that.$Notice.success({title: that.$t(Message.SUCCESS)})
+        })
+    }
+
     signAndAnnounceNormal(password: Password, node: string, generationHash: string, transactionList: Array<any>, that: any): void {
         try {
             const account = this.getAccount(password)
@@ -417,7 +423,7 @@ export class AppWallet {
                               transactions: AggregateTransaction[],
                               store: Store<AppState>) => {
         const {node} = store.state.account
-        
+
         const account = this.getAccount(password)
         const aggregateTransaction = transactions[0]
         // @TODO: review listener management

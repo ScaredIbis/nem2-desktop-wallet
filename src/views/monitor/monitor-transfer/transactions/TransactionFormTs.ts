@@ -274,7 +274,8 @@ export class TransactionFormTs extends Vue {
                 this.confirmViaTransactionConfirmation()
                 break;
             default:
-                this.confirmViaCheckPasswordDialog()
+                this.confirmViaTransactionConfirmation()
+                // this.confirmViaCheckPasswordDialog()
         }
     }
 
@@ -288,10 +289,14 @@ export class TransactionFormTs extends Vue {
         // delegate the signing to the TransactionConfirmation workflow
         // the resolve value of this promise will contain the signed transaction
         // if the user confirms successfullly
-        const signedTransaction = await signTransaction(this.transactionList[0], this.generationHash, this.$store)
+        const {
+            success,
+            signedTransaction
+        } = await signTransaction(this.transactionList[0], this.generationHash, this.$store);
 
-        // TODO: announce the signed transaction
-        console.log('GOT THE SIGNED TRANSACTION', signedTransaction);
+        if(success) {
+            new AppWallet(this.wallet).announceNormal(signedTransaction, this.activeAccount.node, this);
+        }
     }
 
     confirmViaCheckPasswordDialog() {
