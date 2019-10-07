@@ -11,6 +11,8 @@ import CheckPWDialog from '@/common/vue/check-password-dialog/CheckPasswordDialo
 import {getAbsoluteMosaicAmount, getRelativeMosaicAmount, formatAddress} from "@/core/utils"
 import {standardFields, isAddress} from "@/core/validation"
 import {createBondedMultisigTransaction, createCompleteMultisigTransaction, AppMosaic, AppWallet, AppInfo, StoreAccount, DefaultFee} from "@/core/model"
+import {CreateWalletType} from '@/core/model/CreateWalletType'
+import {signTransaction} from '@/core/services/transactions';
 import ErrorTooltip from '@/views/other/forms/errorTooltip/ErrorTooltip.vue'
 
 @Component({
@@ -240,7 +242,7 @@ export class TransactionFormTs extends Vue {
             .validate()
             .then((valid) => {
                 if (!valid) return
-                this.showDialog()
+                this.showDialog();
             })
     }
 
@@ -266,6 +268,33 @@ export class TransactionFormTs extends Vue {
             }
         }
 
+        // TODO: reuse TransactionConfirmation for transactions on all wallets
+        switch(this.wallet.sourceType) {
+            case CreateWalletType.trezor:
+                this.confirmViaTransactionConfirmation()
+                break;
+            default:
+                this.confirmViaCheckPasswordDialog()
+        }
+    }
+
+    async confirmViaTransactionConfirmation() {
+        if (this.activeMultisigAccount) {
+            this.sendMultisigTransaction()
+        } else {
+            this.sendTransaction()
+        }
+
+        // delegate the signing to the TransactionConfirmation workflow
+        // the resolve value of this promise will contain the signed transaction
+        // if the user confirms successfullly
+        const signedTransaction = await signTransaction(this.transactionList[0], this.generationHash, this.$store)
+
+        // TODO: announce the signed transaction
+        console.log('GOT THE SIGNED TRANSACTION', signedTransaction);
+    }
+
+    confirmViaCheckPasswordDialog() {
         if (this.activeMultisigAccount) {
             this.sendMultisigTransaction()
             this.showCheckPWDialog = true

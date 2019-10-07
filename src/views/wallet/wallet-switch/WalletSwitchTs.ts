@@ -43,6 +43,7 @@ export class WalletSwitchTs extends Vue {
             switch (item.sourceType) {
                 case CreateWalletType.keyStore:
                 case CreateWalletType.privateKey:
+                case CreateWalletType.trezor:
                     item.stylesheet = walletStyleSheetType.otherWallet
                     break
                 case CreateWalletType.seed:
