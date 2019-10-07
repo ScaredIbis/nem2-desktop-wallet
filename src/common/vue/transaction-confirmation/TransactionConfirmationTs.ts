@@ -2,6 +2,8 @@ import {mapState} from 'vuex'
 import {TransactionType, Password} from "nem2-sdk"
 import {Component, Vue} from 'vue-property-decorator'
 import {CreateWalletType} from '@/core/model/CreateWalletType'
+import trezor from '@/core/utils/trezor';
+
 
 import { transactionConfirmationObservable } from '@/core/services/transactions'
 
@@ -71,13 +73,29 @@ export class TransactionConfirmationTs extends Vue {
         }
     }
 
-    confirmTransactionViaTrezor() {
-        // get signedTransaction via TrezorConnect.nemSignTransaction
-        transactionConfirmationObservable.next({
-            success: true,
-            signedTransaction: this.stagedTransaction,
-            error: null
-        });
+    async confirmTransactionViaTrezor() {
+        console.log("STAGED TRANSACTION", this.stagedTransaction);
+
+        const transactionResult = await trezor.nemSignTransaction({
+            path: this.wallet.path,
+            transaction: this.stagedTransaction
+        })
+
+        console.log('GOT THE SIGNATURE', transactionResult)
+        if(transactionResult.success) {
+            // get signedTransaction via TrezorConnect.nemSignTransaction
+            transactionConfirmationObservable.next({
+                success: true,
+                signedTransaction: transactionResult.payload.signature,
+                error: null
+            });
+        } else {
+            transactionConfirmationObservable.next({
+                success: false,
+                signedTransaction: null,
+                error: transactionResult.payload.error
+            });
+        }
     }
 
     confirmTransactionViaPassword() {
