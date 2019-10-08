@@ -1,19 +1,17 @@
 import {AppInfo, ChainStatus, AppState, FormattedTransaction} from '@/core/model'
 import {localRead} from "@/core/utils";
-import { GetterTree, MutationTree } from 'vuex';
 import { Transaction } from 'nem2-sdk';
+import {MutationTree} from 'vuex';
 
 const state: AppInfo = {
     timeZone: new Date().getTimezoneOffset() / 60,   // current time zone
     locale: 'en-US',
-    currentPanelIndex: 0,
     walletList: [],
     hasWallet: false,
     isNodeHealthy: false,
     mnemonic: '',
     chainStatus: ChainStatus.getDefault(),
     mosaicsLoading: true,
-    balanceLoading: false,
     transactionsLoading: false,
     namespaceLoading: true,
     xemUsdPrice: 0,
@@ -33,9 +31,6 @@ const mutations: MutationTree<AppInfo> = {
         state.mnemonic = ''
         state.walletList = []
     },
-    SET_CURRENT_PANEL_INDEX(state: AppInfo, index: any) {
-        state.currentPanelIndex = index
-    },
     SET_WALLET_LIST(state: AppInfo, walletList: any[]): void {
         state.walletList = walletList
     },
@@ -53,9 +48,6 @@ const mutations: MutationTree<AppInfo> = {
     },
     SET_MOSAICS_LOADING(state: AppInfo, bool: boolean) {
         state.mosaicsLoading = bool
-    },
-    SET_BALANCE_LOADING(state: AppInfo, bool: boolean) {
-        state.balanceLoading = bool
     },
     SET_TRANSACTIONS_LOADING(state: AppInfo, bool: boolean) {
         state.transactionsLoading = bool

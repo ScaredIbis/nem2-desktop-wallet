@@ -10,9 +10,10 @@ import {Component, Provide, Vue, Watch} from 'vue-property-decorator'
 import CheckPWDialog from '@/common/vue/check-password-dialog/CheckPasswordDialog.vue'
 import {getAbsoluteMosaicAmount, getRelativeMosaicAmount, formatAddress} from "@/core/utils"
 import {standardFields, isAddress} from "@/core/validation"
-import {createBondedMultisigTransaction, createCompleteMultisigTransaction, AppMosaic, AppWallet, AppInfo, StoreAccount, DefaultFee} from "@/core/model"
 import {CreateWalletType} from '@/core/model/CreateWalletType'
 import {signTransaction} from '@/core/services/transactions';
+import {AppMosaic, AppWallet, AppInfo, StoreAccount, DefaultFee} from "@/core/model"
+import {createBondedMultisigTransaction, createCompleteMultisigTransaction} from '@/core/services'
 import ErrorTooltip from '@/views/other/forms/errorTooltip/ErrorTooltip.vue'
 
 @Component({
@@ -366,7 +367,7 @@ export class TransactionFormTs extends Vue {
             this.showErrorMessage(this.$t(Message.ILLEGAL_PUBLIC_KEY_ERROR))
             return false
         }
-        if (recipient.length < 1 || recipient.length > 40) {
+        if (!recipient) {
             this.showErrorMessage(this.$t(Message.ADDRESS_FORMAT_ERROR))
             return false
         }

@@ -3,20 +3,22 @@ import {
     Account,
     Crypto,
     NetworkType,
-    Transaction,
     SimpleWallet,
     Password,
     WalletAlgorithm,
     Listener,
-    Id, AccountHttp, Address, AggregateTransaction, SignedTransaction,
+    AccountHttp,
+    Address,
+    AggregateTransaction,
+    TransactionHttp,
+    SignedTransaction
 } from 'nem2-sdk'
 import CryptoJS from 'crypto-js'
 import {Message, networkConfig} from "@/config"
-import {MultisigApiRxjs} from "@/core/api/MultisigApiRxjs.ts"
-import {TransactionApiRxjs} from '@/core/api/TransactionApiRxjs.ts'
 import {AppLock, localRead, localSave, createSubWalletByPath} from "@/core/utils"
 import {CreateWalletType} from "@/core/model"
 import {AppState} from './types';
+import {announceBondedWithLock} from '@/core/services'
 
 export class AppWallet {
     constructor(wallet?: {
@@ -32,12 +34,10 @@ export class AppWallet {
     publicKey: string | undefined
     networkType: NetworkType | undefined
     active: boolean | undefined
-    style: string | undefined
     balance: number | 0
     encryptedMnemonic: string | undefined
     path: string
     sourceType: string
-    createTimestamp: number
     importance: number
     linkedAccountKey: string
 
@@ -58,7 +58,6 @@ export class AppWallet {
             this.networkType = networkType
             this.active = true
             this.sourceType = CreateWalletType.privateKey
-            this.createTimestamp = new Date().valueOf()
             this.addNewWalletToList(store)
             return this
         } catch (error) {
@@ -83,7 +82,6 @@ export class AppWallet {
             this.publicKey = account.publicKey
             this.networkType = networkType
             this.active = true
-            this.createTimestamp = new Date().valueOf()
             this.path = path
             this.sourceType = CreateWalletType.seed
             this.encryptedMnemonic = AppLock.encryptString(mnemonic, password.value)
@@ -112,7 +110,6 @@ export class AppWallet {
             this.publicKey = account.publicKey
             this.networkType = networkType
             this.active = true
-            this.createTimestamp = new Date().valueOf()
             this.path = path
             this.sourceType = CreateWalletType.seed
             this.encryptedMnemonic = AppLock.encryptString(mnemonic, password.value)
@@ -213,13 +210,13 @@ export class AppWallet {
             store)
     }
 
+    // @WALLET: Hard to understand what this function is doing, rename / review
     addNewWalletToList(store: Store<AppState>): void {
         const accountName = store.state.account.accountName
         const accountMap = localRead('accountMap') === ''
             ? {} : JSON.parse(localRead('accountMap'))
-        const localData = accountMap[accountName].wallets
 
-        this.style = this.style || `walletItem_bg_${String(Number(localData.length) % 3)}`
+        const localData = accountMap[accountName].wallets
 
         if (!localData.length) {
             AppWallet.switchWallet(this.address, [this], store)
@@ -279,7 +276,7 @@ export class AppWallet {
             .map(wallet => wallet.active = false)
 
         newWalletList.splice(newWalletIndex, 1)
-        const walletListToStore = [newWallet, ...newWalletList]
+        const walletListToStore = [...newWalletList, newWallet]
 
         store.commit('SET_WALLET_LIST', walletListToStore)
         store.commit('SET_WALLET', newWallet)
@@ -307,10 +304,8 @@ export class AppWallet {
         try {
             this.balance = balance
             this.updateWallet(store)
-            store.commit('SET_BALANCE_LOADING', false)
         } catch (error) {
-            store.commit('SET_BALANCE_LOADING', false)
-            // do nothing
+            console.error("AppWallet -> error", error)
         }
     }
 
@@ -336,21 +331,18 @@ export class AppWallet {
 
     updateWallet(store: Store<AppState>) {
         const accountName = store.state.account.accountName
-        const accountMap = localRead('accountMap') === ''
-            ? {} : JSON.parse(localRead('accountMap'))
+        const accountMap = localRead('accountMap') === '' ? {} : JSON.parse(localRead('accountMap'))
         const localData: any[] = accountMap[accountName].wallets
         if (!localData.length) throw new Error('error at update wallet, no wallets in storage')
 
-        let newWalletList = [...localData]
-        const newWalletIndex = localData.findIndex(({address}) => address === this.address)
-
+        const newWalletList = [...localData]
+        const newWalletIndex = newWalletList.findIndex(({address}) => address === this.address)
         if (newWalletIndex === -1) throw new Error('wallet not found when updating')
 
-        newWalletList[newWalletIndex] = this
-
-        store.commit('SET_WALLET_LIST', newWalletList)
+        const updatedList = Object.assign([], newWalletList, {[newWalletIndex]: this})
+        store.commit('SET_WALLET_LIST', updatedList)
         if (store.state.account.wallet.address === this.address) store.commit('SET_WALLET', this)
-        accountMap[accountName].wallets = newWalletList
+        accountMap[accountName].wallets = updatedList
         localSave('accountMap', JSON.stringify(accountMap))
     }
 
@@ -397,24 +389,21 @@ export class AppWallet {
     }
 
     announceNormal(signedTransaction: SignedTransaction, node: string, that: any): void {
-        new TransactionApiRxjs().announce(signedTransaction, node).subscribe(() => {
+        new TransactionHttp(node).announce(signedTransaction).subscribe(() => {
             that.$Notice.success({title: that.$t(Message.SUCCESS)})
         })
     }
 
     signAndAnnounceNormal(password: Password, node: string, generationHash: string, transactionList: Array<any>, that: any): void {
-        try {
             const account = this.getAccount(password)
             const signature = account.sign(transactionList[0], generationHash)
             const message = that.$t(Message.SUCCESS)
             console.log(transactionList)
             console.log(signature)
-            new TransactionApiRxjs().announce(signature, node).subscribe(() => {
-                that.$Notice.success({title: message}) // quick fix
-            })
-        } catch (err) {
-            console.error(err)
-        }
+            new TransactionHttp(node).announce(signature).subscribe(
+                _ => that.$Notice.success({title: message}),
+                error => { throw new Error(error) }
+            )
     }
 
     // @TODO: review
@@ -428,21 +417,13 @@ export class AppWallet {
         const aggregateTransaction = transactions[0]
         // @TODO: review listener management
         const listener = new Listener(node.replace('http', 'ws'), WebSocket)
-        new TransactionApiRxjs().announceBondedWithLock(  aggregateTransaction,
-                                                          account,
-                                                          listener,
-                                                          node,
-                                                          lockFee,
-                                                          store)
+        announceBondedWithLock( aggregateTransaction,
+                                account,
+                                listener,
+                                node,
+                                lockFee,
+                                store)
     }
-}
-
-export const createBondedMultisigTransaction = (transaction: Array<Transaction>, multisigPublicKey: string, networkType: NetworkType, fee: number) => {
-    return new MultisigApiRxjs().bondedMultisigTransaction(networkType, fee, multisigPublicKey, transaction)
-}
-
-export const createCompleteMultisigTransaction = (transaction: Array<Transaction>, multisigPublicKey: string, networkType: NetworkType, fee: number) => {
-    return new MultisigApiRxjs().completeMultisigTransaction(networkType, fee, multisigPublicKey, transaction)
 }
 
 export const saveLocalAlias = (

@@ -61,14 +61,12 @@ export interface StoreAccount {
 export interface AppInfo {
     timeZone: number,
     locale: string,
-    currentPanelIndex: number,
-    walletList: any[]
+    walletList: AppWallet[]
     hasWallet: boolean,
     isNodeHealthy: boolean,
     mnemonic: string,
     chainStatus: ChainStatus,
     mosaicsLoading: boolean,
-    balanceLoading: boolean,
     transactionsLoading: boolean,
     xemUsdPrice: Number,
     namespaceLoading: boolean
@@ -90,4 +88,11 @@ export interface AppState {
 export interface DefaultFee {
     speed: string,
     value: number,
+}
+
+export interface Endpoint {
+    value: string,
+    name: string,
+    url: string,
+    isSelected: boolean
 }

@@ -22,7 +22,6 @@
         setWalletsBalances, ChainListeners,
     } from '@/core/services'
     import {AppMosaic, AppWallet, AppInfo, StoreAccount} from '@/core/model'
-    import {MultisigApiRxjs} from "@/core/api/MultisigApiRxjs"
     import DisabledUiOverlay from '@/common/vue/disabled-ui-overlay/DisabledUiOverlay.vue';
     import TransactionConfirmation from '@/common/vue/transaction-confirmation/TransactionConfirmation.vue';
 
@@ -47,6 +46,11 @@
 
         get wallet() {
             return this.activeAccount.wallet
+        }
+
+        get address() {
+            if (!this.wallet) return null
+            return this.wallet.address
         }
 
         get accountAddress() {
@@ -87,7 +91,6 @@
             // reset tx list
             try {
                 this.$store.commit('SET_TRANSACTIONS_LOADING', true)
-                this.$store.commit('SET_BALANCE_LOADING', true)
                 this.$store.commit('SET_MOSAICS_LOADING', true)
                 this.$store.commit('SET_NAMESPACE_LOADING', true)
                 this.$store.commit('SET_MULTISIG_LOADING', true)
@@ -127,7 +130,6 @@
             } catch (error) {
                 console.error("App -> onWalletChange -> error", error)
                 this.$store.commit('SET_TRANSACTIONS_LOADING', false)
-                this.$store.commit('SET_BALANCE_LOADING', false)
                 this.$store.commit('SET_MOSAICS_LOADING', false)
                 this.$store.commit('SET_NAMESPACE_LOADING', false)
                 this.$store.commit('SET_MULTISIG_LOADING', false)
@@ -169,12 +171,7 @@
             }
         }
 
-        checkIfWalletExist() {
-            if (!this.wallet || !this.wallet.address) {
-                this.$router.push('login')
-            }
-        }
-
+        // @MULTISIG: refactor
         async getMultisigAccountMultisigAccountInfo(publicKey) {
             const {networkType} = this.wallet
             const accountAddress = Address.createFromPublicKey(publicKey, networkType).plain()
@@ -195,8 +192,9 @@
         }
 
         async mounted() {
+            if (!this.activeAccount.wallet) this.$router.push('/login')
+            
             const {accountName, node} = this
-            this.checkIfWalletExist() // @TODO: move out when refactoring wallets
 
             try {
                 // @TODO: refactor
@@ -211,7 +209,6 @@
 
                 await Promise.all([
                     this.$store.commit('SET_TRANSACTIONS_LOADING', true),
-                    this.$store.commit('SET_BALANCE_LOADING', true),
                     this.$store.commit('SET_MOSAICS_LOADING', true),
                     this.$store.commit('SET_NAMESPACE_LOADING', true),
                 ])
@@ -223,21 +220,19 @@
 
             getMarketOpenPrice(this)
 
-            if (this.wallet && this.wallet.address) {
-                this.onWalletChange(this.wallet)
-            }
+            if (this.address && !this.address !== undefined) this.onWalletChange(this.wallet)
 
-            this.$watchAsObservable('wallet')
+            this.$watchAsObservable('address')
                 .pipe(
                     throttleTime(6000, asyncScheduler, {leading: true, trailing: true}),
                 ).subscribe(({newValue, oldValue}) => {
-
+                    
+                if (!newValue) return
                 /**
                  * On Wallet Change
                  */
-                if (oldValue.address === undefined && newValue.address !== undefined
-                    || oldValue.address !== undefined && newValue.address !== oldValue.address) {
-                    this.onWalletChange(newValue)
+                if (!oldValue && newValue || oldValue && newValue !== oldValue) {
+                    this.onWalletChange(this.wallet)
                 }
             })
 
@@ -248,7 +243,6 @@
                 if (!newValue) return
 
                 if (oldValue !== newValue) {
-                    setWalletsBalances(this.$store)
                     this.onActiveMultisigAccountChange(newValue)
                     this.getMultisigAccountMultisigAccountInfo(newValue)
                 }
