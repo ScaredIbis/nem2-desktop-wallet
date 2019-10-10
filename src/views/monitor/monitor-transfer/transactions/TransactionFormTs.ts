@@ -3,7 +3,8 @@ import {
   MultisigAccountInfo, TransferTransaction,
   Message as Msg,
   Deadline,
-  PlainMessage} from 'nem2-sdk'
+  PlainMessage,
+  TransactionType } from 'nem2-sdk'
 import {mapState} from "vuex"
 import {Message, DEFAULT_FEES, FEE_GROUPS, formDataConfig} from "@/config"
 import {Component, Provide, Vue, Watch} from 'vue-property-decorator'
@@ -293,10 +294,18 @@ export class TransactionFormTs extends Vue {
         const {
             success,
             signedTransaction
-        } = await signTransaction(this.transactionList[0], this.generationHash, this.$store);
+        } = await signTransaction({
+            transaction: this.transactionList[0],
+            store: this.$store,
+            otherDetails: this.otherDetails
+        });
 
         if(success) {
-            new AppWallet(this.wallet).announceNormal(signedTransaction, this.activeAccount.node, this);
+            if(this.transactionList[0].type !== TransactionType.AGGREGATE_BONDED) {
+                new AppWallet(this.wallet).announceNormal(signedTransaction, this.activeAccount.node, this);
+            } else {
+                new AppWallet(this.wallet).announceBonded(signedTransaction, this.activeAccount.node);
+            }
         }
     }
 

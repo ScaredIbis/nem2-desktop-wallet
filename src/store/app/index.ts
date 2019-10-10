@@ -21,6 +21,7 @@ const state: AppInfo = {
     uiDisabledMessage: '',
     stagedTransaction: {
         isAwaitingConfirmation: false,
+        otherDetails: null,
         data: null,
     }
 }
@@ -73,9 +74,10 @@ const mutations: MutationTree<AppInfo> = {
         state.uiDisabledMessage = message;
     },
     SET_STAGED_TRANSACTION(state: AppInfo,
-        { data, isAwaitingConfirmation}:
-        {data: Transaction|null, isAwaitingConfirmation: boolean}) {
+        { data, isAwaitingConfirmation, otherDetails}:
+        {data: Transaction|null, isAwaitingConfirmation: boolean, otherDetails: any}) {
         state.stagedTransaction.data = data;
+        state.stagedTransaction.otherDetails = otherDetails;
         state.stagedTransaction.isAwaitingConfirmation = isAwaitingConfirmation;
     }
 }

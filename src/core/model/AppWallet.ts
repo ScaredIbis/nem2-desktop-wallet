@@ -14,6 +14,7 @@ import {
     SignedTransaction
 } from 'nem2-sdk'
 import CryptoJS from 'crypto-js'
+import { filter, mergeMap } from 'rxjs/operators'
 import {Message, networkConfig} from "@/config"
 import {AppLock, localRead, localSave, createSubWalletByPath} from "@/core/utils"
 import {CreateWalletType} from "@/core/model"
@@ -406,7 +407,33 @@ export class AppWallet {
             )
     }
 
+    announceBonded(signedTransaction: SignedTransaction, node: string): void {
+        const transactionHttp = new TransactionHttp(node);
+        const listener = new Listener(node.replace('http', 'ws'), WebSocket)
+
+        listener.open().then(() => {
+            transactionHttp
+                .announce(signedTransaction)
+                .subscribe(x => console.log(x), err => console.error(err))
+
+            listener
+                .confirmed(this.simpleWallet.address)
+                .pipe(
+                filter((transaction) => transaction.transactionInfo !== undefined
+                    && transaction.transactionInfo.hash === signedTransaction.hash),
+                mergeMap(ignored => transactionHttp.announceAggregateBonded(signedTransaction)),
+                )
+                .subscribe(
+                    announcedAggregateBonded => console.log(announcedAggregateBonded),
+                    err => console.error(err),
+                )
+        }).catch((error) => {
+            console.error(error)
+        })
+    }
+
     // @TODO: review
+    // Remove if CheckPasswordDialog is made redundant
     signAndAnnounceBonded = ( password: Password,
                               lockFee: number,
                               transactions: AggregateTransaction[],
@@ -416,10 +443,8 @@ export class AppWallet {
         const account = this.getAccount(password)
         const aggregateTransaction = transactions[0]
         // @TODO: review listener management
-        const listener = new Listener(node.replace('http', 'ws'), WebSocket)
         announceBondedWithLock( aggregateTransaction,
                                 account,
-                                listener,
                                 node,
                                 lockFee,
                                 store)

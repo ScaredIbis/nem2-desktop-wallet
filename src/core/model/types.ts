@@ -76,6 +76,7 @@ export interface AppInfo {
     _ENABLE_TREZOR_: boolean,
     stagedTransaction: {
         data: Transaction | null,
+        otherDetails: any,
         isAwaitingConfirmation: boolean
     }
 }

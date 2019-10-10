@@ -7,6 +7,7 @@ import {CreateWalletType} from '@/core/model/CreateWalletType'
 import trezor from '@/core/utils/trezor';
 import { AppWallet } from '@/core/model/AppWallet';
 import { transactionConfirmationObservable } from '@/core/services/transactions'
+import { createHashLockAggregateTransaction } from '@/core/services/multisig'
 
 @Component({
     computed: {...mapState({app: 'app', account: 'account'})}
@@ -56,6 +57,9 @@ export class TransactionConfirmationTs extends Vue {
     get stagedTransaction() {
         return this.app.stagedTransaction.data
     }
+    get otherDetails() {
+        return this.app.stagedTransaction.otherDetails
+    }
 
     get previewTransaction() {
         const { accountPublicKey, isSelectedAccountMultisig, account } = this;
@@ -75,14 +79,11 @@ export class TransactionConfirmationTs extends Vue {
     }
 
     async confirmTransactionViaTrezor() {
-        console.log("STAGED TRANSACTION", this.stagedTransaction);
-
         const transactionResult = await trezor.nemSignTransaction({
             path: this.wallet.path,
             transaction: this.stagedTransaction
         })
 
-        console.log('GOT THE SIGNATURE', transactionResult)
         if(transactionResult.success) {
             // get signedTransaction via TrezorConnect.nemSignTransaction
             transactionConfirmationObservable.next({
@@ -100,10 +101,9 @@ export class TransactionConfirmationTs extends Vue {
     }
 
     confirmTransactionViaPassword() {
-
         let isPasswordValid;
         try {
-            // TODO: update checkPassword to take a string so it can handle errors
+            // TODO: update AppWallet.checkPassword to take a string so it can handle errors
             // when instantiating a new Password (eg. Password must be at least 8 characters)
             isPasswordValid = new AppWallet(this.wallet).checkPassword(new Password(this.password));
         } catch (e) {
@@ -118,12 +118,28 @@ export class TransactionConfirmationTs extends Vue {
         }
 
         const account = new AppWallet(this.wallet).getAccount(new Password(this.password))
-        const signedTransaction = account.sign(this.stagedTransaction, this.account.generationHash)
-        // use account to sign stagedTransaction
+        // by default just sign the basic stagedTransaction
+        let transactionToSign = this.stagedTransaction;
+
+        // if the user is confirming an aggregate bonded transaction,
+        // create a hashLocked version of stagedTransaction to be signed instead
+        if (this.stagedTransaction.type === TransactionType.AGGREGATE_BONDED) {
+            // bonded transaction
+            transactionToSign = createHashLockAggregateTransaction(
+                this.stagedTransaction,
+                this.otherDetails.lockFee,
+                account,
+                this.$store
+            )
+        }
+
+        const signedTransaction = account.sign(transactionToSign, this.account.generationHash);
+
         transactionConfirmationObservable.next({
             success: true,
             signedTransaction,
             error: null
         });
+        this.password = '';
     }
 }
