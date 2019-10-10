@@ -244,7 +244,7 @@ export class TransactionFormTs extends Vue {
             .validate()
             .then((valid) => {
                 if (!valid) return
-                this.showDialog();
+                this.showDialog()
             })
     }
 
@@ -270,15 +270,7 @@ export class TransactionFormTs extends Vue {
             }
         }
 
-        // TODO: reuse TransactionConfirmation for transactions on all wallets
-        switch(this.wallet.sourceType) {
-            case CreateWalletType.trezor:
-                this.confirmViaTransactionConfirmation()
-                break;
-            default:
-                this.confirmViaTransactionConfirmation()
-                // this.confirmViaCheckPasswordDialog()
-        }
+        this.confirmViaTransactionConfirmation()
     }
 
     async confirmViaTransactionConfirmation() {
@@ -307,17 +299,6 @@ export class TransactionFormTs extends Vue {
                 new AppWallet(this.wallet).announceBonded(signedTransaction, this.activeAccount.node);
             }
         }
-    }
-
-    confirmViaCheckPasswordDialog() {
-        if (this.activeMultisigAccount) {
-            this.sendMultisigTransaction()
-            this.showCheckPWDialog = true
-            return
-        }
-
-        this.sendTransaction()
-        this.showCheckPWDialog = true
     }
 
     sendTransaction() {
