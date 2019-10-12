@@ -420,7 +420,6 @@ export class TransactionFormTs extends Vue {
         this.$nextTick(() => this.$validator.reset())
     }
 
-    // @TODO: set this function at a higher level and put the multisig wallet list in the store
     async mounted() {
         this.initForm()
     }
