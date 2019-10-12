@@ -6,7 +6,8 @@ import {
 import {Component, Vue, Watch} from 'vue-property-decorator'
 import {Message, networkConfig, formDataConfig, DEFAULT_FEES, FEE_GROUPS} from "@/config"
 import {getAbsoluteMosaicAmount, formatAddress} from '@/core/utils'
-import {AppNamespace, StoreAccount, AppInfo, AppWallet, DefaultFee} from "@/core/model"
+import {AppNamespace, StoreAccount, AppInfo, AppWallet, DefaultFee, CreateWalletType} from "@/core/model"
+import {signTransaction} from '@/core/services/transactions';
 import CheckPWDialog from '@/common/vue/check-password-dialog/CheckPasswordDialog.vue'
 import {createBondedMultisigTransaction, createCompleteMultisigTransaction} from '@/core/services'
 @Component({
@@ -47,6 +48,10 @@ export class SubNamespaceTs extends Vue {
         return activeMultisigAccount
             ? Address.createFromPublicKey(activeMultisigAccount, this.wallet.networkType).plain()
             : null
+    }
+
+    get generationHash() {
+        return this.activeAccount.generationHash
     }
 
     get announceInLock(): boolean {
@@ -280,7 +285,29 @@ export class SubNamespaceTs extends Vue {
         } else {
             this.createByMultisig()
         }
-        this.showCheckPWDialog = true
+
+        switch(this.wallet.sourceType) {
+            case CreateWalletType.trezor:
+                this.confirmViaTransactionConfirmation()
+                break;
+            default:
+                this.showCheckPWDialog = true
+        }
+        
+    }
+    
+    async confirmViaTransactionConfirmation() {
+        // delegate the signing to the TransactionConfirmation workflow
+        // the resolve value of this promise will contain the signed transaction
+        // if the user confirms successfullly
+        const {
+            success,
+            signedTransaction
+        } = await signTransaction(this.transactionList[0], this.generationHash, this.$store);
+
+        if(success) {
+            new AppWallet(this.wallet).announceNormal(signedTransaction, this.activeAccount.node, this);
+        }
     }
 
     createBySelf() {
