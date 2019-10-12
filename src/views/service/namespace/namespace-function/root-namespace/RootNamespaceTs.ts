@@ -9,8 +9,9 @@ import CheckPWDialog from '@/common/vue/check-password-dialog/CheckPasswordDialo
 import {
     getAbsoluteMosaicAmount, formatSeconds, formatAddress,
 } from '@/core/utils'
-import {StoreAccount, AppInfo, DefaultFee, AppWallet} from "@/core/model"
+import {StoreAccount, AppInfo, DefaultFee, AppWallet, CreateWalletType} from "@/core/model"
 import {createBondedMultisigTransaction, createCompleteMultisigTransaction} from '@/core/services'
+import {signTransaction} from '@/core/services/transactions';
 
 @Component({
     components: {
@@ -263,6 +264,16 @@ export class RootNamespaceTs extends Vue {
             }
         }
 
+        switch(this.wallet.sourceType) {
+            case CreateWalletType.trezor:
+                this.confirmViaTransactionConfirmation()
+                break;
+            default:
+                this.confirmViaCheckPasswordDialog()
+        }
+    }    
+
+    confirmViaCheckPasswordDialog() {
         if (this.activeMultisigAccount) {
             this.createByMultisig()
             this.showCheckPWDialog = true
@@ -271,6 +282,26 @@ export class RootNamespaceTs extends Vue {
 
         this.createBySelf()
         this.showCheckPWDialog = true
+    }
+
+    async confirmViaTransactionConfirmation() {
+        if (this.activeMultisigAccount) {
+            this.createByMultisig()
+        } else {
+            this.createBySelf()
+        }
+
+        // delegate the signing to the TransactionConfirmation workflow
+        // the resolve value of this promise will contain the signed transaction
+        // if the user confirms successfullly
+        const {
+            success,
+            signedTransaction
+        } = await signTransaction(this.transactionList[0], this.generationHash, this.$store);
+
+        if(success) {
+            new AppWallet(this.wallet).announceNormal(signedTransaction, this.activeAccount.node, this);
+        }
     }
 
     // @TODO: target blockTime is hardcoded

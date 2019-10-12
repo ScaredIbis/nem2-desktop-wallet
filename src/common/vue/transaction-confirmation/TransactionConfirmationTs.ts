@@ -13,6 +13,7 @@ import { transactionConfirmationObservable } from '@/core/services/transactions'
 })
 
 export class TransactionConfirmationTs extends Vue {
+    
     app: any;
     account: any;
 
@@ -59,18 +60,46 @@ export class TransactionConfirmationTs extends Vue {
 
     get previewTransaction() {
         const { accountPublicKey, isSelectedAccountMultisig, account } = this;
-        const { networkCurrency } = account;
-        const { type, recipientAddress, mosaics, message, maxFee} = this.stagedTransaction;
+        const { networkCurrency } = account;    
+        
+        let preview;
+        console.log(this.stagedTransaction)
+        switch(this.stagedTransaction.type) {
+            case TransactionType.TRANSFER:
+                preview = this.previewTransfer(this.stagedTransaction, networkCurrency);
+                break;
+            case TransactionType.REGISTER_NAMESPACE:
+                preview = this.previewCreateNamespace(this.wallet.address, this.stagedTransaction, networkCurrency);
+                break;
+            default:
+                preview = {};
+        }
+        preview["Public_account"] = isSelectedAccountMultisig ? accountPublicKey : '(self)' + accountPublicKey;
+        
+        return preview;
+    }
 
+    previewTransfer(transaction, networkCurrency): any{
+        const { type, recipientAddress, mosaics, message, maxFee} = transaction;
         return {
-            transaction_type: TransactionType[type].toLowerCase(),
-            "Public_account": isSelectedAccountMultisig ? accountPublicKey : '(self)' + accountPublicKey,
+            transaction_type: TransactionType[type].toLowerCase(),            
             "transfer_target": recipientAddress.pretty(),
             "mosaic": mosaics.map(item => {
                 return item.id.id.toHex() + `(${item.amount.compact()})`
             }).join(','),
             "fee": maxFee / Math.pow(10, networkCurrency.divisibility) + ' ' + networkCurrency.ticker,
             "remarks": message.payload,
+        }
+    }
+
+    previewCreateNamespace(address, transaction, networkCurrency): any {
+        const { type, duration, namespaceName, maxFee} = transaction;        
+        return {
+            transaction_type: TransactionType[type].toLowerCase(),
+            "address": address,
+            "fee": maxFee / Math.pow(10, networkCurrency.divisibility) + ' ' + networkCurrency.ticker,
+            duration,
+            namespace: namespaceName,
         }
     }
 
