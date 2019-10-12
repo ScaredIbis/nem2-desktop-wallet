@@ -18,8 +18,9 @@ import {
     formatSeconds, formatAddress, getAbsoluteMosaicAmount,
 } from '@/core/utils'
 import CheckPWDialog from '@/common/vue/check-password-dialog/CheckPasswordDialog.vue'
+import {signTransaction} from '@/core/services/transactions';
 import {formDataConfig, Message, DEFAULT_FEES, FEE_GROUPS} from '@/config'
-import {StoreAccount, AppWallet, DefaultFee} from "@/core/model"
+import {StoreAccount, AppWallet, DefaultFee, CreateWalletType} from "@/core/model"
 import {NETWORK_PARAMS} from '@/core/validation'
 import {createBondedMultisigTransaction, createCompleteMultisigTransaction} from '@/core/services'
 
@@ -62,6 +63,10 @@ export class MosaicTransactionTs extends Vue {
     get multisigInfo(): MultisigAccountInfo {
         const {address} = this.wallet
         return this.activeAccount.multisigAccountInfo[address]
+    }
+
+    get generationHash() {
+        return this.activeAccount.generationHash
     }
 
     get hasMultisigAccounts(): boolean {
@@ -180,13 +185,35 @@ export class MosaicTransactionTs extends Vue {
             }
         }
 
+        // create mosaic transaction
         if (this.activeMultisigAccount) {
-            this.createByMultisig()
-            this.showCheckPWDialog = true
-            return
+            this.createByMultisig()            
         }
-        this.createBySelf()
-        this.showCheckPWDialog = true
+        else {
+            this.createBySelf()
+        }
+        
+        // sign and announce transaction
+        switch(this.wallet.sourceType) {
+            case CreateWalletType.trezor:
+                this.confirmViaTransactionConfirmation()
+                break;
+            default:
+                this.showCheckPWDialog = true
+        }
+    }
+    async confirmViaTransactionConfirmation() {
+        // delegate the signing to the TransactionConfirmation workflow
+        // the resolve value of this promise will contain the signed transaction
+        // if the user confirms successfullly
+        const {
+            success,
+            signedTransaction
+        } = await signTransaction(this.transactionList[0], this.generationHash, this.$store);
+
+        if(success) {
+            new AppWallet(this.wallet).announceNormal(signedTransaction, this.activeAccount.node, this);
+        }
     }
 
     closeCheckPWDialog() {

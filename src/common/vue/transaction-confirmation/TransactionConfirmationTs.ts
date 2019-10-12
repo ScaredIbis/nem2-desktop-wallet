@@ -13,7 +13,7 @@ import { transactionConfirmationObservable } from '@/core/services/transactions'
 })
 
 export class TransactionConfirmationTs extends Vue {
-    
+       
     app: any;
     account: any;
 
@@ -71,6 +71,9 @@ export class TransactionConfirmationTs extends Vue {
             case TransactionType.REGISTER_NAMESPACE:
                 preview = this.previewCreateNamespace(this.wallet.address, this.stagedTransaction, networkCurrency);
                 break;
+            case TransactionType.AGGREGATE_COMPLETE:
+                preview = this.previewAggregateComplete(this.wallet.address, this.stagedTransaction, networkCurrency);
+                break;
             default:
                 preview = {};
         }
@@ -100,6 +103,44 @@ export class TransactionConfirmationTs extends Vue {
             "fee": maxFee / Math.pow(10, networkCurrency.divisibility) + ' ' + networkCurrency.ticker,
             duration,
             namespace: namespaceName,
+        }
+    }
+
+    previewAggregateComplete(address, transaction, networkCurrency) {
+        let preview = {}
+        transaction.innerTransactions.forEach(tx => {
+            switch(tx.type) {
+                case TransactionType.MOSAIC_DEFINITION:
+                    Object.assign(preview, this.previewMosaicDefinition(address, tx, networkCurrency));
+                    break;
+                case TransactionType.MOSAIC_SUPPLY_CHANGE:
+                    Object.assign(preview, this.previewMosaicSupply(tx));
+            }
+        });
+        return preview;       
+    }
+
+    previewMosaicDefinition(address, transaction, networkCurrency): any {
+        const { type, divisibility, duration, supply, maxFee, flags} = transaction;
+        const permanent = duration.lower === 0 && duration.higher === 0;
+        const {restrictable, supplyMutable, transferable} = flags;
+        return {
+            transaction_type: TransactionType[type].toLowerCase(),
+            "address": address,
+            "fee": maxFee / Math.pow(10, networkCurrency.divisibility) + ' ' + networkCurrency.ticker,
+            "mosaic_divisibility": divisibility,
+            "transmittable": !!transferable ? "Yes" : "No",
+            "variable_supply": !!supplyMutable ? "Yes" : "No",
+            "restrictable": !!restrictable ? "Yes" : "No",
+            "duration": permanent ? "permanent" : duration,
+            supply,
+        }
+    }
+
+    previewMosaicSupply(transaction: any): any {
+        const {delta} = transaction;
+        return {
+            "supply": delta.lower
         }
     }
 
