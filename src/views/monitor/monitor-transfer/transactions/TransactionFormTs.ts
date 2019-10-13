@@ -8,10 +8,8 @@ import {
 import {mapState} from "vuex"
 import {Message, DEFAULT_FEES, FEE_GROUPS, formDataConfig} from "@/config"
 import {Component, Provide, Vue, Watch} from 'vue-property-decorator'
-import CheckPWDialog from '@/common/vue/check-password-dialog/CheckPasswordDialog.vue'
 import {getAbsoluteMosaicAmount, getRelativeMosaicAmount, formatAddress, cloneData} from "@/core/utils"
 import {standardFields, isAddress} from "@/core/validation"
-import {CreateWalletType} from '@/core/model/CreateWalletType'
 import {signTransaction} from '@/core/services/transactions';
 import {AppMosaic, AppWallet, AppInfo, StoreAccount, DefaultFee} from "@/core/model"
 import {createBondedMultisigTransaction, createCompleteMultisigTransaction} from '@/core/services'
@@ -19,7 +17,6 @@ import ErrorTooltip from '@/views/other/forms/errorTooltip/ErrorTooltip.vue'
 
 @Component({
     components: {
-        CheckPWDialog,
         ErrorTooltip
     },
     computed: {
@@ -37,7 +34,6 @@ export class TransactionFormTs extends Vue {
     transactionList = []
     transactionDetail = {}
     isShowSubAlias = false
-    showCheckPWDialog = false
     otherDetails: any = {}
     isCompleteForm = true
     currentCosignatoryList = []
@@ -311,6 +307,7 @@ export class TransactionFormTs extends Vue {
             } else {
                 new AppWallet(this.wallet).announceBonded(signedTransaction, this.activeAccount.node);
             }
+            this.initForm()
         }
     }
 
@@ -388,21 +385,6 @@ export class TransactionFormTs extends Vue {
             title: message
         })
     }
-
-    closeCheckPWDialog() {
-        this.showCheckPWDialog = false
-    }
-
-    checkEnd(isPasswordRight) {
-        if (!isPasswordRight) {
-            this.$Notice.destroy()
-            this.$Notice.error({
-                title: this.$t(Message.WRONG_PASSWORD_ERROR) + ''
-            })
-        }
-        this.initForm()
-    }
-
 
     @Watch('formItems.multisigPublicKey')
     onMultisigPublicKeyChange(newPublicKey, oldPublicKey) {
