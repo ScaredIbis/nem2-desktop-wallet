@@ -1,10 +1,10 @@
 import {
-  Mosaic, MosaicId, UInt64, Address, NamespaceId,
-  MultisigAccountInfo, TransferTransaction,
-  Message as Msg,
-  Deadline,
-  PlainMessage,
-  TransactionType } from 'nem2-sdk'
+    Mosaic, MosaicId, UInt64, Address, NamespaceId,
+    MultisigAccountInfo, TransferTransaction,
+    Message as Msg,
+    Deadline,
+    PlainMessage
+} from 'nem2-sdk'
 import {mapState} from "vuex"
 import {Message, DEFAULT_FEES, FEE_GROUPS, formDataConfig} from "@/config"
 import {Component, Provide, Vue, Watch} from 'vue-property-decorator'
