@@ -2,13 +2,13 @@ import {Message} from "@/config/index.ts"
 import {QRCodeGenerator} from 'nem2-qr-library'
 import {copyTxt} from '@/core/utils/utils.ts'
 import {Component, Vue} from 'vue-property-decorator'
-import CollectionRecord from '@/common/vue/collection-record/CollectionRecord.vue'
+import CollectionRecord from '@/components/collection-record/CollectionRecord.vue'
 import {mapState} from "vuex"
 import {MosaicId, TransferTransaction, Deadline, Address, Mosaic, UInt64, PlainMessage, Transaction} from "nem2-sdk"
 import {TransferType} from "@/core/model/TransferType"
 import {monitorReceiptTransferTypeConfig} from "@/config/view/monitor"
 import {AppInfo, StoreAccount} from "@/core/model"
-
+import failureIcon from '@/common/img/monitor/failure.png'
 @Component({
     components: {
         CollectionRecord
@@ -54,9 +54,14 @@ export class MonitorInvoiceTs extends Vue {
     }
 
     get QRCode(): string {
-        return QRCodeGenerator
-            .createTransactionRequest(this.transferTransaction)
-            .toBase64()
+        try {
+            return QRCodeGenerator
+                .createTransactionRequest(this.transferTransaction)
+                .toBase64()
+        }catch (e) {
+            return failureIcon
+        }
+
     }
 
     get accountAddress() {

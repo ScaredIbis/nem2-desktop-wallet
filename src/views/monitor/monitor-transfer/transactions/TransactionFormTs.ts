@@ -12,6 +12,7 @@ import {getAbsoluteMosaicAmount, getRelativeMosaicAmount, formatAddress, cloneDa
 import {standardFields, isAddress} from "@/core/validation"
 import {signTransaction} from '@/core/services/transactions';
 import {AppMosaic, AppWallet, AppInfo, StoreAccount, DefaultFee} from "@/core/model"
+import ErrorTooltip from '@/components/other/forms/errorTooltip/ErrorTooltip.vue'
 import {createBondedMultisigTransaction, createCompleteMultisigTransaction} from '@/core/services'
 import ErrorTooltip from '@/views/other/forms/errorTooltip/ErrorTooltip.vue'
 
