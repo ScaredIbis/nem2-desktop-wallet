@@ -4,6 +4,7 @@ import {formDataConfig} from "@/config/view/form";
 import {networkTypeConfig} from '@/config/view/setting'
 import trezor from '@/core/utils/trezor';
 import {Address} from 'nem2-sdk';
+import {ExtendedKey, KeyEncoding} from "nem2-hd-wallets";
 import {AppInfo, StoreAccount, AppWallet} from '@/core/model'
 
 @Component({
@@ -44,33 +45,38 @@ export class AccountImportHardwareTs extends Vue {
             message: "trezor_awaiting_interaction"
         });
 
-        const publicKeyResult = await trezor.getPublicKey({
-            path: `m/44'/43'/${accountIndex}'`,
-            coin: "NEM"
-        })
+        try {
+            const publicKeyResult = await trezor.getPublicKey({
+                path: `m/44'/43'/${accountIndex}'`,
+                coin: "NEM"
+            })
 
-        if(publicKeyResult.success) {
-            const { publicKey, serializedPath } = publicKeyResult.payload;
+            if(publicKeyResult.success) {
+                const { xpub, serializedPath } = publicKeyResult.payload;
 
-            // @see https://github.com/bitcoin/bips/blob/master/bip-0032.mediawiki
-            // ser-p(P) serializes the coordinate and prepends either 0x02 or 0x03 to it.
-            // drop first byte for 32-bytes public key
-            const rawPublicKey = publicKey.slice(2).toUpperCase();
-            const address = Address.createFromPublicKey(rawPublicKey, networkType);
+                const extendedPublicKey = ExtendedKey.createFromBase58(xpub);
+                const publicKey = extendedPublicKey.getPublicKey(KeyEncoding.ENC_HEX).toString().toUpperCase();
+                const address = Address.createFromPublicKey(publicKey, networkType);
 
-            new AppWallet().createFromTrezor(
-                walletName,
-                networkType,
-                serializedPath,
-                rawPublicKey,
-                address.plain(),
-                this.$store
-            );
+                new AppWallet().createFromTrezor(
+                    walletName,
+                    networkType,
+                    serializedPath,
+                    publicKey,
+                    address.plain(),
+                    this.$store
+                );
+            }
+
+            this.$store.commit('SET_UI_DISABLED', {
+                isDisabled: false,
+                message: ""
+            });
+        } catch (e) {
+            this.$store.commit('SET_UI_DISABLED', {
+                isDisabled: false,
+                message: ""
+            });
         }
-
-        this.$store.commit('SET_UI_DISABLED', {
-            isDisabled: false,
-            message: ""
-        });
     }
 }
