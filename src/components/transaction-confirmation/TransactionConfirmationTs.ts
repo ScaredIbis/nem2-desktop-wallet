@@ -9,8 +9,12 @@ import { AppWallet } from '@/core/model/AppWallet'
 import { transactionConfirmationObservable } from '@/core/services/transactions'
 import { createHashLockAggregateTransaction } from '@/core/services/multisig'
 
+import TransactionSummary from '@/components/transaction-summary/TransactionSummary.vue'
 @Component({
-    computed: {...mapState({app: 'app', account: 'account'})}
+    computed: {...mapState({app: 'app', account: 'account'})},
+    components:{
+        TransactionSummary
+    }
 })
 
 export class TransactionConfirmationTs extends Vue {
