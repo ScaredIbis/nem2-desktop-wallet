@@ -1,6 +1,6 @@
 import {
   NetworkType, Transaction, PublicAccount, AggregateTransaction,
-  Deadline, UInt64, Listener, TransactionHttp, HashLockTransaction,
+  Deadline, UInt64, HashLockTransaction,
   Mosaic, MosaicId, Account,
 } from 'nem2-sdk'
 import { Store } from 'vuex'
