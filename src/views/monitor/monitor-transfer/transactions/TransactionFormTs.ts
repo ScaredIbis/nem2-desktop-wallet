@@ -3,7 +3,8 @@ import {
     MultisigAccountInfo, TransferTransaction,
     Message as Msg,
     Deadline,
-    PlainMessage
+    PlainMessage,
+    TransactionType
 } from 'nem2-sdk'
 import {mapState} from "vuex"
 import {Message, DEFAULT_FEES, FEE_GROUPS, formDataConfig} from "@/config"
