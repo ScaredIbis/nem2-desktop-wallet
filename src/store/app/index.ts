@@ -1,6 +1,6 @@
-import {AppInfo, ChainStatus, AppState, FormattedTransaction} from '@/core/model'
+import {AppInfo, ChainStatus} from '@/core/model'
 import {localRead} from "@/core/utils";
-import { Transaction } from 'nem2-sdk';
+import {Transaction} from 'nem2-sdk';
 import {MutationTree} from 'vuex';
 
 const state: AppInfo = {
@@ -8,7 +8,7 @@ const state: AppInfo = {
     locale: 'en-US',
     walletList: [],
     hasWallet: false,
-    isNodeHealthy: false,
+    isNodeHealthy: true,
     mnemonic: '',
     chainStatus: ChainStatus.getDefault(),
     mosaicsLoading: true,
