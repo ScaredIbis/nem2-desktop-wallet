@@ -1,11 +1,11 @@
 import {mapState} from 'vuex'
 import {TransactionType, Password} from "nem2-sdk"
 import {Component, Vue} from 'vue-property-decorator'
-
+import {transactionFormatter} from '@/core/services/transactions'
 import {Message} from "@/config/index.ts"
 import {CreateWalletType} from '@/core/model/CreateWalletType'
-import trezor from '@/core/utils/trezor';
-import { AppWallet } from '@/core/model/AppWallet';
+import trezor from '@/core/utils/trezor'
+import { AppWallet } from '@/core/model/AppWallet'
 import { transactionConfirmationObservable } from '@/core/services/transactions'
 import { createHashLockAggregateTransaction } from '@/core/services/multisig'
 
@@ -61,21 +61,9 @@ export class TransactionConfirmationTs extends Vue {
         return this.app.stagedTransaction.otherDetails
     }
 
-    get previewTransaction() {
-        const { accountPublicKey, isSelectedAccountMultisig, account } = this;
-        const { networkCurrency } = account;
-        const { type, recipientAddress, mosaics, message, maxFee} = this.stagedTransaction;
-
-        return {
-            transaction_type: TransactionType[type].toLowerCase(),
-            "Public_account": isSelectedAccountMultisig ? accountPublicKey : '(self)' + accountPublicKey,
-            "transfer_target": recipientAddress.pretty(),
-            "mosaic": mosaics.map(item => {
-                return item.id.id.toHex() + `(${item.amount.compact()})`
-            }).join(','),
-            "fee": maxFee / Math.pow(10, networkCurrency.divisibility) + ' ' + networkCurrency.ticker,
-            "remarks": message.payload,
-        }
+    get formattedTransaction() {
+        const [formattedTransaction] = transactionFormatter([this.stagedTransaction], this.$store)
+        return formattedTransaction
     }
 
     async confirmTransactionViaTrezor() {

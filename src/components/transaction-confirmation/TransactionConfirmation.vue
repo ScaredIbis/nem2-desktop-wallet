@@ -12,10 +12,14 @@
         <span class="title">{{$t('confirm_information')}}</span>
       </div>
       <div class="transactionConfirmationBody">
+        <TransactionPreview
+          :formattedTransaction="formattedTransaction"
+        >
+        </TransactionPreview>
         <div class="stepItem1">
           <div class="info_container">
             <div
-                    v-for="(value,key,index) in previewTransaction"
+                    v-for="(value,key,index) in formattedTransaction.dialogDetailMap"
                     :key="`ic${index}`"
                     class="info_container_item">
               <span class="key">{{$t(key)}}</span>
