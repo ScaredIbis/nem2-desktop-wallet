@@ -6,13 +6,11 @@ import {
     SpecialTxDetailsKeys, TxDetailsKeysWithValueToTranslate,
 } from '@/core/model'
 import {getNamespaceNameFromNamespaceId} from '@/core/services'
-import MosaicTable from './mosaic-table/MosaicTable.vue'
-import CosignatoriesTable from './cosignatories-table/CosignatoriesTable.vue'
+import TransactionSummary from '@/components/transaction-summary/TransactionSummary.vue';
 @Component({
     computed: {...mapState({activeAccount: 'account', app: 'app'})},
     components:{
-        MosaicTable,
-        CosignatoriesTable,
+        TransactionSummary,
     }
 })
 export class TransactionModalTs extends Vue {
