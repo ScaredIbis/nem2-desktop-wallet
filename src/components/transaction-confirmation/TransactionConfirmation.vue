@@ -49,7 +49,7 @@
 
 <script lang="ts">
     import "./TransactionConfirmation.less"
-    import {TransactionConfirmationTs} from '@/common/vue/transaction-confirmation/TransactionConfirmationTs.ts'
+    import {TransactionConfirmationTs} from '@/components/transaction-confirmation/TransactionConfirmationTs.ts'
 
     export default class TransactionConfirmation extends TransactionConfirmationTs {
     }
