@@ -350,6 +350,12 @@ export class AppWallet {
         }
     }
 
+    announceNormal(signedTransaction: SignedTransaction, node: string, that: any): void {
+        new TransactionHttp(node).announce(signedTransaction).subscribe(() => {
+            that.$Notice.success({title: that.$t(Message.SUCCESS)})
+        })
+    }
+
     signAndAnnounceNormal(password: Password, node: string, generationHash: string, transactionList: Array<any>, that: any): void {
         const account = this.getAccount(password)
         const signature = account.sign(transactionList[0], generationHash)
