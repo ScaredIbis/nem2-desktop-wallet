@@ -180,7 +180,7 @@ export const jp_JP = {
     send: '送信',
     transfer_record: '転送記録',
     transfer_sent: '転送済み',
-    receive_address_or_alias: '受信アドレスまたは @+alias（@nem.xem）',
+    receive_address_or_alias: '受信アドレスまたはalias（nem.foundation）',
     please_enter_the_transfer_amount: '転送するアセットの量を入力してください',
     please_enter_a_comment: '内容を入力してください',
     password_error: 'パスワードのエラー',
@@ -499,7 +499,6 @@ export const jp_JP = {
     Convert_to_multi_sign_account: 'マルチシグアカウントへ変換',
     cosigner: '連署者',
     Add_co_signers_here_will_be_displayed_in_the_action_list_click_delete_to_cancel_the_operation: '共同署名者を追加します。ここで操作リストに表示されます。削除をクリックして取消操作ができます',
-    Wallet_account_address_or_alias: 'ウォレットアドレスまたはエイリアス',
     min_approval: '最小承認者数',
     The_number_of_signatures_required_to_add_someone_from_a_multi_sign_or_complete_this_multi_tap_transaction: '複数の署名から誰かを追加するか、または複数の署名を完了するために必要な署名の数',
     Please_set_the_minimum_number_of_signatures_number_of_co_signers: '最小署名数を設定してください',
@@ -737,5 +736,12 @@ export const jp_JP = {
     Add_to_local_address_book: 'ローカルアドレス帳に追加',
     contact_list: '通信録',
     meta_data: 'メタデータ',
-    node_exists_error: 'ノードは既に存在します'
+    node_exists_error: 'ノードは既に存在します',
+
+    please_input_mosaic_and_amount:'モザイクと数量を入力してください',
+    // need get added sentence from node_exists_error
+    Input_account_public_key: 'Input account publicKey',
+
+    refresh:'更新',
+
 }

@@ -25,6 +25,7 @@ export const zh_CN = {
     remaining: '剩余',
     word: '字',
     publish: '发表',
+    refresh:'刷新',
     screen: '筛选',
     anonymous_user: '匿名用户',
     no_comment_yet: '暂无评论',
@@ -181,7 +182,7 @@ export const zh_CN = {
     send: '发送',
     transfer_record: '转账记录',
     transfer_sent: '付款记录',
-    receive_address_or_alias: '直接输入接收地址或@+别名（@nem.xem）',
+    receive_address_or_alias: '直接输入接收地址或别名（例如：nem.foundation）',
     please_enter_the_transfer_amount: '请输入转账金额',
     please_enter_a_comment: '请输入备注信息',
     password_error: '密码错误',
@@ -498,7 +499,7 @@ export const zh_CN = {
     Convert_to_multi_sign_account: '转化为多签账户',
     cosigner: '共签人',
     Add_co_signers_here_will_be_displayed_in_the_action_list_click_delete_to_cancel_the_operation: '添加共签人，此处操作会在操作清单中显示，点击删除可撤销操作',
-    Wallet_account_address_or_alias: '请输入账户公钥',
+    Input_account_public_key: '钱包公钥或别名',
     min_approval: '最小签名数',
     The_number_of_signatures_required_to_add_someone_from_a_multi_sign_or_complete_this_multi_tap_transaction: '从多签中添加某人或完成此多签交易所需的签名数',
     Please_set_the_minimum_number_of_signatures_number_of_co_signers: '请设置最小签名数<=共签人数',
@@ -757,8 +758,13 @@ export const zh_CN = {
     this_account_will_be_logged_out_after_the_wallet_is_successfully_deleted: '请注意，您正在删除最后一个钱包，钱包删除成功后，此账户将被注销！',
     Multisig_account_modification_transaction_form_is_not_ready_yet: 'Multisig帐户管理正在开发中！',
     nickName: '昵称',
-    what_is_delegated_harvesting:'什么是远程收获?',
-    Delegated_harvesting_text_1:'远程收获能为帐户和节点提供一个共同使用代理私钥的安全环境。一个正常的帐户可以将其重要性委托给远程节点进行收获。也就是说，您无需运行节点,就能凭借已有帐户的重要性来创建新区块。',
-    Multisig_accounts_can_not_send_a_transaction_by_themselves:'Multisig 账户不能通过本账户发起交易。'
-
+    what_is_delegated_harvesting: '什么是远程收获?',
+    Delegated_harvesting_text_1: '远程收获能为帐户和节点提供一个共同使用代理私钥的安全环境。一个正常的帐户可以将其重要性委托给远程节点进行收获。也就是说，您无需运行节点,就能凭借已有帐户的重要性来创建新区块。',
+    multisig_info: '多签信息',
+    Loading:'加载中...',
+    Multisig_accounts_can_not_send_a_transaction_by_themselves:'Multisig 账户不能通过本账户发起交易。',
+    SKIP:'跳过',
+    refresh_too_fast_warning:'刷新频率过高，请稍后再试。',
+    //////////////
+    please_input_mosaic_and_amount:'请输入马赛克和数量',
 }

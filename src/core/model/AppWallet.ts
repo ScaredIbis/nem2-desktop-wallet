@@ -350,41 +350,6 @@ export class AppWallet {
         }
     }
 
-    async getAccountBalance(store: Store<AppState>): Promise<AppWallet> {
-        try {
-            const {node, networkCurrency} = store.state.account
-
-            const accountInfo = await new AccountHttp(node)
-                .getAccountInfo(Address.createFromRawAddress(this.address))
-                .toPromise()
-
-            if (!accountInfo.mosaics.length) {
-                this.balance = 0
-                return this
-            }
-
-            const xemIndex = accountInfo.mosaics
-                .findIndex(mosaic => mosaic.id.toHex() === networkCurrency.hex)
-
-            if (xemIndex === -1) {
-                this.balance = 0
-                return this
-            }
-
-            this.balance = accountInfo.mosaics[xemIndex].amount.compact() / Math.pow(10, networkCurrency.divisibility)
-            return this
-        } catch (error) {
-            this.balance = 0
-            return this
-        }
-    }
-
-    announceNormal(signedTransaction: SignedTransaction, node: string, that: any): void {
-        new TransactionHttp(node).announce(signedTransaction).subscribe(() => {
-            that.$Notice.success({title: that.$t(Message.SUCCESS)})
-        })
-    }
-
     signAndAnnounceNormal(password: Password, node: string, generationHash: string, transactionList: Array<any>, that: any): void {
         const account = this.getAccount(password)
         const signature = account.sign(transactionList[0], generationHash)

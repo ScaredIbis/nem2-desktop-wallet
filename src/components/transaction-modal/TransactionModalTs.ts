@@ -1,4 +1,5 @@
 import {mapState} from "vuex"
+import {NamespaceId} from 'nem2-sdk'
 import {Component, Vue, Prop} from 'vue-property-decorator'
 import {renderMosaicsAndReturnArray} from '@/core/utils'
 import {
@@ -21,6 +22,7 @@ export class TransactionModalTs extends Vue {
     SpecialTxDetailsKeys = SpecialTxDetailsKeys
     TxDetailsKeysWithValueToTranslate = TxDetailsKeysWithValueToTranslate
     getNamespaceNameFromNamespaceId = getNamespaceNameFromNamespaceId
+    NamespaceId = NamespaceId
 
     @Prop({default: false}) visible: boolean
     @Prop({default: null}) activeTransaction: FormattedTransaction
@@ -38,8 +40,20 @@ export class TransactionModalTs extends Vue {
     get publicKey() {
         return this.activeAccount.wallet.publicKey
     }
+
     get mosaics (){
         return this.activeAccount.mosaics
+    }
+
+    get namespaces() {
+        return this.activeAccount.namespaces
+    }
+
+    getName(namespaceId: NamespaceId) {
+        const hexId = namespaceId.toHex()
+        const namespace = this.namespaces.find(({hex}) => hexId === hex)
+        if (namespace === undefined) return hexId
+        return namespace.name
     }
 
     renderMosaicsToTable(mosaics){

@@ -2,8 +2,8 @@
   <div class="transfer" @click="isShowSubAlias=false">
     <form @submit.prevent="validateForm('transfer-transaction')">
       <div class="flex_center" v-if="!hasMultisigAccounts">
-        <span class="title text_select">{{$t('sender')}}</span>
-          <span class="value no-border text_select"
+        <span class="title">{{$t('sender')}}</span>
+          <span class="value no-border"
           >{{ formatAddress(wallet.address) }}
           </span>
       </div>
@@ -95,7 +95,7 @@
         <span class="mosaic_amount overflow_ellipsis">{{$t('amount')}}</span>
         <div class="scroll">
           <div class="no_data" v-if="formItems.mosaicTransferList.length <1">
-            {{$t('no_data')}}
+            {{$t('please_input_mosaic_and_amount')}}
           </div>
           <div class="mosaic_list_item_container scroll">
 
