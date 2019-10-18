@@ -53,7 +53,6 @@
                {{$t('deadline')}}
             <Icon v-if="mosaicSortType.byDuration == currentSortType" class="active_sort_type"
                   :type="sortDirection?'md-arrow-dropdown':'md-arrow-dropup'"/>
-                  type="md-arrow-dropdown"/>
             </span>
 
           <span class="alias" @click="getSortType(mosaicSortType.byAlias)">
