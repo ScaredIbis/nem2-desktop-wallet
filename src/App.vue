@@ -200,9 +200,13 @@
                  * Delay network calls to avoid ban
                  */
                 setTimeout(async () => {
-                    await this.setWalletsList()
-                    setWalletsBalances(this.$store)
-                }, 1500)
+                    try {
+                        await this.setWalletsList()
+                        setWalletsBalances(this.$store)
+                    } catch (error) {
+                        console.error("App -> mounted -> setTimeout -> error", error)
+                    }
+                }, 1000)
             } catch (error) {
                 console.error("App -> mounted -> error", error)
             }
