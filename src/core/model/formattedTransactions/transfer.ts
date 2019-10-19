@@ -12,7 +12,6 @@ export class FormattedTransfer extends FormattedTransaction {
     constructor(tx: TransferTransaction,
                 store: Store<AppState>) {
         super(tx, store)
-        console.log("TCL: FormattedTransfer -> tx", tx)
         const {networkCurrency} = store.state.account
         const rawTx: any = this.rawTx
             
