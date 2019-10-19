@@ -104,12 +104,16 @@ export class WalletImportPrivatekeyTs extends Vue {
         this.$Notice.success({
             title: this['$t']('Import_private_key_operation') + '',
         })
-        this.$store.commit('SET_HAS_WALLET', true)
         this.$emit('toWalletDetails')
         this.closeCheckPWDialog()
     }
 
+    initForm(){
+        this.form = cloneData(formDataConfig.walletImportPrivateKeyForm)
+    }
+
     toBack() {
         this.$emit('closeImport')
+        this.initForm()
     }
 }

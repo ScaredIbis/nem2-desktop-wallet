@@ -1,7 +1,7 @@
 import {TransactionType} from 'nem2-sdk'
 import {DefaultFee, NetworkCurrency} from '@/core/model'
 
-export const WALLET_VERSION = '0.8.1'
+export const WALLET_VERSION = '0.8.2'
 
 export const isWindows = require('./packge.ts').isWin32
 
@@ -160,29 +160,21 @@ export const defaultNetworkConfig = {
 }
 
 export const networkConfig = {
-    targetBlockTime: 12,
-    publicKey: "",
-    generationHash: "",
+    targetBlockTime: 15,
     enableVerifiableState: true,
     enableVerifiableReceipts: true,
-    currencyMosaicId: "",
-    harvestingMosaicId: "",
-    blockGenerationTargetTime: "15s",
     blockTimeSmoothingFactor: 3000,
     importanceGrouping: 39,
     importanceActivityPercentage: 5,
     maxRollbackBlocks: 40,
     maxDifficultyBlocks: 60,
     defaultDynamicFeeMultiplier: 10000,
-    maxTransactionLifetime: "24h",
-    maxBlockFutureTime: "10s",
-    initialCurrencyAtomicUnits: 8998999998,
     maxMosaicAtomicUnits: 9000000000,
     totalChainImportance: 15,
     minHarvesterBalance: 500,
     harvestBeneficiaryPercentage: 10,
     blockPruneInterval: 360,
-    maxTransactionsPerBlock: 200000,
+    maxTransactionsPerBlock: 5000,
     maxTransactionsPerAggregate: 1000,
     maxCosignaturesPerAggregate: 15,
     enableStrictCosignatureCheck: false,
@@ -201,23 +193,25 @@ export const networkConfig = {
     mosaicRentalFee: 500,
     maxMultisigDepth: 3,
     maxCosignatoriesPerAccount: 10,
-    maxCosignedAccountsPerAccount: 5,
+    maxCosignedAccountsPerAccount: 14,
     maxNameSize: 64,
-    maxChildNamespaces: 500,
+    maxChildNamespaces: 256,
     maxNamespaceDepth: 3,
     minNamespaceDuration: "1m",
     maxNamespaceDuration: "365d",
     namespaceGracePeriodDuration: 156000,//s
     reservedRootNamespaceNames: ["xem", "nem", "user", "account", "org", "com", "biz", "net", "edu", "mil", "gov", "info"],
-    testMnemonicString: 'this is a test string his is a test string this is',
     namespaceRentalFeeSinkPublicKey: "3E82E1C1E4A75ADAA3CBA8C101C3CD31D9817A2EB966EB3B511FB2ED45B8E262",
     rootNamespaceRentalFeePerBlock: 1000000,
     childNamespaceRentalFee: 100,
     maxAccountRestrictionValues: 512,
     maxMosaicRestrictionValues: 20,
     maxMessageSize: 1024,
+    // @TODO: separate network config from app configs
     namespaceListSize: 9,
     seedWalletMaxAmount: 10,
+    testMnemonicString: 'this is a test string his is a test string this is',
     EMPTY_LINKED_ACCOUNT_KEY: '0000000000000000000000000000000000000000000000000000000000000000',
-    SEED_WALLET_HEAD:'seedWallet-'
+    derivationPathHead:`m/44'/43'/0'/0'`,
+    derivationSeedPath:`m/44'/43'/0'/0'/0'`
 }

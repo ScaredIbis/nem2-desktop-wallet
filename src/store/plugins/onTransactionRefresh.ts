@@ -1,7 +1,7 @@
 import {TransactionType, Address, AggregateTransaction, Transaction} from 'nem2-sdk'
 import {AppMosaic, AppWallet, AppState} from '@/core/model'
 import {
-   getNamespacesFromAddress, getTransactionTypesFromAggregate, mosaicsAmountViewFromAddress
+   setNamespaces, getTransactionTypesFromAggregate, mosaicsAmountViewFromAddress
 } from '@/core/services'
 
 const txTypeToGetNamespaces = [
@@ -51,10 +51,9 @@ export const onTransactionRefreshModule = (store: any) => { // @TODO: check how 
             ? getTransactionTypesFromAggregate(transaction)
             : [transaction.type]
 
-        if (txTypeToGetNamespaces.some(a => transactionTypes.some(b => b === a))) {
-            const namespaces = await getNamespacesFromAddress(address, node)
-            store.commit('SET_NAMESPACES', namespaces)
-        }
+         if (txTypeToGetNamespaces.some(a => transactionTypes.some(b => b === a))) {
+               setNamespaces(address, store)
+         }
 
          if (txTypeToSetAccountInfo.some(a => transactionTypes.some(b => b === a))) {
             appWallet.setAccountInfo(store)
@@ -79,9 +78,8 @@ export const onTransactionRefreshModule = (store: any) => { // @TODO: check how 
          const txType = transaction.type
  
          if (txTypeToGetNamespaces.includes(txType)) {
-            const namespaces = await getNamespacesFromAddress(address, node)
-            store.commit('SET_MULTISIG_ACCOUNT_NAMESPACES', namespaces)
-         }  
+            setNamespaces(address, store)
+         }
       } catch (error) {
        console.error(error)
       }

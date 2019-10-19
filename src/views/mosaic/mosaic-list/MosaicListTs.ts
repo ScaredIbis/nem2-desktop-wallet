@@ -7,7 +7,7 @@ import {mosaicSortType} from "@/config/view/mosaic"
 import {Message, networkConfig} from "@/config"
 import {AppInfo, AppMosaic, AppNamespace, MosaicNamespaceStatusType, StoreAccount} from "@/core/model"
 import Alias from '@/components/forms/alias/Alias.vue'
-import {initMosaic, sortMosaicList} from "@/core/services"
+import {setMosaics, sortMosaicList} from "@/core/services"
 
 @Component({
     components: {
@@ -42,7 +42,7 @@ export class MosaicListTs extends Vue {
     namespace: AppNamespace = null
     mosaic: string = null
     address: string = null
-
+    MosaicNamespaceStatusType = MosaicNamespaceStatusType
     get mosaics() {
         return this.activeAccount.mosaics
     }
@@ -118,7 +118,7 @@ export class MosaicListTs extends Vue {
         if (!item.mosaicInfo) return 'Loading...'
         const {properties, mosaicInfo} = item
         const duration = properties.duration
-        if (duration === 0) return 'Forever'
+        if (duration === 0) return MosaicNamespaceStatusType.FOREVER
         return (mosaicInfo.height.compact() + duration) - this.currentHeight
     }
 
@@ -157,7 +157,7 @@ export class MosaicListTs extends Vue {
             return
         }
         try {
-            initMosaic(wallet, this.$store)
+            setMosaics(wallet, this.$store)
             this.mosaicRefreshTimestamp = currentTimestamp
             this.$Notice.destroy()
             this.$Notice.success({title: '' + this.$t(Message.SUCCESS)})

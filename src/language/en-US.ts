@@ -139,7 +139,7 @@ export const en_US = {
     generate_QR_code: 'Generate QR code',
     copy_address: 'Copy address',
     copy_private_key: 'Copy private key',
-    copy_QR_code: 'download',
+    copy_QR_code: 'Download',
     collection_record: 'Transfers received',
     enter_asset_type_alias_or_address_search: 'Enter transaction hash search',
     ordinary_transfer: 'Transfer',
@@ -463,7 +463,7 @@ export const en_US = {
     Wallet_name: 'Name',
     Wallet_address: 'Address',
     Wallet_public_key: 'Public Key',
-    publicKey: 'PublicKey',
+    publicKey: 'publicKey',
     Address_QR_code: 'Address QR code',
     Function_and_backup: 'Backup',
     Export_mnemonic: 'Export mnemonic',
@@ -788,8 +788,8 @@ export const en_US = {
     action: 'Action',
     duration_blocks: 'Duration (blocks)',
     mosaics: 'Mosaics',
-    minApprovalDelta: 'Min. removal delta',
-    maxRemovalDelta: 'Max. removal delta',
+    minApprovalDelta: 'Min removal delta',
+    maxRemovalDelta: 'Max removal delta',
     cosignatories: 'Cosignatories',
     direction: 'Direction',
     delta: 'Delta',
@@ -809,5 +809,7 @@ export const en_US = {
     Multisig_accounts_can_not_send_a_transaction_by_themselves:'Multisig accounts can not send a transaction by themselves.',
     SKIP:'SKIP',
     please_input_mosaic_and_amount:'please input mosaic and amount',
-    refresh_too_fast_warning:'The refresh rate is too high, please try again later.'
+    refresh_too_fast_warning:'The refresh rate is too high, please try again later.',
+    display_mnemonic_QR_code:'Display mnemonic QR code',
+    fromwhere:'from'
 }
