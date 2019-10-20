@@ -11,9 +11,10 @@ import {mapState} from "vuex"
 import {Component, Vue, Watch} from 'vue-property-decorator'
 import {Message, DEFAULT_FEES, FEE_GROUPS, formDataConfig} from "@/config/index.ts"
 import CheckPWDialog from '@/common/vue/check-password-dialog/CheckPasswordDialog.vue'
-import {StoreAccount, DefaultFee, AppWallet} from "@/core/model"
+import {StoreAccount, DefaultFee, AppWallet, CreateWalletType} from "@/core/model"
 import {getAbsoluteMosaicAmount, formatAddress} from "@/core/utils"
 import {createBondedMultisigTransaction} from '@/core/services'
+import {signTransaction} from '@/core/services/transactions';
 
 @Component({
     components: {
@@ -42,6 +43,10 @@ export class MultisigConversionTs extends Vue {
 
     get publicKey() {
         return this.activeAccount.wallet.publicKey
+    }
+
+    get generationHash(): string {
+        return this.activeAccount.generationHash
     }
 
     get networkCurrency() {
@@ -125,7 +130,29 @@ export class MultisigConversionTs extends Vue {
         }
         this.sendMultisigConversionTransaction()
         this.initForm()
-        this.showCheckPWDialog = true
+        
+         // sign and announce transaction
+         switch(this.wallet.sourceType) {
+            case CreateWalletType.trezor:
+                this.confirmViaTransactionConfirmation()
+                break;
+            default:
+                this.showCheckPWDialog = true
+        }
+    }
+
+    async confirmViaTransactionConfirmation() {
+        // delegate the signing to the TransactionConfirmation workflow
+        // the resolve value of this promise will contain the signed transaction
+        // if the user confirms successfullly
+        const {
+            success,
+            signedTransaction
+        } = await signTransaction(this.transactionList[0], this.generationHash, this.$store);
+
+        if(success) {
+            new AppWallet(this.wallet).announceNormal(signedTransaction, this.activeAccount.node, this);
+        }
     }
 
     showErrorMessage(message: string) {

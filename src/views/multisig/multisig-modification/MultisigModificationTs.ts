@@ -13,8 +13,9 @@ import {
 } from "@/core/utils"
 import {Message, DEFAULT_FEES, FEE_GROUPS, formDataConfig} from "@/config"
 import CheckPWDialog from '@/common/vue/check-password-dialog/CheckPasswordDialog.vue'
-import {StoreAccount, DefaultFee} from "@/core/model"
+import {StoreAccount, DefaultFee, AppWallet, CreateWalletType} from "@/core/model"
 import {createBondedMultisigTransaction, createCompleteMultisigTransaction} from '@/core/services'
+import {signTransaction} from '@/core/services/transactions';
 
 @Component({
     components: {
@@ -44,6 +45,10 @@ export class MultisigModificationTs extends Vue {
     publicKeyList = []
     formItems = formDataConfig.multisigManagementForm
 
+    get wallet(): AppWallet {
+        return this.activeAccount.wallet
+    }
+
     get publicKey() {
         return this.activeAccount.wallet.publicKey
     }
@@ -54,6 +59,10 @@ export class MultisigModificationTs extends Vue {
 
     get defaultFees(): DefaultFee[] {
         return DEFAULT_FEES[FEE_GROUPS.SINGLE]
+    }
+
+    get generationHash(): string {
+        return this.activeAccount.generationHash
     }
     
     get feeAmount() {
@@ -98,7 +107,29 @@ export class MultisigModificationTs extends Vue {
             return
         }
         this.createCompleteModifyTransaction()
-        this.showCheckPWDialog = true
+
+        // sign and announce transaction
+        switch(this.wallet.sourceType) {
+            case CreateWalletType.trezor:
+                this.confirmViaTransactionConfirmation()
+                break;
+            default:
+                this.showCheckPWDialog = true
+        }
+    }
+
+    async confirmViaTransactionConfirmation() {
+        // delegate the signing to the TransactionConfirmation workflow
+        // the resolve value of this promise will contain the signed transaction
+        // if the user confirms successfullly
+        const {
+            success,
+            signedTransaction
+        } = await signTransaction(this.transactionList[0], this.generationHash, this.$store);
+
+        if(success) {
+            new AppWallet(this.wallet).announceNormal(signedTransaction, this.activeAccount.node, this);
+        }
     }
 
 
