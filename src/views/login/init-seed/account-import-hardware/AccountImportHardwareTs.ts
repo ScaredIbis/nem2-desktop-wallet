@@ -1,12 +1,11 @@
 import {mapState} from 'vuex'
 import {Component, Vue} from 'vue-property-decorator'
-import {formDataConfig} from "@/config/view/form";
 import {networkTypeConfig} from '@/config/view/setting'
 import trezor from '@/core/utils/trezor';
-import {Address} from 'nem2-sdk';
+import {Address, NetworkType} from 'nem2-sdk';
 import {ExtendedKey, KeyEncoding} from "nem2-hd-wallets";
 import {AppInfo, StoreAccount, AppWallet} from '@/core/model'
-import {cloneData} from "@/core/utils"
+import {CreateWalletType} from '@/core/model/CreateWalletType'
 
 @Component({
     computed: {
@@ -22,9 +21,7 @@ export class AccountImportHardwareTs extends Vue {
     NetworkTypeList = networkTypeConfig
     account = {}
     showCheckPWDialog = false
-    // TODO: prefill values (account Index and wallet name)
-    // based on number of existing trezor accounts
-    trezorForm = cloneData(formDataConfig.trezorImportForm)
+    trezorForm = this.getDefaultFormValues()
 
     toWalletDetails() {
         this.$Notice.success({
@@ -35,6 +32,27 @@ export class AccountImportHardwareTs extends Vue {
 
     toBack() {
         this.$router.push('initAccount')
+    }
+
+    numExistingTrezorWallets(networkType){
+        // TODO: make it so this.app is defined by this stage
+        // const existingTrezorWallets = this.app.walletList.filter(wallet => {
+        //     return wallet.sourceType === CreateWalletType.trezor && wallet.networkType === networkType
+        // });
+
+        // return existingTrezorWallets.length;
+
+        return 0;
+    }
+
+    getDefaultFormValues() {
+        const numExistingTrezorWallets = this.numExistingTrezorWallets(NetworkType.MIJIN_TEST);
+
+        return {
+            networkType: NetworkType.MIJIN_TEST,
+            accountIndex: numExistingTrezorWallets,
+            walletName: `Trezor Wallet ${numExistingTrezorWallets + 1}`
+        }
     }
 
     async importAccountFromTrezor() {
@@ -72,6 +90,7 @@ export class AccountImportHardwareTs extends Vue {
                 isDisabled: false,
                 message: ""
             });
+            this.toWalletDetails();
         } catch (e) {
             this.$store.commit('SET_UI_DISABLED', {
                 isDisabled: false,
