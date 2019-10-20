@@ -1,6 +1,7 @@
 import {mapState} from 'vuex'
 import {Component, Vue} from 'vue-property-decorator'
 import {networkTypeConfig} from '@/config/view/setting'
+import {formDataConfig} from "@/config/view/form";
 import trezor from '@/core/utils/trezor';
 import {Address, NetworkType} from 'nem2-sdk';
 import {ExtendedKey, KeyEncoding} from "nem2-hd-wallets";
@@ -21,7 +22,13 @@ export class AccountImportHardwareTs extends Vue {
     NetworkTypeList = networkTypeConfig
     account = {}
     showCheckPWDialog = false
-    trezorForm = this.getDefaultFormValues()
+    trezorForm = formDataConfig.trezorImportForm
+
+    created(){
+        // prefill the form fields based on number of existing trezor wallets
+        // use MIJIN_TEST by default
+        this.trezorForm = this.getDefaultFormValues(NetworkType.MIJIN_TEST);
+    }
 
     toWalletDetails() {
         this.$Notice.success({
@@ -34,24 +41,26 @@ export class AccountImportHardwareTs extends Vue {
         this.$router.push('initAccount')
     }
 
-    numExistingTrezorWallets(networkType){
-        // TODO: make it so this.app is defined by this stage
-        // const existingTrezorWallets = this.app.walletList.filter(wallet => {
-        //     return wallet.sourceType === CreateWalletType.trezor && wallet.networkType === networkType
-        // });
-
-        // return existingTrezorWallets.length;
-
-        return 0;
+    onNetworkSelected(){
+        this.trezorForm = this.getDefaultFormValues(this.trezorForm.networkType);
     }
 
-    getDefaultFormValues() {
-        const numExistingTrezorWallets = this.numExistingTrezorWallets(NetworkType.MIJIN_TEST);
+    numExistingTrezorWallets(networkType){
+        const existingTrezorWallets = this.app.walletList.filter(wallet => {
+            return wallet.sourceType === CreateWalletType.trezor && wallet.networkType === networkType
+        });
+
+        return existingTrezorWallets.length;
+    }
+
+    getDefaultFormValues(networkType) {
+        const numExistingTrezorWallets = this.numExistingTrezorWallets(networkType);
+        const networkName = networkTypeConfig.find(network => network.value === networkType).label;
 
         return {
-            networkType: NetworkType.MIJIN_TEST,
+            networkType: networkType,
             accountIndex: numExistingTrezorWallets,
-            walletName: `Trezor Wallet ${numExistingTrezorWallets + 1}`
+            walletName: `${networkName} Trezor Wallet ${numExistingTrezorWallets + 1}`
         }
     }
 

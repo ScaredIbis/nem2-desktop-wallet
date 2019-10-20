@@ -6,7 +6,7 @@
       <li>
         {{$t('choose_network')}}
         <div class="gray_content">
-          <Select v-model="trezorForm.networkType" :placeholder="$t('choose_network')">
+          <Select v-model="trezorForm.networkType" @on-change="onNetworkSelected" :placeholder="$t('choose_network')">
             <Option v-for="item in NetworkTypeList" :value="item.value" :key="item.value">{{ item.label }}</Option>
           </Select>
         </div>
