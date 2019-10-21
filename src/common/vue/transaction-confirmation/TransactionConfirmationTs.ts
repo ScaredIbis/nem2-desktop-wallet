@@ -97,13 +97,16 @@ export class TransactionConfirmationTs extends Vue {
 
     previewCreateNamespace(address, transaction, networkCurrency): any {
         const { type, duration, namespaceName, maxFee} = transaction;        
-        return {
+        const namespaceDetails = {
             transaction_type: TransactionType[type].toLowerCase(),
             "address": address,
-            "fee": maxFee / Math.pow(10, networkCurrency.divisibility) + ' ' + networkCurrency.ticker,
-            duration,
+            "fee": maxFee / Math.pow(10, networkCurrency.divisibility) + ' ' + networkCurrency.ticker,            
             namespace: namespaceName,
         }
+        if (!!duration) {
+            namespaceDetails["duration"] = duration
+        }
+        return namespaceDetails
     }
 
     previewAggregateComplete(address, transaction, networkCurrency) {
@@ -117,7 +120,7 @@ export class TransactionConfirmationTs extends Vue {
                     Object.assign(preview, this.previewMosaicSupply(tx));
             }
         });
-        return preview;       
+        return preview     
     }
 
     previewMosaicDefinition(address, transaction, networkCurrency): any {
