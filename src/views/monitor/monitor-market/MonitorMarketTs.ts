@@ -1,7 +1,7 @@
 import {KlineQuery} from "@/core/query/klineQuery.ts"
 import {market} from "@/core/api/logicApi.ts"
 import {Component, Vue} from 'vue-property-decorator'
-import LineChart from '@/common/vue/line-chart-by-day/LineChartByDay.vue'
+import LineChart from '@/components/line-chart-by-day/LineChartByDay.vue'
 import {isRefreshData, localSave, localRead, formatDate} from '@/core/utils/utils.ts'
 import {formatNumber} from '@/core/utils'
 
@@ -82,9 +82,7 @@ export class MonitorMarketTs extends Vue {
         const that = this
         const rstStr = await market.kline({period: "60min", symbol: "xemusdt", size: "48"})
 
-        if (!rstStr.rst) {
-            return
-        }
+        if (!rstStr.rst) return
         const rstQuery: KlineQuery = JSON.parse(rstStr.rst)
         const result = rstQuery.data
         const currentWeek = result.slice(0, 24)
@@ -131,11 +129,18 @@ export class MonitorMarketTs extends Vue {
         }
         const that = this
         const rstStr = await market.kline({period: "1min", symbol: "xemusdt", size: "1"})
-        const rstQuery: KlineQuery = JSON.parse(rstStr.rst)
-        const result = rstQuery.data[0].close
-        that.currentPrice = result
-        const openPriceOneMinute = {timestamp: new Date().getTime(), openPrice: result}
-        localSave('openPriceOneMinute', JSON.stringify(openPriceOneMinute))
+        if (!rstStr.rst) return
+        let rstQuery: KlineQuery
+        try {
+            rstQuery = JSON.parse(rstStr.rst)
+            const result = rstQuery.data[0].close
+            that.currentPrice = result
+            const openPriceOneMinute = {timestamp: new Date().getTime(), openPrice: result}
+            localSave('openPriceOneMinute', JSON.stringify(openPriceOneMinute))
+        } catch (e) {
+            return
+        }
+
     }
 
     async getRecentTransactionList() {

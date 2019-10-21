@@ -6,8 +6,10 @@ import {
     MosaicHttp,
     MosaicId,
 } from 'nem2-sdk'
-import {AppMosaic, AppWallet, MosaicNamespaceStatusType, AppState} from '@/core/model'
+import {AppMosaic, AppWallet, MosaicNamespaceStatusType, AppState, AppNamespace} from '@/core/model'
 import {Store} from 'vuex'
+import {mosaicSortType} from "@/config/view/mosaic"
+import {namespaceSortTypes} from "@/core/services"
 
 /**
  * Custom implementation for performance gains
@@ -44,8 +46,8 @@ export const mosaicsAmountViewFromAddress = (node: string, address: Address): Pr
     })
 }
 
-export const initMosaic = (wallet: AppWallet, store: Store<AppState>) => {
-    const {node, mosaics, networkCurrency} = store.state.account
+export const setMosaics = (wallet: AppWallet, store: Store<AppState>) => {
+    const {node, networkCurrency} = store.state.account
     const address = Address.createFromRawAddress(wallet.address)
 
     return new Promise(async (resolve, reject) => {
@@ -53,14 +55,15 @@ export const initMosaic = (wallet: AppWallet, store: Store<AppState>) => {
             const mosaicAmountViews = await mosaicsAmountViewFromAddress(node, address)
             const appMosaics = mosaicAmountViews.map(x => AppMosaic.fromMosaicAmountView(x))
             store.commit('UPDATE_MOSAICS', appMosaics)
-            const networkMosaic: AppMosaic = appMosaics.find(({ hex }) => hex === networkCurrency.hex)
+            const networkMosaic: AppMosaic = appMosaics.find(({hex}) => hex === networkCurrency.hex)
             const balance = networkMosaic !== undefined && networkMosaic.balance
                 ? networkMosaic.balance : 0
-            
+
             new AppWallet(wallet).updateAccountBalance(balance, store)
             store.commit('SET_MOSAICS_LOADING', false)
             resolve(true)
         } catch (error) {
+            new AppWallet(wallet).updateAccountBalance(0, store)
             store.commit('SET_MOSAICS_LOADING', false)
             reject(error)
         }
@@ -90,19 +93,19 @@ export const sortByMosaicSupply = (list) => {
 
 export const sortByMosaicDivisibility = (list) => {
     return list.sort((a, b) => {
-        return b.mosaicInfo.properties.divisibility - a.mosaicInfo.properties.divisibility
+        return b.properties.divisibility - a.properties.divisibility
     })
 }
 
 export const sortByMosaicTransferable = (list) => {
     return list.sort((a, b) => {
-        return b.mosaicInfo.properties.transferable
+        return b.properties.transferable ? -1 : 1
     })
 }
 
 export const sortByMosaicSupplyMutable = (list) => {
     return list.sort((a, b) => {
-        return b.mosaicInfo.properties.supplyMutable
+        return b.properties.supplyMutable ? -1 : 1
     })
 }
 export const sortByMosaicDuration = (list) => {
@@ -115,7 +118,7 @@ export const sortByMosaicDuration = (list) => {
 }
 export const sortByMosaicRestrictable = (list) => {
     return list.sort((a, b) => {
-        return b.mosaicInfo.properties.supplyMutable.restrictable
+        return b.properties.restrictable ? -1 : 1
     })
 }
 export const sortByMosaicAlias = (list) => {
@@ -123,4 +126,21 @@ export const sortByMosaicAlias = (list) => {
         return b.name && a.name
     })
     return list
+}
+
+// mosaic sorting
+const sortingRouter = {
+    [mosaicSortType.byAlias]: sortByMosaicAlias,
+    [mosaicSortType.byDivisibility]: sortByMosaicDivisibility,
+    [mosaicSortType.byDuration]: sortByMosaicDuration,
+    [mosaicSortType.byId]: sortByMosaicId,
+    [mosaicSortType.byRestrictable]: sortByMosaicRestrictable,
+    [mosaicSortType.bySupply]: sortByMosaicSupply,
+    [mosaicSortType.bySupplyMutable]: sortByMosaicSupplyMutable,
+    [mosaicSortType.byTransferable]: sortByMosaicTransferable,
+}
+
+export const sortMosaicList = (mosaicSortType: number,
+                                  list: AppNamespace[]): AppNamespace[] => {
+    return sortingRouter[mosaicSortType](list)
 }

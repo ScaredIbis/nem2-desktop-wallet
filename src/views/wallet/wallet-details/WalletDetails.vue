@@ -21,18 +21,18 @@
               </span>
             </p>
             <p>
-              <span class="tit ">{{$t('Wallet_name')}}</span>
-              <span class="walletName text_select" v-if="wallet">{{wallet.name}}</span>
+              <span class="tit">{{$t('Wallet_name')}}</span>
+              <span class="walletName" v-if="wallet">{{wallet.name}}</span>
             </p>
             <p>
               <span class="tit">{{$t('Wallet_address')}}</span>
-              <span class="walletAddress text_select">{{wallet.address}}</span>
+              <span class="walletAddress">{{wallet.address}}</span>
               <i class="copyIcon" @click="copy(wallet.address)"><img
                       src="@/common/img/wallet/copyIcon.png"></i>
             </p>
             <p>
               <span class="tit">{{$t('Wallet_public_key')}}</span>
-              <span class="walletPublicKey text_select">{{wallet.publicKey}}</span>
+              <span class="walletPublicKey">{{wallet.publicKey}}</span>
               <i class="copyIcon" @click="copy(wallet.publicKey)"><img
                       src="@/common/img/wallet/copyIcon.png"></i>
             </p>
@@ -50,7 +50,8 @@
                       <a
                         @click="unbindNamespace(alias)"
                       >{{alias.name}}</a>
-                      {{index < selfAliases.length - 1 ? ' | ' : ''}}</span>
+                      {{index < selfAliases.length - 1 ? ' | ' : ''}}
+                    </span>
                   </span>
                 </div>
               </span>
@@ -85,10 +86,10 @@
     <div class="accountFn radius" ref="accountFn">
       <div class="accountFnNav">
         <ul class="navList clear">
-          <li :class="['left',functionShowList[0]?'active':''] " @click="showFunctionIndex(0)">
-            <img src="@/common/img/wallet/wallet-detail/walletAddressBook.png">
-            {{$t('contact_list')}}
-          </li>
+<!--          <li :class="['left',functionShowList[0]?'active':''] " @click="showFunctionIndex(0)">-->
+<!--            <img src="@/common/img/wallet/wallet-detail/walletAddressBook.png">-->
+<!--            {{$t('contact_list')}}-->
+<!--          </li>-->
           <!--restrict-->
           <li :class="['left',functionShowList[1]?'active':''] " @click="showFunctionIndex(1)">
             <img src="@/common/img/wallet/wallet-detail/walletHarvesting.png">
@@ -104,7 +105,7 @@
           </li>
         </ul>
       </div>
-      <WalletAlias v-if="functionShowList[0]"></WalletAlias>
+<!--      <AddressBook v-if="functionShowList[0]"></AddressBook>-->
       <WalletHarvesting v-if="functionShowList[1]"></WalletHarvesting>
       <!--      <WalletFilter v-if="functionShowList[1]"></WalletFilter>-->
     </div>

@@ -1,12 +1,20 @@
-import {NamespaceHttp, Address, QueryParams} from 'nem2-sdk'
-import {AppNamespace} from '@/core/model'
+import {NamespaceHttp, Address, QueryParams, NamespaceId} from 'nem2-sdk'
+import {AppNamespace, AppState, FormattedTransaction, FormattedAggregateComplete} from '@/core/model'
+import {flattenArrayOfStrings} from '@/core/utils'
+import {Store} from 'vuex'
 
-export const namespaceSortTypes = {
-    byName: 1,
-    byDuration: 2,
-    byOwnerShip: 3,
-    byBindType: 4,
-    byBindInfo: 5
+
+export const setNamespaces = async (address: string, store: Store<AppState>): Promise<void> => {
+    try {
+        const {node} = store.state.account
+        const namespaces = await getNamespacesFromAddress(address, node)
+        store.commit('UPDATE_NAMESPACES', namespaces)
+    } catch (error) {
+        store.commit('RESET_NAMESPACES')
+        throw new Error(error)
+    } finally {
+        store.commit('SET_NAMESPACE_LOADING', false)
+    }
 }
 
 export const getNamespacesFromAddress = async (address: string,
@@ -26,57 +34,41 @@ export const getNamespacesFromAddress = async (address: string,
     }
 }
 
-const sortByDuration = (list: AppNamespace[], direction: boolean): AppNamespace[] => {
-    return list.sort((a, b) => {
-        return direction
-            ? b.endHeight - a.endHeight
-            : a.endHeight - b.endHeight
-    })
+export const getNamespaceNameFromNamespaceId = (hexId: string, store: Store<AppState>) => {
+    const {namespaces} = store.state.account
+    const namespace = namespaces.find(({ hex }) => hex === hexId)
+    if (namespace === undefined) return hexId
+    return namespace.name
 }
 
-const sortByName = (list: AppNamespace[], direction: boolean): AppNamespace[] => {
-    return list.sort((a, b) => {
-        return direction
-            ? a.name.toLowerCase().localeCompare(b.name.toLowerCase())
-            : b.name.toLowerCase().localeCompare(a.name.toLowerCase())
-    })
+export const extractNamespacesFromTransaction = (transaction: FormattedTransaction): any[] => {
+    if (transaction instanceof FormattedAggregateComplete && transaction.formattedInnerTransactions) {
+        return transaction.formattedInnerTransactions.map(extractNamespacesFromTransaction)
+    }
+    const tx: any = transaction.rawTx
+    if (tx.recipientAddress && tx.recipientAddress instanceof NamespaceId) return tx.recipientAddress
 }
 
-// @TODO: ?
-const sortByOwnerShip = (list: AppNamespace[], direction: boolean): AppNamespace[] => {
-    return list.sort((a, b) => {
-        return direction
-            ? (a.isLinked === b.isLinked) ? 0 : a.isLinked ? -1 : 1
-            : (a.isLinked === b.isLinked) ? 0 : a.isLinked ? 1 : -1
-    })
-}
+export const handleRecipientAddressAsNamespaceId = async (  transactions: FormattedTransaction[],
+                                                            store: Store<AppState>): Promise<void> => {
+    try {
+        const namespaceIds = transactions.map(extractNamespacesFromTransaction)
+        if (!namespaceIds.length) return
 
-const sortByBindType = (list: AppNamespace[], direction: boolean): AppNamespace[] => {
-    return list.sort((a, b) => {
-        return direction
-            ? b.alias.type - a.alias.type
-            : a.alias.type - b.alias.type
-    })
-}
+        const {node, namespaces} = store.state.account
+        
+        const newNamespacesIds = flattenArrayOfStrings(namespaceIds)
+            .filter(x => x)                            
+            .map(x => x.toHex())
+            .filter(x => namespaces.find(({hex}) => hex === x))
+            .filter((el, i, a) => i === a.indexOf(el))
+            .map(x => NamespaceId.createFromEncoded(x))
 
-const sortByBindInfo = (list: AppNamespace[], direction: boolean): AppNamespace[] => {
-    return list.sort((a, b) => {
-        return direction
-            ? b.alias.type - a.alias.type
-            : a.alias.type - b.alias.type
-    })
-}
-
-const sortingRouter = {
-    [namespaceSortTypes.byName] : sortByName,
-    [namespaceSortTypes.byDuration] : sortByDuration,
-    [namespaceSortTypes.byOwnerShip] : sortByBindInfo,
-    [namespaceSortTypes.byBindType] : sortByBindType,
-    [namespaceSortTypes.byBindInfo] : sortByOwnerShip,
-}
-
-export const sortNamespaceList = (  namespaceSortType: number,
-                                    list: AppNamespace[], 
-                                    direction: boolean): AppNamespace[] => {
-    return sortingRouter[namespaceSortType](list, direction)
+    if (!newNamespacesIds.length) return
+        const newNamespaces = await new NamespaceHttp(node).getNamespacesName(newNamespacesIds).toPromise()
+        const AppNamespaces = newNamespaces.map(AppNamespace.fromNamespaceName)
+        store.commit('ADD_NAMESPACE_FROM_RECIPIENT_ADDRESS', AppNamespaces)
+    } catch (error) {
+        console.error("handleRecipientAddressAsNamespaceId -> error", error)
+    }
 }

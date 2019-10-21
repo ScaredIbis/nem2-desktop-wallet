@@ -1,0 +1,273 @@
+import {mapState} from 'vuex'
+import {TransactionType, Password, MultisigCosignatoryModification} from "nem2-sdk"
+import {Component, Vue} from 'vue-property-decorator'
+import {transactionFormatter} from '@/core/services/transactions'
+import {Message} from "@/config/index.ts"
+import {CreateWalletType} from '@/core/model/CreateWalletType'
+import trezor from '@/core/utils/trezor'
+import { AppWallet } from '@/core/model/AppWallet'
+import { transactionConfirmationObservable } from '@/core/services/transactions'
+import { createHashLockAggregateTransaction } from '@/core/services/multisig'
+
+import TransactionSummary from '@/components/transaction-summary/TransactionSummary.vue'
+@Component({
+    computed: {...mapState({app: 'app', account: 'account'})},
+    components:{
+        TransactionSummary
+    }
+})
+
+export class TransactionConfirmationTs extends Vue {
+           
+    app: any;
+    account: any;
+
+    // when a user is prompted to confirm/sign a transaction
+    // that workflow will subscribe to this observable and use it to control UI flow
+    producer: any;
+
+    password = '';
+
+    get walletTypes() {
+        return CreateWalletType;
+    }
+
+    get show() {
+        return this.app.stagedTransaction.isAwaitingConfirmation
+    }
+
+    set show(val) {
+        if (!val) {
+            this.$emit('close')
+            transactionConfirmationObservable.next({
+                success: false,
+                signedTransaction: null,
+                error: 'User aborted transaction confirmation'
+            });
+        }
+    }
+
+    get isSelectedAccountMultisig(): boolean {
+        return this.account.activeMultisigAccount ? true : false
+    }
+
+    get accountPublicKey(): string {
+        return this.account.wallet.publicKey
+    }
+
+    get wallet() {
+        return this.account.wallet;
+    }
+
+    get stagedTransaction() {
+        return this.app.stagedTransaction.data
+    }
+    get otherDetails() {
+        return this.app.stagedTransaction.otherDetails
+    }
+
+    get formattedTransaction() {
+        const [formattedTransaction] = transactionFormatter([this.stagedTransaction], this.$store)
+        return formattedTransaction
+    }
+
+    get previewTransaction() {
+        const { accountPublicKey, isSelectedAccountMultisig, account } = this
+        const { networkCurrency } = account   
+        
+        let preview;
+        console.log(this.stagedTransaction)
+        switch(this.stagedTransaction.type) {
+            case TransactionType.TRANSFER:
+                preview = this.previewTransfer(this.stagedTransaction, networkCurrency)
+                break
+            case TransactionType.REGISTER_NAMESPACE:
+                preview = this.previewCreateNamespace(this.wallet.address, this.stagedTransaction, networkCurrency)
+                break
+            case TransactionType.AGGREGATE_COMPLETE:
+                preview = this.previewAggregateComplete(this.wallet.address, this.stagedTransaction, networkCurrency)
+                break
+            case TransactionType.AGGREGATE_BONDED:
+                preview = this.previewAggregateBonded(this.wallet.address, this.stagedTransaction, networkCurrency)
+                break
+            default:
+                preview = {};
+        }
+        preview["Public_account"] = isSelectedAccountMultisig ? accountPublicKey : '(self)' + accountPublicKey
+        
+        return preview
+    }
+
+    previewTransfer(transaction, networkCurrency): any{
+        const { type, recipientAddress, mosaics, message, maxFee} = transaction
+        return {
+            transaction_type: TransactionType[type].toLowerCase(),            
+            "transfer_target": recipientAddress.pretty(),
+            "mosaic": mosaics.map(item => {
+                return item.id.id.toHex() + `(${item.amount.compact()})`
+            }).join(','),
+            "fee": maxFee / Math.pow(10, networkCurrency.divisibility) + ' ' + networkCurrency.ticker,
+            "remarks": message.payload,
+        }
+
+    }
+
+    previewCreateNamespace(address, transaction, networkCurrency): any {
+        const { type, duration, namespaceName, maxFee} = transaction;        
+        const namespaceDetails = {
+            transaction_type: TransactionType[type].toLowerCase(),
+            "address": address,
+            "fee": maxFee / Math.pow(10, networkCurrency.divisibility) + ' ' + networkCurrency.ticker,            
+            namespace: namespaceName,
+        }
+        if (!!duration) {
+            namespaceDetails["duration"] = duration
+        }
+        return namespaceDetails
+    }
+
+    previewAggregateComplete(address, transaction, networkCurrency) {
+        let preview = {}
+        transaction.innerTransactions.forEach(tx => {
+            switch(tx.type) {
+                case TransactionType.MOSAIC_DEFINITION:
+                    Object.assign(preview, this.previewMosaicDefinition(address, tx, networkCurrency))
+                    break
+                case TransactionType.MOSAIC_SUPPLY_CHANGE:
+                    Object.assign(preview, this.previewMosaicSupply(tx));
+                    break
+                case TransactionType.MODIFY_MULTISIG_ACCOUNT:
+                        Object.assign(preview, this.previewMultiSigModify(address, tx, networkCurrency))
+                        break;
+            }
+        });
+        return preview     
+    }
+
+    previewAggregateBonded(address, transaction, networkCurrency): any {
+        let preview = {}
+        transaction.innerTransactions.forEach(tx => {
+            switch(tx.type) {
+                case TransactionType.MODIFY_MULTISIG_ACCOUNT:
+                    Object.assign(preview, this.previewMultiSigModify(address, tx, networkCurrency))
+                    break               
+            }
+        });
+        return preview 
+    }
+
+    previewMultiSigModify(address, transaction, networkCurrency): any {
+        const { type, minApprovalDelta, minRemovalDelta, maxFee } = transaction
+
+        const preview = {
+            transaction_type: TransactionType[type].toLowerCase(),
+            "address": address,
+            "fee": maxFee / Math.pow(10, networkCurrency.divisibility) + ' ' + networkCurrency.ticker,
+            "min_approval": minApprovalDelta,
+            "min_removal": minRemovalDelta
+        }
+        transaction.modifications.forEach(mod => {
+            if (mod instanceof MultisigCosignatoryModification) {
+                Object.assign(preview, this.previewMultisigCosignatoryModification(mod))
+            }
+        });
+
+        return preview
+    }
+    previewMultisigCosignatoryModification(mod: MultisigCosignatoryModification) {
+        const {cosignatoryPublicAccount} = mod;
+        const cosignatoryAddress = cosignatoryPublicAccount.address.pretty()
+        return {
+            "cosigner": cosignatoryAddress
+        }
+    }
+
+    previewMosaicDefinition(address, transaction, networkCurrency): any {
+        const { type, divisibility, duration, supply, maxFee, flags} = transaction
+        const permanent = duration.lower === 0 && duration.higher === 0
+        const {restrictable, supplyMutable, transferable} = flags
+        return {
+            transaction_type: TransactionType[type].toLowerCase(),
+            "address": address,
+            "fee": maxFee / Math.pow(10, networkCurrency.divisibility) + ' ' + networkCurrency.ticker,
+            "mosaic_divisibility": divisibility,
+            "transmittable": !!transferable ? "Yes" : "No",
+            "variable_supply": !!supplyMutable ? "Yes" : "No",
+            "restrictable": !!restrictable ? "Yes" : "No",
+            "duration": permanent ? "permanent" : duration,
+            supply,
+        }
+    }
+
+    previewMosaicSupply(transaction: any): any {
+        const {delta} = transaction;
+        return {
+            "supply": delta.lower
+        }
+    }
+
+    async confirmTransactionViaTrezor() {
+        const transactionResult = await trezor.nemSignTransaction({
+            path: this.wallet.path,
+            transaction: this.stagedTransaction
+        })
+
+        if(transactionResult.success) {
+            // get signedTransaction via TrezorConnect.nemSignTransaction
+            transactionConfirmationObservable.next({
+                success: true,
+                signedTransaction: transactionResult.payload.signature,
+                error: null
+            });
+        } else {
+            transactionConfirmationObservable.next({
+                success: false,
+                signedTransaction: null,
+                error: transactionResult.payload.error
+            });
+        }
+    }
+
+    confirmTransactionViaPassword() {
+        let isPasswordValid;
+        try {
+            // TODO: update AppWallet.checkPassword to take a string so it can handle errors
+            // when instantiating a new Password (eg. Password must be at least 8 characters)
+            isPasswordValid = new AppWallet(this.wallet).checkPassword(new Password(this.password));
+        } catch (e) {
+            isPasswordValid = false;
+        }
+
+        if(!isPasswordValid) {
+            this.$Notice.error({
+                title: this.$t(Message.WRONG_PASSWORD_ERROR) + ''
+            })
+            return;
+        }
+
+        const account = new AppWallet(this.wallet).getAccount(new Password(this.password))
+        // by default just sign the basic stagedTransaction
+        let transactionToSign = this.stagedTransaction;
+
+        // if the user is confirming an aggregate bonded transaction,
+        // create a hashLocked version of stagedTransaction to be signed instead
+        if (this.stagedTransaction.type === TransactionType.AGGREGATE_BONDED) {
+            // bonded transaction
+            transactionToSign = createHashLockAggregateTransaction(
+                this.stagedTransaction,
+                this.otherDetails.lockFee,
+                account,
+                this.$store
+            )
+        }
+
+        const signedTransaction = account.sign(transactionToSign, this.account.generationHash);
+
+        transactionConfirmationObservable.next({
+            success: true,
+            signedTransaction,
+            error: null
+        });
+        this.password = '';
+    }
+}

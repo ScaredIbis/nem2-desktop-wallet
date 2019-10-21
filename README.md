@@ -1,15 +1,21 @@
 ## NEM2-Desktop-Wallet
 
-This program is a desktop wallet application based on NEM2-Catapult. It is developed with the TypeScript-SDK, Vuejs, Electron and can be easily packaged into desktop applications for Windows and Mac.   
+This program is a desktop wallet application based on NEM2-Catapult. It is developed with the TypeScript-SDK, VueJS, Electron and can be easily packaged into desktop applications for Windows and Mac.   
 :warning: **This program is currently in development, this program is now only available for the NEM2 test network. It cannot be used for others. Pay attention to asset security.**
 
+## Contributing
+This project is developed and maintained by the NEM Foundation.
+
+Contributions that are hotfixes are to be done on the `master` branch.
+
+**For other contributions, please use the `develop` branch**
 
 ## Dependencies
 **NEM2-Catapult**
-- catapult-server: [catapult-server-v0.6.0.1](https://github.com/nemtech/catapult-server/releases/tag/v0.6.0.1)
-- nem2-sdk-typescript-javascript: [nem2-sdk-typescript-javascript-v0.13.1](https://github.com/nemtech/nem2-sdk-typescript-javascript/releases/tag/v0.13.1)
-- nem2-hd-wallets: [nem2-hd-wallets-v0.4.0.1](https://github.com/nemfoundation/nem2-hd-wallets/releases/tag/v0.4.1)
-- nem2-qr-library: [nem2-qr-library-v0.3.0.1](https://github.com/nemfoundation/nem2-qr-library)
+- catapult-server: [catapult-server-v0.8.0.3](https://github.com/nemtech/catapult-server/releases/tag/v0.8.0.3)
+- nem2-sdk-typescript-javascript: [nem2-sdk-typescript-javascript-v0.14.1](https://github.com/nemtech/nem2-sdk-typescript-javascript/releases/tag/v0.14.0)
+- nem2-hd-wallets: [nem2-hd-wallets-v0.4.1](https://github.com/nemfoundation/nem2-hd-wallets/releases/tag/v0.4.1)
+- nem2-qr-library: [nem2-qr-library-v0.4.0](https://github.com/nemfoundation/nem2-qr-library)
 - nem2-desktop-wallet-tools: [nem2-desktop-wallet-tools]( https://github.com/NemTechCN/NEM2-Desk-Wallet-Tools)
 
 ## Environment Dev
@@ -38,21 +44,14 @@ npm run dev
 npm run build 
 ```
 
-
 ## Usage
 Feel free to get the full application reference list , check [the app reference](https://github.com/nemfoundation/nem2-desktop-wallet/releases).
 
 ## Getting help
 Use the following available resources to get help:
 
-* NEM2 Developer Centor: [nemtech.github.io](https://nemtech.github.io/)
+* NEM2 Developer Center: [nemtech.github.io](https://nemtech.github.io/)
 * If you found a bug, open a new issue
-
-## Contributing
-This project is developed and maintained by NEM Foundation. Contributions are welcome and appreciated. You can find nem2-desktop-wallet on GitHub.
-
-Feel free to start an issue or create a pull request. 
-
 
 ## License
 Copyright (c) 2018-2019 NEM Licensed under the Apache License 2.0

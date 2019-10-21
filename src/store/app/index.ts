@@ -1,14 +1,13 @@
-import {AppInfo, ChainStatus, AppState, FormattedTransaction} from '@/core/model'
+import {AppInfo, ChainStatus} from '@/core/model'
 import {localRead} from "@/core/utils";
-import { Transaction } from 'nem2-sdk';
+import {Transaction} from 'nem2-sdk';
 import {MutationTree} from 'vuex';
 
 const state: AppInfo = {
     timeZone: new Date().getTimezoneOffset() / 60,   // current time zone
     locale: 'en-US',
     walletList: [],
-    hasWallet: false,
-    isNodeHealthy: false,
+    isNodeHealthy: true,
     mnemonic: '',
     chainStatus: ChainStatus.getDefault(),
     mosaicsLoading: true,
@@ -21,21 +20,18 @@ const state: AppInfo = {
     uiDisabledMessage: '',
     stagedTransaction: {
         isAwaitingConfirmation: false,
+        otherDetails: null,
         data: null,
     }
 }
 
 const mutations: MutationTree<AppInfo> = {
     RESET_APP(state: AppInfo) {
-        state.hasWallet = false
         state.mnemonic = ''
         state.walletList = []
     },
     SET_WALLET_LIST(state: AppInfo, walletList: any[]): void {
         state.walletList = walletList
-    },
-    SET_HAS_WALLET(state: AppInfo, hasWallet: boolean): void {
-        state.hasWallet = hasWallet
     },
     SET_MNEMONIC(state: AppInfo, mnemonic: string): void {
         state.mnemonic = mnemonic
@@ -73,9 +69,10 @@ const mutations: MutationTree<AppInfo> = {
         state.uiDisabledMessage = message;
     },
     SET_STAGED_TRANSACTION(state: AppInfo,
-        { data, isAwaitingConfirmation}:
-        {data: Transaction|null, isAwaitingConfirmation: boolean}) {
+        { data, isAwaitingConfirmation, otherDetails}:
+        {data: Transaction|null, isAwaitingConfirmation: boolean, otherDetails: any}) {
         state.stagedTransaction.data = data;
+        state.stagedTransaction.otherDetails = otherDetails;
         state.stagedTransaction.isAwaitingConfirmation = isAwaitingConfirmation;
     }
 }
