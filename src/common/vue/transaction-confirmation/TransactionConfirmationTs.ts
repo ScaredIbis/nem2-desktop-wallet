@@ -118,9 +118,13 @@ export class TransactionConfirmationTs extends Vue {
             switch(tx.type) {
                 case TransactionType.MOSAIC_DEFINITION:
                     Object.assign(preview, this.previewMosaicDefinition(address, tx, networkCurrency))
-                    break;
+                    break
                 case TransactionType.MOSAIC_SUPPLY_CHANGE:
                     Object.assign(preview, this.previewMosaicSupply(tx));
+                    break
+                case TransactionType.MODIFY_MULTISIG_ACCOUNT:
+                        Object.assign(preview, this.previewMultiSigModify(address, tx, networkCurrency))
+                        break;
             }
         });
         return preview     
@@ -132,7 +136,7 @@ export class TransactionConfirmationTs extends Vue {
             switch(tx.type) {
                 case TransactionType.MODIFY_MULTISIG_ACCOUNT:
                     Object.assign(preview, this.previewMultiSigModify(address, tx, networkCurrency))
-                    break;               
+                    break               
             }
         });
         return preview 
