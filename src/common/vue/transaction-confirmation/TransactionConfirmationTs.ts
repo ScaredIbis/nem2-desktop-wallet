@@ -1,5 +1,5 @@
 import {mapState} from 'vuex'
-import {TransactionType, Password} from "nem2-sdk"
+import {TransactionType, Password, MultisigCosignatoryModification} from "nem2-sdk"
 import {Component, Vue} from 'vue-property-decorator'
 
 import {Message} from "@/config/index.ts"
@@ -13,7 +13,7 @@ import { transactionConfirmationObservable } from '@/core/services/transactions'
 })
 
 export class TransactionConfirmationTs extends Vue {
-       
+           
     app: any;
     account: any;
 
@@ -59,31 +59,34 @@ export class TransactionConfirmationTs extends Vue {
     }
 
     get previewTransaction() {
-        const { accountPublicKey, isSelectedAccountMultisig, account } = this;
-        const { networkCurrency } = account;    
+        const { accountPublicKey, isSelectedAccountMultisig, account } = this
+        const { networkCurrency } = account   
         
         let preview;
         console.log(this.stagedTransaction)
         switch(this.stagedTransaction.type) {
             case TransactionType.TRANSFER:
-                preview = this.previewTransfer(this.stagedTransaction, networkCurrency);
-                break;
+                preview = this.previewTransfer(this.stagedTransaction, networkCurrency)
+                break
             case TransactionType.REGISTER_NAMESPACE:
-                preview = this.previewCreateNamespace(this.wallet.address, this.stagedTransaction, networkCurrency);
-                break;
+                preview = this.previewCreateNamespace(this.wallet.address, this.stagedTransaction, networkCurrency)
+                break
             case TransactionType.AGGREGATE_COMPLETE:
-                preview = this.previewAggregateComplete(this.wallet.address, this.stagedTransaction, networkCurrency);
-                break;
+                preview = this.previewAggregateComplete(this.wallet.address, this.stagedTransaction, networkCurrency)
+                break
+            case TransactionType.AGGREGATE_BONDED:
+                preview = this.previewAggregateBonded(this.wallet.address, this.stagedTransaction, networkCurrency)
+                break
             default:
                 preview = {};
         }
-        preview["Public_account"] = isSelectedAccountMultisig ? accountPublicKey : '(self)' + accountPublicKey;
+        preview["Public_account"] = isSelectedAccountMultisig ? accountPublicKey : '(self)' + accountPublicKey
         
-        return preview;
+        return preview
     }
 
     previewTransfer(transaction, networkCurrency): any{
-        const { type, recipientAddress, mosaics, message, maxFee} = transaction;
+        const { type, recipientAddress, mosaics, message, maxFee} = transaction
         return {
             transaction_type: TransactionType[type].toLowerCase(),            
             "transfer_target": recipientAddress.pretty(),
@@ -114,7 +117,7 @@ export class TransactionConfirmationTs extends Vue {
         transaction.innerTransactions.forEach(tx => {
             switch(tx.type) {
                 case TransactionType.MOSAIC_DEFINITION:
-                    Object.assign(preview, this.previewMosaicDefinition(address, tx, networkCurrency));
+                    Object.assign(preview, this.previewMosaicDefinition(address, tx, networkCurrency))
                     break;
                 case TransactionType.MOSAIC_SUPPLY_CHANGE:
                     Object.assign(preview, this.previewMosaicSupply(tx));
@@ -123,10 +126,48 @@ export class TransactionConfirmationTs extends Vue {
         return preview     
     }
 
+    previewAggregateBonded(address, transaction, networkCurrency): any {
+        let preview = {}
+        transaction.innerTransactions.forEach(tx => {
+            switch(tx.type) {
+                case TransactionType.MODIFY_MULTISIG_ACCOUNT:
+                    Object.assign(preview, this.previewMultiSigModify(address, tx, networkCurrency))
+                    break;               
+            }
+        });
+        return preview 
+    }
+
+    previewMultiSigModify(address, transaction, networkCurrency): any {
+        const { type, minApprovalDelta, minRemovalDelta, maxFee } = transaction
+
+        const preview = {
+            transaction_type: TransactionType[type].toLowerCase(),
+            "address": address,
+            "fee": maxFee / Math.pow(10, networkCurrency.divisibility) + ' ' + networkCurrency.ticker,
+            "min_approval": minApprovalDelta,
+            "min_removal": minRemovalDelta
+        }
+        transaction.modifications.forEach(mod => {
+            if (mod instanceof MultisigCosignatoryModification) {
+                Object.assign(preview, this.previewMultisigCosignatoryModification(mod))
+            }
+        });
+
+        return preview
+    }
+    previewMultisigCosignatoryModification(mod: MultisigCosignatoryModification) {
+        const {cosignatoryPublicAccount} = mod;
+        const cosignatoryAddress = cosignatoryPublicAccount.address.pretty()
+        return {
+            "cosigner": cosignatoryAddress
+        }
+    }
+
     previewMosaicDefinition(address, transaction, networkCurrency): any {
-        const { type, divisibility, duration, supply, maxFee, flags} = transaction;
-        const permanent = duration.lower === 0 && duration.higher === 0;
-        const {restrictable, supplyMutable, transferable} = flags;
+        const { type, divisibility, duration, supply, maxFee, flags} = transaction
+        const permanent = duration.lower === 0 && duration.higher === 0
+        const {restrictable, supplyMutable, transferable} = flags
         return {
             transaction_type: TransactionType[type].toLowerCase(),
             "address": address,
