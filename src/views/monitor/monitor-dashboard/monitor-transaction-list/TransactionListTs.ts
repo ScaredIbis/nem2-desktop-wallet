@@ -1,4 +1,4 @@
-import {TransactionType} from 'nem2-sdk'
+import {TransactionType, NamespaceId} from 'nem2-sdk'
 import {mapState} from "vuex"
 import {Component, Vue} from 'vue-property-decorator'
 import {formatNumber, renderMosaics} from '@/core/utils'
@@ -23,6 +23,7 @@ export class TransactionListTs extends Vue {
     scroll: any
     showDialog: boolean = false
     activeTransaction: FormattedTransaction = null
+    NamespaceId = NamespaceId
 
     get wallet() {
         return this.activeAccount.wallet
@@ -49,16 +50,29 @@ export class TransactionListTs extends Vue {
     get currentHeight() {
         return this.app.chainStatus.currentHeight
     }
+    
+    get namespaces() {
+        return this.activeAccount.namespaces
+    }
+    
+    getName(namespaceId: NamespaceId) {
+        const hexId = namespaceId.toHex()
+        const namespace = this.namespaces.find(({hex}) => hexId === hex)
+        if (namespace === undefined) return hexId
+        return namespace.name
+    }
 
-    // @TODO: move out from there
-    renderHeightAndConfirmation(height) {
-        // console.log(this.slicedTransactionList,'slicedTransactionList')
+    renderHeightAndConfirmation(transactionHeight: number): string {
         const {currentHeight} = this
-        if (!currentHeight) return height
-        const confirmations = currentHeight - height
+        if (!currentHeight) return `${transactionHeight}`
+
+        const confirmations = currentHeight - transactionHeight + 1
+        /** Prevents a reactivity glitch */
+        if (confirmations < 0) return `${transactionHeight}`
+
         const {networkConfirmations} = defaultNetworkConfig
-        if (confirmations > networkConfirmations) return height.toLocaleString()
-        return `(${confirmations}/${networkConfirmations}) - ${height.toLocaleString()}`
+        if (confirmations > networkConfirmations) return `${transactionHeight}`
+        return `(${confirmations}/${networkConfirmations}) - ${transactionHeight.toLocaleString()}`
     }
 
     // @TODO: move out from there
