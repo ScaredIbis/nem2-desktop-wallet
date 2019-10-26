@@ -38,9 +38,23 @@
             </p>
             <p class="link_text">
               <span class="tit">{{$t('alias')}}</span>
-              <span class="  alias_add pointer" @click="isShowBindDialog=true"></span>
-
-              <span class="walletPublicKey">{{getSelfAlias.join(',')||'-'}}</span>
+              <span class="  alias_add pointer" @click="bindNamespace()" />
+              <span class="walletPublicKey">
+                <span v-if='!selfAliases.length'>-</span>
+                <div v-if='selfAliases.length' >
+                  <span
+                    v-for="(alias, index) in selfAliases"
+                    :key="index"
+                  >
+                    <span class="aliasLink">
+                      <a
+                        @click="unbindNamespace(alias)"
+                      >{{alias.name}}</a>
+                      {{index < selfAliases.length - 1 ? ' | ' : ''}}
+                    </span>
+                  </span>
+                </div>
+              </span>
             </p>
           </div>
         </Col>
@@ -72,10 +86,10 @@
     <div class="accountFn radius" ref="accountFn">
       <div class="accountFnNav">
         <ul class="navList clear">
-          <li :class="['left',functionShowList[0]?'active':''] " @click="showFunctionIndex(0)">
-            <img src="@/common/img/wallet/wallet-detail/walletAddressBook.png">
-            {{$t('contact_list')}}
-          </li>
+<!--          <li :class="['left',functionShowList[0]?'active':''] " @click="showFunctionIndex(0)">-->
+<!--            <img src="@/common/img/wallet/wallet-detail/walletAddressBook.png">-->
+<!--            {{$t('contact_list')}}-->
+<!--          </li>-->
           <!--restrict-->
           <li :class="['left',functionShowList[1]?'active':''] " @click="showFunctionIndex(1)">
             <img src="@/common/img/wallet/wallet-detail/walletHarvesting.png">
@@ -91,7 +105,7 @@
           </li>
         </ul>
       </div>
-      <WalletAlias v-if="functionShowList[0]"></WalletAlias>
+<!--      <AddressBook v-if="functionShowList[0]"></AddressBook>-->
       <WalletHarvesting v-if="functionShowList[1]"></WalletHarvesting>
       <!--      <WalletFilter v-if="functionShowList[1]"></WalletFilter>-->
     </div>
@@ -102,13 +116,14 @@
     <KeystoreDialog :showKeystoreDialog="showKeystoreDialog"
                     @closeKeystoreDialog="closeKeystoreDialog"/>
     <Alias
-      v-if="isShowBindDialog"
-      :visible='isShowBindDialog'
-      :bind="!getSelfAlias.length"
-      :fromNamespace="false"
+      v-if="showBindDialog"
+      :visible='showBindDialog'
+      :bind="bind"
+      :fromNamespace="fromNamespace"
       :mosaic="null"
+      :namespace="activeNamespace"
       :address="getAddress"
-      @close="closeBindDialog"
+      @close="showBindDialog = false"
     />
   </div>
 </template>

@@ -3,8 +3,21 @@ import {FEE_SPEEDS} from '@/config'
 
 
 export const formDataConfig = {
+    createAccountForm: {
+        accountName: '',
+        password: '',
+        passwordAgain: '',
+        hint: '',
+        currentNetType: NetworkType.MIJIN_TEST,
+    },
+    importKeystoreConfig: {
+        walletName: 'keystore-wallet',
+        networkType: NetworkType.MIJIN_TEST,
+        keystoreStr: '',
+        keystorePassword: ''
+    },
     transferForm: {
-        recipient: 'SCSXIT-R36DCY-JRVSNE-NY5BUA-HXSL7I-E6ULEY-UYRC',
+        recipient: '',
         remark: '',
         multisigPublicKey: '',
         feeSpeed: FEE_SPEEDS.NORMAL,
@@ -60,13 +73,14 @@ export const formDataConfig = {
         minApproval: 1,
         minRemoval: 1,
         feeSpeed: FEE_SPEEDS.NORMAL,
+        multisigPublicKey: '',
     },
-    multisigManagementForm: {
-        minApprovalDelta: 0,
-        minRemovalDelta: 0,
+    multisigModificationForm: {
+        publicKeyList: [],
+        minApproval: 0,
+        minRemoval: 0,
         feeSpeed: FEE_SPEEDS.NORMAL,
-        cosignerList: [],
-        multisigPublicKey: ''
+        multisigPublicKey: '',
     },
     namespaceEditForm: {
         name: '',
@@ -92,12 +106,12 @@ export const formDataConfig = {
         walletName: '',
     },
     walletImportPrivateKeyForm: {
-        privateKey: 'FB628AF4276F696AD1FA85B7AB1E49CFD896E5EC85000E3179EEEA59717DD8DE',
+        privateKey: '',
         networkType: NetworkType.MIJIN_TEST,
         walletName: 'wallet-privateKey',
     },
     trezorImportForm: {
-        networkType: 0,
+        networkType: NetworkType.MIJIN_TEST,
         accountIndex: 0,
         walletName: 'Trezor Wallet'
     }

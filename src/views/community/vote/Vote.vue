@@ -57,7 +57,7 @@
             <div class="content">{{currentVote.content}}</div>
             <div class="selection">
               <RadioGroup v-model="sigleSelection" v-if="!currentVote.isMultiple">
-                <Radio v-for="(i,index) in selections" :label="i.id">
+                <Radio v-for="(i,index) in selections" :key="index" :label="i.id">
                   {{alphabet[index] + ' : '+i.name}}
                 </Radio>
               </RadioGroup>
@@ -81,7 +81,7 @@
             <input v-model="formItem.title" :placeholder="$t('please_enter_a_voting_title')" type="text">
           </span>
         </div>
-        <div class="vote_describle">
+        <div class="vote_describe">
           <span class="title">{{$t('description')}}</span>
           <span class="value radius">
           <textarea :placeholder="$t('about_voting_content_description')"
@@ -177,8 +177,11 @@
       </div>
     </div>
 
-    <CheckPWDialog :showCheckPWDialog="showCheckPWDialog" @closeCheckPWDialog="closeCheckPWDialog"
-                   @checkEnd="checkEnd"></CheckPWDialog>
+    <CheckPWDialog
+            :showCheckPWDialog="showCheckPWDialog"
+            @closeCheckPWDialog="closeCheckPWDialog"
+            :isOnlyCheckPassword='true'
+            @checkEnd="checkEnd"/>
   </div>
 </template>
 

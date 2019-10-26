@@ -3,9 +3,9 @@ import {mapState} from 'vuex'
 import {Password} from "nem2-sdk"
 import {Component, Vue} from 'vue-property-decorator'
 import {networkTypeConfig} from '@/config/view/setting'
-import {AppLock} from "@/core/utils"
+import {AppLock, cloneData} from "@/core/utils"
 import {AppInfo, StoreAccount, AppWallet} from "@/core/model"
-import CheckPasswordDialog from '@/common/vue/check-password-dialog/CheckPasswordDialog.vue'
+import CheckPasswordDialog from '@/components/check-password-dialog/CheckPasswordDialog.vue'
 @Component({
     computed: {
         ...mapState({
@@ -20,7 +20,7 @@ import CheckPasswordDialog from '@/common/vue/check-password-dialog/CheckPasswor
 export class AccountImportMnemonicTs extends Vue {
     activeAccount: StoreAccount
     app: AppInfo
-    form = formDataConfig.walletImportMnemonicForm
+    form = cloneData(formDataConfig.walletImportMnemonicForm)
     NetworkTypeList = networkTypeConfig
     account = {}
     showCheckPWDialog = false
@@ -28,7 +28,6 @@ export class AccountImportMnemonicTs extends Vue {
     submit() {
         if (!this.checkImport()) return
         this.showCheckPWDialog = true
-
     }
 
     checkEnd(password) {
@@ -56,15 +55,16 @@ export class AccountImportMnemonicTs extends Vue {
             })
             return false
         }
-        if (!this.form.mnemonic || this.form.mnemonic === '' || this.form.mnemonic.split(' ').length != 12) {
+        if (!this.form.mnemonic || this.form.mnemonic === '' || this.form.mnemonic.split(' ').length != 24) {
             this.$Notice.error({
-                title: this.$t(Message.MNENOMIC_INPUT_ERROR) + ''
+                title: this.$t(Message.MNEMONIC_INPUT_ERROR) + ''
             })
             return false
         }
         return true
     }
 
+    // TODO USE ACCOUNT NETWORK TYPE
     importWallet(password) {
         const {walletName, mnemonic, networkType} = this.form
         try {
@@ -89,7 +89,6 @@ export class AccountImportMnemonicTs extends Vue {
         this.$Notice.success({
             title: this['$t']('Imported_wallet_successfully') + ''
         })
-        this.$store.commit('SET_HAS_WALLET', true)
         this.$router.push('dashBoard')
     }
 

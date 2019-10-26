@@ -1,18 +1,18 @@
 <template>
   <div>
-    <div class="mnemonic">
+    <div class="mnemonic"  @keyup.enter="submit">
       <div class="page_import_title">{{$t('Import_mnemonic')}}</div>
-      <div class="describle">{{$t('mnemonic_description')}}</div>
+      <div class="describe">{{$t('mnemonic_description')}}</div>
       <ul>
         <li>
           <div class="title_info">
           {{$t('input_mnemonic')}}
           <div class="tips">
-            {{$t('enter_12_words_please_pay_attention_to_the_order_separated_by_a_space_between_each_word')}}
+            {{$t('enter_24_words_please_pay_attention_to_the_order_separated_by_a_space_between_each_word')}}
           </div>
           </div>
           <div class="gray_content textarea">
-            <textarea class="absolute" v-model="form.mnemonic"/>
+            <textarea v-focus class="absolute" v-model="form.mnemonic"/>
           </div>
         </li>
 

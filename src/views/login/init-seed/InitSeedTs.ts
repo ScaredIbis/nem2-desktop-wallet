@@ -6,7 +6,7 @@ import SeedCreatedGuide from '@/views/login/init-seed/seed-created-guide/SeedCre
 import {mapState} from "vuex"
 import {walletFnNavConfig} from '@/config/view/wallet'
 import {StoreAccount} from "@/core/model"
-import CheckPasswordDialog from '@/common/vue/check-password-dialog/CheckPasswordDialog.vue'
+import CheckPasswordDialog from '@/components/check-password-dialog/CheckPasswordDialog.vue'
 import {AppLock, createMnemonic} from "@/core/utils"
 
 @Component({
@@ -74,7 +74,7 @@ export class InitSeedTs extends Vue {
             this.showCheckPWDialog = true
             return
         }
-        this.pageIndex = 1
+        this.pageIndex = index;
     }
 
     checkEnd(password) {
@@ -88,7 +88,6 @@ export class InitSeedTs extends Vue {
         }
         this.pageIndex = -1
         this.showCheckPWDialog = false
-
     }
 
 

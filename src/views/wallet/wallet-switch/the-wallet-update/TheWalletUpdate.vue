@@ -1,5 +1,5 @@
 <template>
-  <div class="checkPWDialogWrap">
+  <div class="checkPWDialogWrap" @keyup.enter="submit">
     <Modal
             v-model="show"
             class-name="vertical-center-modal"
@@ -13,12 +13,15 @@
         <div class="stepItem1">
           <Form :model="wallet">
             <FormItem>
-              <Input v-model="wallet.name" required
-                     :placeholder="$t('please_enter_your_new_wallet_name')"></Input>
+              <Input v-model="wallet.name"
+                     required
+                     :autofocus="true"
+                     :placeholder="$t('please_enter_your_new_wallet_name')"/>
             </FormItem>
             <FormItem>
               <Button type="success" @click="submit"> {{$t('confirm')}}</Button>
             </FormItem>
+            <input v-show="false">
           </Form>
         </div>
       </div>

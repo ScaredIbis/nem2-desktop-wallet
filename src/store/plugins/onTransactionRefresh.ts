@@ -1,7 +1,8 @@
-import {TransactionType, Address} from 'nem2-sdk'
-import {mosaicsAmountViewFromAddress} from '@/core/services'
-import {AppMosaic, AppWallet, AppState} from '@/core/model'
-import {getNamespacesFromAddress} from '@/core/services'
+import {TransactionType, Address, AggregateTransaction} from 'nem2-sdk'
+import {AppMosaic, AppWallet, AppState, FormattedTransaction} from '@/core/model'
+import {
+   setNamespaces, getTransactionTypesFromAggregate, mosaicsAmountViewFromAddress, handleRecipientAddressAsNamespaceId
+} from '@/core/services'
 
 const txTypeToGetNamespaces = [
   TransactionType.REGISTER_NAMESPACE,
@@ -13,6 +14,10 @@ const txTypeToSetAccountInfo = [
    TransactionType.LINK_ACCOUNT,
 ]
 
+const txTypeToGetMultisigInfo = [
+   TransactionType.MODIFY_MULTISIG_ACCOUNT,
+]
+
 /**
  * This module reacts to confirmed transactions
  * By default, the mosaic balances are checked everyTime
@@ -21,10 +26,11 @@ export const onTransactionRefreshModule = (store: any) => { // @TODO: check how 
   store.registerModule('onTransactionRefresh', onTransactionRefreshModule)
 
   store.subscribe(async (mutation, state: AppState) => {
-    /**
-     * Extracts all hexIds from transactions,
-     * Add them to store.account.mosaics
-     */
+   if (mutation.type === 'ADD_UNCONFIRMED_TRANSACTION') {
+      const formattedTransaction: FormattedTransaction = mutation.payload[0] 
+      handleRecipientAddressAsNamespaceId([formattedTransaction], store)
+   }
+ 
     if (mutation.type === 'ADD_CONFIRMED_TRANSACTION') {
      try {
         const {node, networkCurrency} = state.account
@@ -39,17 +45,27 @@ export const onTransactionRefreshModule = (store: any) => { // @TODO: check how 
 
         appWallet.updateAccountBalance(balance, store)
         store.commit('UPDATE_MOSAICS', appMosaics)
+      
+        const formattedTransaction: FormattedTransaction = mutation.payload[0] 
+        const transaction = formattedTransaction.rawTx
 
-        const txType = mutation.payload[0].rawTx.type
+        const transactionTypes: TransactionType[] = transaction instanceof AggregateTransaction
+            ? getTransactionTypesFromAggregate(transaction)
+            : [transaction.type]
 
-        if (txTypeToGetNamespaces.includes(txType)) {
-            const namespaces = await getNamespacesFromAddress(address, node)
-            store.commit('SET_NAMESPACES', namespaces)
-        }
+         if (txTypeToGetNamespaces.some(a => transactionTypes.some(b => b === a))) {
+               setNamespaces(address, store)
+         }
 
-         if (txTypeToSetAccountInfo.includes(txType)) {
+         if (txTypeToSetAccountInfo.some(a => transactionTypes.some(b => b === a))) {
             appWallet.setAccountInfo(store)
          }
+
+         if (txTypeToGetMultisigInfo.some(a => transactionTypes.some(b => b === a))) {
+            appWallet.setMultisigStatus(node, store)
+         }
+
+         handleRecipientAddressAsNamespaceId([formattedTransaction], store)
      } catch (error) {
         console.error(error)
      }
@@ -66,12 +82,15 @@ export const onTransactionRefreshModule = (store: any) => { // @TODO: check how 
          const txType = transaction.type
  
          if (txTypeToGetNamespaces.includes(txType)) {
-            const namespaces = await getNamespacesFromAddress(address, node)
-            store.commit('SET_MULTISIG_ACCOUNT_NAMESPACES', namespaces)
-         }  
+            setNamespaces(address, store)
+         }
       } catch (error) {
        console.error(error)
       }
+     }
+
+     if (mutation.type === 'SET_TRANSACTION_LIST') {
+         handleRecipientAddressAsNamespaceId(mutation.payload, store)
      }
   })
 }

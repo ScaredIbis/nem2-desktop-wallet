@@ -1,17 +1,17 @@
-import {copyTxt} from '@/core/utils/utils.ts'
-import {QRCodeGenerator} from 'nem2-qr-library'
-import {Address, AddressAlias, MultisigAccountInfo} from 'nem2-sdk'
+import {copyTxt} from '@/core/utils'
+import {ContactQR} from 'nem2-qr-library'
+import {Address, AddressAlias, AliasType, MultisigAccountInfo, PublicAccount} from 'nem2-sdk'
 import {Component, Vue, Watch} from 'vue-property-decorator'
-import WalletAlias from './wallet-function/wallet-alias/WalletAlias.vue'
+import AddressBook from '@/views/wallet/wallet-details/wallet-function/address-book/AddressBook.vue'
 import WalletFilter from './wallet-function/wallet-filter/WalletFilter.vue'
-import KeystoreDialog from '@/views/wallet/keystore-dialog/KeystoreDialog.vue'
-import MnemonicDialog from '@/views/wallet/mnemonic-dialog/MnemonicDialog.vue'
-import PrivatekeyDialog from '@/views/wallet/privatekey-dialog/PrivatekeyDialog.vue'
+import KeystoreDialog from '@/views/wallet/wallet-details/keystore-dialog/KeystoreDialog.vue'
+import MnemonicDialog from '@/views/wallet/wallet-details/mnemonic-dialog/MnemonicDialog.vue'
+import PrivatekeyDialog from '@/views/wallet/wallet-details/privatekey-dialog/PrivatekeyDialog.vue'
 import WalletUpdatePassword from './wallet-function/wallet-update-password/WalletUpdatePassword.vue'
 import WalletHarvesting from '@/views/wallet/wallet-details/wallet-function/wallet-harvesting/WalletHarvesting.vue'
 import {mapState} from "vuex"
-import {AppWallet, AppInfo, StoreAccount} from "@/core/model"
-import Alias from '@/views/forms/alias/Alias.vue'
+import {AppWallet, AppInfo, StoreAccount, AppNamespace} from "@/core/model"
+import Alias from '@/components/forms/alias/Alias.vue'
 
 @Component({
     components: {
@@ -19,7 +19,7 @@ import Alias from '@/views/forms/alias/Alias.vue'
         MnemonicDialog,
         PrivatekeyDialog,
         KeystoreDialog,
-        WalletAlias,
+        AddressBook,
         WalletFilter,
         WalletUpdatePassword,
         WalletHarvesting,
@@ -35,12 +35,14 @@ export class WalletDetailsTs extends Vue {
     activeAccount: StoreAccount
     app: AppInfo
     aliasList = []
-    QRCode: string = ''
     showMnemonicDialog: boolean = false
     showKeystoreDialog: boolean = false
     showPrivatekeyDialog: boolean = false
-    functionShowList = [true, false]
-    isShowBindDialog = false
+    functionShowList = [false,true]
+    showBindDialog = false
+    bind: boolean = true
+    fromNamespace: boolean = false
+    activeNamespace: AppNamespace = null
 
     get wallet(): AppWallet {
         return this.activeAccount.wallet
@@ -73,24 +75,21 @@ export class WalletDetailsTs extends Vue {
         return this.activeAccount.wallet.importance ? this.activeAccount.wallet.importance + '0' : 0
     }
 
-    // @TODO: this should return a string, not an array
-    get getSelfAlias(): string[] {
+    get selfAliases(): AppNamespace[] {
         return this.NamespaceList
-            .filter(namespace =>
-                namespace.alias instanceof AddressAlias &&
-                // @ts-ignore // @TODO: E3 review
-                Address.createFromEncoded(namespace.alias.address).plain() === this.getAddress
+            .filter(({alias}) =>
+                alias
+                && alias.type == AliasType.Address
+                && alias.address.plain()=== this.getAddress
             )
-            .map(item => item.label)
     }
-
 
     showFunctionIndex(index) {
         this.functionShowList = [false, false, false]
         this.functionShowList[index] = true
     }
 
-    // @TODO
+    // @WALLETS refactor
     changeMnemonicDialog() {
         if (!this.wallet['encryptedMnemonic']) {
             this.$Notice.warning({
@@ -121,11 +120,29 @@ export class WalletDetailsTs extends Vue {
         this.showKeystoreDialog = false
     }
 
-    setQRCode(address) {
-        if (!address || address.length < 40) return
-        const {networkType} = Address.createFromRawAddress(address)
-        const {generationHash} = this
-        this.QRCode = QRCodeGenerator.createExportObject({address}, networkType, generationHash).toBase64()
+    get QRCode(): string {
+        // @QR
+        const publicAccount: any =  PublicAccount.createFromPublicKey(this.wallet.publicKey, this.wallet.networkType)
+        return new ContactQR(
+            this.wallet.name,
+            publicAccount,
+            this.wallet.networkType,
+            this.activeAccount.generationHash,
+        ).toBase64()
+    }
+
+    bindNamespace() {
+        this.bind = true
+        this.fromNamespace = false
+        this.activeNamespace = null
+        this.showBindDialog = true
+    }
+
+    unbindNamespace(namespace: AppNamespace) {
+        this.bind = false
+        this.fromNamespace = true
+        this.activeNamespace = namespace
+        this.showBindDialog = true
     }
 
     copy(txt) {
@@ -135,22 +152,4 @@ export class WalletDetailsTs extends Vue {
             })
         })
     }
-
-    init() {
-        this.setQRCode(this.getAddress)
-    }
-
-    closeBindDialog() {
-        this.isShowBindDialog = false
-    }
-
-    @Watch('getAddress')
-    onGetAddressChange() {
-        this.init()
-    }
-
-    mounted() {
-        this.init()
-    }
-
 }

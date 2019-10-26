@@ -1,5 +1,5 @@
 <template>
-  <div class="checkPWDialogWrap">
+  <div class="delete_wallet_container" @keyup.enter="submit">
     <Modal
             v-model="show"
             class-name="vertical-center-modal"
@@ -15,16 +15,20 @@
           <div class="checkPWImg">
             <img src="@/common/img/wallet/walletDeleteIcon.png">
           </div>
-          <p class="checkRemind">
-            {{$t('delete_wallet_tip', {walletName :getWallet.name})}}</p>
+          <p class="checkRemind">{{$t('delete_wallet_tip', {walletName :walletToDelete.name})}}</p>
+          <p v-if="walletList.length == 1" class="checkRemind orange">
+            {{$t('this_account_will_be_logged_out_after_the_wallet_is_successfully_deleted')}}</p>
           <Form :model="confirmation">
             <FormItem>
-              <Input v-model="confirmation.value" type="password" required
+              <Input v-model="confirmation.value"
+                     :autofocus="true"
+                     type="password" required
                      :placeholder="$t(confirmationPrompt)"></Input>
             </FormItem>
             <FormItem>
               <Button type="success" @click="submit"> {{$t('confirm')}}</Button>
             </FormItem>
+            <input v-show="false">
           </Form>
         </div>
       </div>

@@ -1,21 +1,29 @@
 import Router from 'vue-router'
 import routers from '@/router/routers.ts'
-import {getObjectLength, localRead} from '@/core/utils/utils.ts'
+import {getObjectLength, localRead} from '@/core/utils'
 
 const router = new Router({
     mode: 'hash',
     routes: routers
 })
 
-
 router.beforeEach((to, from, next) => {
-    const accountMap = localRead('accountMap') ? JSON.parse(localRead('accountMap')) : {}
+    const hasWallet: boolean = localRead('accountMap') !== ''
+        && JSON.parse(localRead('accountMap')) instanceof Object
+        && getObjectLength(JSON.parse(localRead('accountMap'))) > 0
+
     const toPath = to.path
-    const fromPath = from.path
-    if (!to.name || (!getObjectLength(accountMap) && toPath !== '/login' && fromPath !== '/login')) {
-        next({
-            path: '/login'
-        })
+
+    if (!hasWallet && toPath !== '/getStarted') {
+        next({ path: '/getStarted' })
+
+    }
+    if (!to.name) {
+        if (hasWallet) {
+            next({ path: '/inputLock' })
+        } else {
+            next({ path: '/getStarted' })
+        }
     } else {
         next()
     }

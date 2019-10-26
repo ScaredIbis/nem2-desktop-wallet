@@ -1,6 +1,6 @@
 <template>
   <div class="transfer" @click="isShowSubAlias=false">
-    <form @submit.prevent="validateForm('transfer-transaction')">
+    <form @submit.prevent="validateForm('transfer-transaction')" @keyup.enter="submit">
       <div class="flex_center" v-if="!hasMultisigAccounts">
         <span class="title">{{$t('sender')}}</span>
           <span class="value no-border"
@@ -27,21 +27,32 @@
       <div class="target flex_center">
         <span class="title">{{$t('transfer_target')}}</span>
         <span class="value radius flex_center">
-        <input type="text" v-model="formItems.recipient" :placeholder="$t('receive_address_or_alias')">
+          <ErrorTooltip  fieldName="recipient" placementOverride="left">
+              <input
+                      v-focus
+                      data-vv-name="recipient"
+                      v-model="formItems.recipient"
+                      v-validate="standardFields.addressOrAlias.validation"
+                      :data-vv-as="$t('transfer_target')"
+                      :placeholder="$t('receive_address_or_alias')"
+                      type="text"
+              />
+          </ErrorTooltip>
       </span>
-        <span class="pointer" @click.stop="isShowSubAlias =!isShowSubAlias">@</span>
-        <div v-if="isShowSubAlias" class="selections ">
-          <div class="selection_container scroll">
-            <div @click="formModel.recipient = key " class="overflow_ellipsis selection_item"
-                 v-for="(value,key) in addressAliasMap">{{value.label}}({{key}})
-            </div>
-          </div>
-          <div v-if="isAddressMapNull" class="no_data">
-            {{$t('no_data')}}
+
+      <!-- <span class="pointer" @click.stop="isShowSubAlias =!isShowSubAlias">@</span>
+      <div v-if="isShowSubAlias" class="selections ">
+        <div class="selection_container scroll">
+          <div @click="formModel.recipient = key " class="overflow_ellipsis selection_item"
+                v-for="(value,key) in addressAliasMap">{{value.label}}({{key}})
           </div>
         </div>
-      </div>
+        <div v-if="isAddressMapNull" class="no_data">
+          {{$t('no_data')}}
+        </div>
+      </div> -->
 
+      </div>
 
       <div class="asset flex_center">
         <span class="title">{{$t('asset_type')}}</span>
@@ -95,7 +106,7 @@
         <span class="mosaic_amount overflow_ellipsis">{{$t('amount')}}</span>
         <div class="scroll">
           <div class="no_data" v-if="formItems.mosaicTransferList.length <1">
-            {{$t('no_data')}}
+            {{$t('please_input_mosaic_and_amount')}}
           </div>
           <div class="mosaic_list_item_container scroll">
 
@@ -104,8 +115,9 @@
               :key="index"
               class="mosaic_list_item radius"
             >
-              <span class="mosaic_name overflow_ellipsis">{{mosaics[m.id.id.toHex()]
-                  ? mosaics[m.id.id.toHex()].name : m.id.id.toHex()}}
+                <span class="mosaic_name overflow_ellipsis">{{
+                  mosaics[m.id.id.toHex()] && mosaics[m.id.id.toHex()].name
+                    ? mosaics[m.id.id.toHex()].name : m.id.id.toHex()}}
               </span>
               <span class="mosaic_amount overflow_ellipsis">{{getRelativeMosaicAmount(
                 m.amount.compact(), mosaics[m.id.id.toHex()]
@@ -164,15 +176,6 @@
       <div @click="submit" :class="['send_button',isCompleteForm?'pointer':'not_allowed']">
         {{$t('send')}}
       </div>
-
-      <CheckPWDialog
-              :transactionDetail='transactionDetail'
-              @closeCheckPWDialog="closeCheckPWDialog"
-              @checkEnd="checkEnd"
-              :showCheckPWDialog="showCheckPWDialog"
-              :otherDetails='otherDetails'
-              :transactionList="transactionList"
-      ></CheckPWDialog>
     </form>
   </div>
 </template>

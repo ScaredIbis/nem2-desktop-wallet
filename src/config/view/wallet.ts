@@ -7,11 +7,11 @@ import namespace1Icon from "@/common/img/service/namespace1.png"
 import namespace2Icon from "@/common/img/service/namespace2.png"
 import apostille1Icon from "@/common/img/service/apostille1.png"
 import apostille2Icon from "@/common/img/service/apostille2.png"
-import { localRead } from "@/core/utils"
+import {localRead} from "@/core/utils"
 
 const _walletFnNavConfig = [
-    { name: 'create', to: '/walletCreate', active: true },
-    { name: 'import', to: '/walletImportKeystore', active: false }
+    {name: 'create', to: '/walletCreate', active: true},
+    {name: 'import', to: '/walletImportKeystore', active: false}
 ]
 
 const _walletImportNavigatorConfig = [
@@ -26,7 +26,7 @@ const _walletImportNavigatorConfig = [
     }
 ]
 
-if(localRead("_ENABLE_TREZOR_") === "true") {
+if (localRead("_ENABLE_TREZOR_") === "true") {
     _walletFnNavConfig.push({
         name: 'hardware',
         to: '/walletImportHardware',
@@ -39,25 +39,16 @@ if(localRead("_ENABLE_TREZOR_") === "true") {
     })
 }
 
-export const walletFnNavConfig = _walletFnNavConfig;
+export const walletFnNavConfig = _walletFnNavConfig
 
-export const walletImportNavigatorConfig = _walletImportNavigatorConfig;
+export const walletImportNavigatorConfig = _walletImportNavigatorConfig
 
 export const walletStyleSheetType = {
     seedWallet: 'walletItem_bg_1',
     otherWallet: 'walletItem_bg_2',
     activeWallet: 'walletItem_bg_0'
 }
-
-export const importKeystoreConfig = {
-    walletName: 'keystore-wallet',
-    networkType: NetworkType.MIJIN_TEST,
-    keystoreStr: 'eyJuYW1lIjoid2FsbGV0LXByaXZhdGVLZXkiLCJuZXR3b3JrIjoxNDQsImFkZHJlc3MiOnsiYWRkcmVzcyI6IlNETEdMRFROSVAyS0VZSlpPSFBBVjZZQktSUTVaUlJETEpHUjVIM1UiLCJuZXR3b3JrVHlwZSI6MTQ0fSwiY3JlYXRpb25EYXRlIjoiMjAxOS0wOS0yM1QxNzozNToxNi4xOTUiLCJzY2hlbWEiOiJzaW1wbGVfdjEiLCJlbmNyeXB0ZWRQcml2YXRlS2V5Ijp7ImVuY3J5cHRlZEtleSI6IjNlYTc2ZTEzNmE0ZmRhODY1M2E0NTRmMDQ5Mjc3NzgxMDkyZTA0M2Q2YWUxYTA2OTFmNjViNGJhYTM2ZTBkYzVlZTQ5YzBiZGQ0ZmNkMWJhNDRlNDI2MTU0OTc5NjNkNiIsIml2IjoiNjU2REQ5NUJGMTQ5MzQ3NEE5ODkyMUU5MDNGQzcwREYifX0=',
-    walletPassword: '',
-    walletPasswordAgain: '',
-    keystorePassword: '111111'
-}
-
+export const seedWalletTitle = 'seedWallet-'
 export const serviceSwitchFnConfig = [
     {
         name: 'mosaic',

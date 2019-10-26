@@ -1,12 +1,12 @@
-import {Transaction, MultisigAccountInfo} from 'nem2-sdk';
-import {AppNamespace} from './AppNamespace';
-import {AppMosaic} from './AppMosaic';
-import {FormattedTransaction} from './FormattedTransaction';
-import {ChainStatus, AppWallet} from '.';
+import {Transaction, MultisigAccountInfo} from 'nem2-sdk'
+import {AppNamespace} from './AppNamespace'
+import {AppMosaic} from './AppMosaic'
+import {FormattedTransaction} from './FormattedTransaction'
+import {ChainStatus, AppWallet} from '.'
 
 export interface AddressAndTransaction {
-  address: string
-  transaction: Transaction
+    address: string
+    transaction: Transaction
 }
 
 export interface AddressAndNamespaces {
@@ -33,7 +33,6 @@ export interface NetworkCurrency {
 
 export interface StoreAccount {
     node: string,
-    account: Account | any,
     wallet: AppWallet,
     mosaics: Record<string, AppMosaic>,
     namespaces: AppNamespace[],
@@ -47,6 +46,7 @@ export interface StoreAccount {
     multisigAccountsNamespaces: Record<string, AppNamespace[]>,
     multisigAccountsTransactions: Record<string, Transaction[]>,
     multisigAccountInfo: Record<string, MultisigAccountInfo>,
+    activeWalletAddress: string
     /**
      *  The network currency, to be used for fees management,
      *  formatting, defaulting...
@@ -61,14 +61,11 @@ export interface StoreAccount {
 export interface AppInfo {
     timeZone: number,
     locale: string,
-    currentPanelIndex: number,
-    walletList: any[]
-    hasWallet: boolean,
+    walletList: AppWallet[]
     isNodeHealthy: boolean,
     mnemonic: string,
     chainStatus: ChainStatus,
     mosaicsLoading: boolean,
-    balanceLoading: boolean,
     transactionsLoading: boolean,
     xemUsdPrice: Number,
     namespaceLoading: boolean
@@ -76,6 +73,12 @@ export interface AppInfo {
     isUiDisabled: boolean,
     uiDisabledMessage: string,
     _ENABLE_TREZOR_: boolean,
+    stagedTransaction: {
+        data: Transaction | null,
+        otherDetails: any,
+        isAwaitingConfirmation: boolean
+    },
+    nodeNetworkType: string
 }
 
 export interface AppState {
@@ -86,4 +89,38 @@ export interface AppState {
 export interface DefaultFee {
     speed: string,
     value: number,
+}
+
+export interface Endpoint {
+    value: string,
+    name: string,
+    url: string,
+    isSelected: boolean
+}
+
+export enum ANNOUNCE_TYPES {
+    NORMAL = 'NORMAL',
+    AGGREGATE_BONDED = 'AGGREGATE_BONDED',
+    AGGREGATE_COMPLETE = 'AGGREGATE_COMPLETE',
+}
+
+export enum MULTISIG_FORM_MODES {
+    CONVERSION = 'CONVERSION',
+    MODIFICATION = 'MODIFICATION',
+}
+
+/**
+ * These keys will be handled in a specific way by the transaction detail modal component
+ */
+export enum SpecialTxDetailsKeys {
+    mosaics = 'mosaics',
+    namespace = 'namespace',
+    cosignatories = 'cosignatories',
+    from = 'from',
+    aims = 'aims',
+}
+
+export enum TxDetailsKeysWithValueToTranslate {
+    action = 'action',
+    direction = 'direction',
 }

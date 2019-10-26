@@ -12,14 +12,14 @@ export class AppNamespace {
                  public label: string,
                  public namespaceInfo: NamespaceInfo,
                  public isActive: boolean,
-                 public alias: Alias,
+                 public alias,
                  public levels: number,
                  public endHeight: number,
                  public name: string) {}
 
   static fromNamespaceInfo( namespaceInfo: NamespaceInfo,
                             namespaceNames: NamespaceName[]): AppNamespace {
-   
+
    const name = AppNamespace.extractFullNamespace(namespaceInfo, namespaceNames)
    return new AppNamespace(
      namespaceInfo.id,
@@ -35,6 +35,37 @@ export class AppNamespace {
    )
   }
 
+  static fromNamespaceName(namespaceName: NamespaceName): AppNamespace {
+    return new AppNamespace(
+      namespaceName.namespaceId,
+      namespaceName.namespaceId.toHex(),
+      namespaceName.name,
+      namespaceName.name,
+      null,
+      true,
+      null,
+      0,
+      0,
+      namespaceName.name,
+    )
+  }
+
+  static fromNamespaceUpdate(oldNamespace: AppNamespace, newNamespace: AppNamespace): AppNamespace {
+    const newObject: any = {...oldNamespace, ...newNamespace}
+    return new AppNamespace(
+        newObject.id,
+        newObject.hex,
+        newObject.value,
+        newObject.label,
+        newObject.namespaceInfo,
+        newObject.isActive,
+        newObject.alias,
+        newObject.levels,
+        newObject.endHeight,
+        newObject.name,
+    )
+  }
+
   static extractFullNamespace(  namespace: NamespaceInfo,
                                 namespaceNames: NamespaceName[]): string {
     return namespace.levels.map((level) => {
@@ -45,7 +76,7 @@ export class AppNamespace {
       return namespaceName;
     })
       .map((namespaceName: NamespaceName) => namespaceName.name)
-      .join('.');  
+      .join('.');
    }
 
   isLinked(): boolean {
