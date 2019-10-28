@@ -1,8 +1,8 @@
-import {Transaction, MultisigAccountInfo} from 'nem2-sdk'
+import {Transaction, MultisigAccountInfo, SignedTransaction, CosignatureSignedTransaction} from 'nem2-sdk'
 import {AppNamespace} from './AppNamespace'
 import {AppMosaic} from './AppMosaic'
 import {FormattedTransaction} from './FormattedTransaction'
-import {ChainStatus, AppWallet} from '.'
+import {ChainStatus, AppWallet, LockParams} from '.'
 
 export interface AddressAndTransaction {
     address: string
@@ -40,6 +40,7 @@ export interface StoreAccount {
     addressAliasMap: any,
     generationHash: string,
     transactionList: FormattedTransaction[],
+    transactionsToCosign: Record<string, FormattedTransaction[]>,
     accountName: string
     activeMultisigAccount: string,
     multisigAccountsMosaics: Record<string, Record<string, AppMosaic>>,
@@ -73,12 +74,21 @@ export interface AppInfo {
     isUiDisabled: boolean,
     uiDisabledMessage: string,
     _ENABLE_TREZOR_: boolean,
-    stagedTransaction: {
-        data: Transaction | null,
-        otherDetails: any,
-        isAwaitingConfirmation: boolean
-    },
+    stagedTransaction: StagedTransaction,
     nodeNetworkType: string
+}
+
+export interface StagedTransaction {
+    transactionToSign: Transaction
+    lockParams: LockParams
+    isAwaitingConfirmation: boolean
+}
+
+export interface SignTransaction {
+    success: Boolean
+    signedTransaction: SignedTransaction | CosignatureSignedTransaction
+    signedLock?: SignedTransaction
+    error: (String|null)
 }
 
 export interface AppState {
@@ -109,6 +119,12 @@ export enum MULTISIG_FORM_MODES {
     MODIFICATION = 'MODIFICATION',
 }
 
+export enum TRANSACTIONS_CATEGORIES {
+    NORMAL = 'NORMAL',
+    MULTISIG = 'MULTISIG',
+    TO_COSIGN = 'TO_COSIGN',
+}
+
 /**
  * These keys will be handled in a specific way by the transaction detail modal component
  */
@@ -123,4 +139,18 @@ export enum SpecialTxDetailsKeys {
 export enum TxDetailsKeysWithValueToTranslate {
     action = 'action',
     direction = 'direction',
+    supplyMutable = 'supplyMutable',
+    transferable = 'transferable',
+    restrictable = 'restrictable',
+}
+
+export interface BlocksAndTime {
+    blocks: number
+    time: string
+}
+
+export interface NamespaceExpirationInfo {
+    expired: boolean
+    remainingBeforeExpiration: BlocksAndTime
+    remainingBeforeDeletion: BlocksAndTime
 }

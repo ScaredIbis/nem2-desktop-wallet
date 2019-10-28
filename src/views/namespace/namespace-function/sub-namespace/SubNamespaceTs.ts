@@ -6,7 +6,7 @@ import {
 import {Component, Vue, Watch, Provide} from 'vue-property-decorator'
 import {Message, networkConfig, formDataConfig, DEFAULT_FEES, FEE_GROUPS} from "@/config"
 import {getAbsoluteMosaicAmount, formatAddress, cloneData} from '@/core/utils'
-import {AppNamespace, StoreAccount, AppInfo, AppWallet, DefaultFee} from "@/core/model"
+import {AppNamespace, StoreAccount, AppInfo, AppWallet, DefaultFee, LockParams} from "@/core/model"
 import CheckPWDialog from '@/components/check-password-dialog/CheckPasswordDialog.vue'
 import {createBondedMultisigTransaction, createCompleteMultisigTransaction} from '@/core/services'
 import {standardFields} from "@/core/validation"
@@ -30,7 +30,6 @@ export class SubNamespaceTs extends Vue {
     activeAccount: StoreAccount
     app: AppInfo
     showCheckPWDialog = false
-    otherDetails: any = {}
     transactionDetail = {}
     transactionList = []
     formItems = cloneData(formDataConfig.subNamespaceForm)
@@ -119,12 +118,11 @@ export class SubNamespaceTs extends Vue {
         if (!namespaces) return []
 
         // @TODO: refactor and make it an AppNamespace method
-        // @TODO: namespace level hardcoded
         return namespaces
             .filter(namespace => namespace.alias)
             .filter(({endHeight, levels}) => (levels < networkConfig.maxNamespaceDepth
                 && endHeight - currentHeight + namespaceGracePeriodDuration > 0))
-            .map(alias => ({label: alias.label, value: alias.label}))
+            .map(alias => ({label: alias.name, value: alias.name}))
     }
 
     get multisigNamespaceList(): { label: string, value: string }[] {
@@ -138,7 +136,7 @@ export class SubNamespaceTs extends Vue {
             .filter(namespace => namespace.alias)
             .filter(({endHeight, levels}) => (levels < networkConfig.maxNamespaceDepth
                 && endHeight - currentHeight + namespaceGracePeriodDuration > 0))
-            .map(alias => ({label: alias.label, value: alias.label}))
+            .map(alias => ({label: alias.name, value: alias.name}))
     }
 
     get activeNamespaceList(): { label: string, value: string }[] {
@@ -244,12 +242,6 @@ export class SubNamespaceTs extends Vue {
             "fee": feeAmount / feeDivider
         }
 
-        if (this.announceInLock) {
-            this.otherDetails = {
-                lockFee: feeAmount / 3
-            }
-        }
-
         if (!this.hasMultisigAccounts) {
             this.createBySelf()
         } else {
@@ -265,6 +257,11 @@ export class SubNamespaceTs extends Vue {
                 if (!valid) return
                 this.createTransaction()
             })
+    }
+
+    get lockParams(): LockParams {
+        const {announceInLock, feeAmount, feeDivider} = this
+        return new LockParams(announceInLock, feeAmount / feeDivider)
     }
 
     resetFields() {

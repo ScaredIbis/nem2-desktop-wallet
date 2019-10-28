@@ -19,7 +19,7 @@ import {
 } from '@/core/utils'
 import CheckPWDialog from '@/components/check-password-dialog/CheckPasswordDialog.vue'
 import {formDataConfig, Message, DEFAULT_FEES, FEE_GROUPS} from '@/config'
-import {StoreAccount, AppWallet, DefaultFee} from "@/core/model"
+import {StoreAccount, AppWallet, DefaultFee, LockParams} from "@/core/model"
 import {NETWORK_PARAMS} from '@/core/validation'
 import {createBondedMultisigTransaction, createCompleteMultisigTransaction} from '@/core/services'
 import DisabledForms from '@/components/disabled-forms/DisabledForms.vue'
@@ -38,7 +38,6 @@ import DisabledForms from '@/components/disabled-forms/DisabledForms.vue'
 export class MosaicTransactionTs extends Vue {
     activeAccount: StoreAccount
     duration = 0
-    otherDetails: any = {}
     transactionDetail = {}
     showCheckPWDialog = false
     transactionList = []
@@ -139,11 +138,6 @@ export class MosaicTransactionTs extends Vue {
         return formatSeconds(duration * 12)
     }
 
-    initForm(): void {
-        this.formItems = cloneData(formDataConfig.mosaicTransactionForm)
-        this.formItems.multisigPublicKey = this.accountPublicKey
-    }
-
     addDivisibilityAmount() {
         this.formItems.divisibility = this.formItems.divisibility >= NETWORK_PARAMS.MAX_MOSAIC_DIVISIBILITY
             ? Number(this.formItems.divisibility) : Number(this.formItems.divisibility) + 1
@@ -176,12 +170,6 @@ export class MosaicTransactionTs extends Vue {
             "restrictable": restrictable
         }
 
-        if (this.announceInLock) {
-            this.otherDetails = {
-                lockFee: feeAmount / 3
-            }
-        }
-
         if (this.activeMultisigAccount) {
             this.createByMultisig()
             this.showCheckPWDialog = true
@@ -203,6 +191,11 @@ export class MosaicTransactionTs extends Vue {
                 title: this.$t(Message.WRONG_PASSWORD_ERROR) + ''
             })
         }
+    }
+
+    get lockParams(): LockParams {
+        const {announceInLock, feeAmount, feeDivider} = this
+        return new LockParams(announceInLock, feeAmount / feeDivider)
     }
 
     get publicKey(): string {
@@ -262,8 +255,6 @@ export class MosaicTransactionTs extends Vue {
                 UInt64.fromUint(fee)
             )
         ]
-
-        this.initForm()
     }
 
     createByMultisig() {

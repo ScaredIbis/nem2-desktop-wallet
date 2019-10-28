@@ -104,7 +104,8 @@ export const Message = {
     CLICK_TO_LOAD: 'click_to_load',
     REFRESH_TOO_FAST_WARNING:'refresh_too_fast_warning',
     NO_NETWORK_CURRENCY: 'no_network_currency_alert',
-    MULTISIG_ACCOUNTS_NO_TX: "Multisig_accounts_can_not_send_a_transaction_by_themselves"
+    MULTISIG_ACCOUNTS_NO_TX: "Multisig_accounts_can_not_send_a_transaction_by_themselves",
+    USER_ABORTED_TX_CONFIRMATION: 'User_aborted_transaction_confirmation',
 }
 
 export const FEE_SPEEDS: Record<string, string> = {
@@ -200,7 +201,7 @@ export const networkConfig = {
     maxNamespaceDepth: 3,
     minNamespaceDuration: "1m",
     maxNamespaceDuration: "365d",
-    namespaceGracePeriodDuration: 156000,//s
+    namespaceGracePeriodDuration: 172800, // Blocks
     reservedRootNamespaceNames: ["xem", "nem", "user", "account", "org", "com", "biz", "net", "edu", "mil", "gov", "info"],
     namespaceRentalFeeSinkPublicKey: "3E82E1C1E4A75ADAA3CBA8C101C3CD31D9817A2EB966EB3B511FB2ED45B8E262",
     rootNamespaceRentalFeePerBlock: 1000000,
@@ -213,6 +214,4 @@ export const networkConfig = {
     seedWalletMaxAmount: 10,
     testMnemonicString: 'this is a test string his is a test string this is',
     EMPTY_LINKED_ACCOUNT_KEY: '0000000000000000000000000000000000000000000000000000000000000000',
-    derivationPathHead:`m/44'/43'/0'/0'/`,
-    derivationSeedPath:`m/44'/43'/0'/0'/0'`
 }
