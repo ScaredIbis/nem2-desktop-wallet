@@ -7,7 +7,7 @@ import {Component, Vue, Watch, Provide} from 'vue-property-decorator'
 import {Message, networkConfig, formDataConfig, DEFAULT_FEES, FEE_GROUPS} from "@/config"
 import {AppNamespace, StoreAccount, AppInfo, AppWallet, DefaultFee, CreateWalletType} from "@/core/model"
 import {signTransaction} from '@/core/services/transactions';
-import CheckPWDialog from '@/common/vue/check-password-dialog/CheckPasswordDialog.vue'
+import CheckPWDialog from '@/components/check-password-dialog/CheckPasswordDialog.vue'
 import {getAbsoluteMosaicAmount, formatAddress, cloneData} from '@/core/utils'
 import {createBondedMultisigTransaction, createCompleteMultisigTransaction} from '@/core/services'
 import {standardFields} from "@/core/validation"

@@ -17,7 +17,7 @@ import {
 import {
     formatSeconds, formatAddress, getAbsoluteMosaicAmount, cloneData,
 } from '@/core/utils'
-import CheckPWDialog from '@/common/vue/check-password-dialog/CheckPasswordDialog.vue'
+import CheckPWDialog from '@/components/check-password-dialog/CheckPasswordDialog.vue'
 import {signTransaction} from '@/core/services/transactions';
 import {formDataConfig, Message, DEFAULT_FEES, FEE_GROUPS} from '@/config'
 import {StoreAccount, AppWallet, DefaultFee, CreateWalletType} from "@/core/model"
