@@ -1,14 +1,14 @@
 import {mapState} from "vuex"
 import {
     Address, PublicAccount, MultisigAccountInfo, NetworkType,
-    NamespaceRegistrationTransaction, Deadline, UInt64,
+    NamespaceRegistrationTransaction, Deadline, UInt64, NamespaceId, NamespaceInfo, Alias,
 } from "nem2-sdk"
 import {Component, Vue, Watch, Provide} from 'vue-property-decorator'
 import {Message, networkConfig, formDataConfig, DEFAULT_FEES, FEE_GROUPS} from "@/config"
 import {getAbsoluteMosaicAmount, formatAddress, cloneData} from '@/core/utils'
-import {AppNamespace, StoreAccount, AppInfo, AppWallet, DefaultFee, LockParams} from "@/core/model"
+import {AppNamespace, StoreAccount, AppInfo, AppWallet, DefaultFee, LockParams, CreateWalletType} from "@/core/model"
 import CheckPWDialog from '@/components/check-password-dialog/CheckPasswordDialog.vue'
-import {createBondedMultisigTransaction, createCompleteMultisigTransaction} from '@/core/services'
+import {createBondedMultisigTransaction, createCompleteMultisigTransaction, signTransaction} from '@/core/services'
 import {standardFields} from "@/core/validation"
 import DisabledForms from '@/components/disabled-forms/DisabledForms.vue'
 import ErrorTooltip from '@/components/other/forms/errorTooltip/ErrorTooltip.vue'
@@ -122,7 +122,7 @@ export class SubNamespaceTs extends Vue {
             .filter(namespace => namespace.alias)
             .filter(({endHeight, levels}) => (levels < networkConfig.maxNamespaceDepth
                 && endHeight - currentHeight + namespaceGracePeriodDuration > 0))
-            .map(alias => ({label: alias.name, value: alias.name}))
+            .map(alias => ({label: alias.name, value: alias.name}))       
     }
 
     get multisigNamespaceList(): { label: string, value: string }[] {
@@ -242,12 +242,49 @@ export class SubNamespaceTs extends Vue {
             "fee": feeAmount / feeDivider
         }
 
-        if (!this.hasMultisigAccounts) {
-            this.createBySelf()
-        } else {
-            this.createByMultisig()
+        switch(this.wallet.sourceType) {
+            case CreateWalletType.trezor:
+                this.confirmViaTransactionConfirmation()
+                break;
+            default:
+                this.confirmViaCheckPasswordDialog()
         }
+    }
+
+    confirmViaCheckPasswordDialog() {
+        if (this.hasMultisigAccounts) {
+            this.createByMultisig()
+            this.showCheckPWDialog = true
+            return
+        }
+
+        this.createBySelf()
         this.showCheckPWDialog = true
+    }
+
+    async confirmViaTransactionConfirmation() {
+        if (this.hasMultisigAccounts) {
+            this.createByMultisig()
+        } else {
+            this.createBySelf()
+        }
+
+        try {
+            const {
+                success,
+                signedTransaction,
+                signedLock,
+            } = await signTransaction({
+                transaction: this.transactionList[0],
+                store: this.$store,
+            })
+
+            if(success) {
+                new AppWallet(this.wallet).announceTransaction(signedTransaction, this.activeAccount.node, this, signedLock)
+            }
+        } catch (error) {
+            console.error("SubNamespaceTs -> confirmViaTransactionConfirmation -> error", error)
+        }
     }
 
     async submit() {

@@ -9,11 +9,12 @@ import CheckPWDialog from '@/components/check-password-dialog/CheckPasswordDialo
 import {
     getAbsoluteMosaicAmount, formatSeconds, formatAddress, cloneData
 } from '@/core/utils'
-import {StoreAccount, AppInfo, DefaultFee, AppWallet, LockParams} from "@/core/model"
+import {StoreAccount, AppInfo, DefaultFee, AppWallet, LockParams, CreateWalletType} from "@/core/model"
 import {createBondedMultisigTransaction, createCompleteMultisigTransaction} from '@/core/services'
 import {standardFields} from "@/core/validation"
 import DisabledForms from "@/components/disabled-forms/DisabledForms.vue"
 import ErrorTooltip from '@/components/other/forms/errorTooltip/ErrorTooltip.vue'
+import {signTransaction} from '@/core/services/transactions';
 
 @Component({
     components: {
@@ -197,6 +198,16 @@ export class RootNamespaceTs extends Vue {
             "fee": feeAmount / Math.pow(10, this.networkCurrency.divisibility),
         }
 
+        switch(this.wallet.sourceType) {
+            case CreateWalletType.trezor:
+                this.confirmViaTransactionConfirmation()
+                break;
+            default:
+                this.confirmViaCheckPasswordDialog()
+        }
+    }
+
+    confirmViaCheckPasswordDialog() {
         if (this.activeMultisigAccount) {
             this.createByMultisig()
             this.showCheckPWDialog = true
@@ -205,6 +216,31 @@ export class RootNamespaceTs extends Vue {
 
         this.createBySelf()
         this.showCheckPWDialog = true
+    }
+
+    async confirmViaTransactionConfirmation() {
+        if (this.activeMultisigAccount) {
+            this.createByMultisig()
+        } else {
+            this.createBySelf()
+        }
+
+        try {
+            const {
+                success,
+                signedTransaction,
+                signedLock,
+            } = await signTransaction({
+                transaction: this.transactionList[0],
+                store: this.$store,
+            })
+
+            if(success) {
+                new AppWallet(this.wallet).announceTransaction(signedTransaction, this.activeAccount.node, this, signedLock)
+            }
+        } catch (error) {
+            console.error("RootNamespaceTs -> confirmViaTransactionConfirmation -> error", error)
+        }
     }
 
     get lockParams(): LockParams {

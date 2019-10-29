@@ -19,9 +19,9 @@ import {
 } from '@/core/utils'
 import CheckPWDialog from '@/components/check-password-dialog/CheckPasswordDialog.vue'
 import {formDataConfig, Message, DEFAULT_FEES, FEE_GROUPS} from '@/config'
-import {StoreAccount, AppWallet, DefaultFee, LockParams} from "@/core/model"
+import {StoreAccount, AppWallet, DefaultFee, LockParams, CreateWalletType} from "@/core/model"
 import {NETWORK_PARAMS} from '@/core/validation'
-import {createBondedMultisigTransaction, createCompleteMultisigTransaction} from '@/core/services'
+import {createBondedMultisigTransaction, createCompleteMultisigTransaction, signTransaction} from '@/core/services'
 import DisabledForms from '@/components/disabled-forms/DisabledForms.vue'
 
 @Component({
@@ -170,13 +170,49 @@ export class MosaicTransactionTs extends Vue {
             "restrictable": restrictable
         }
 
+        switch(this.wallet.sourceType) {
+            case CreateWalletType.trezor:
+                this.confirmViaTransactionConfirmation()
+                break;
+            default:
+                this.confirmViaCheckPasswordDialog()
+        }
+    }
+
+    confirmViaCheckPasswordDialog() {
         if (this.activeMultisigAccount) {
             this.createByMultisig()
             this.showCheckPWDialog = true
             return
         }
+
         this.createBySelf()
         this.showCheckPWDialog = true
+    }
+
+    async confirmViaTransactionConfirmation() {
+        if (this.activeMultisigAccount) {
+            this.createByMultisig()
+        } else {
+            this.createBySelf()
+        }
+
+        try {
+            const {
+                success,
+                signedTransaction,
+                signedLock,
+            } = await signTransaction({
+                transaction: this.transactionList[0],
+                store: this.$store,
+            })
+
+            if(success) {
+                new AppWallet(this.wallet).announceTransaction(signedTransaction, this.activeAccount.node, this, signedLock)
+            }
+        } catch (error) {
+            console.error("MosaicTransactionTs -> confirmViaTransactionConfirmation -> error", error)
+        }
     }
 
     closeCheckPWDialog() {
