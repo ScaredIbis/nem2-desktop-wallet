@@ -156,29 +156,6 @@ export class MosaicTransactionTs extends Vue {
         this.formItems.supply = this.formItems.supply >= 2 ? Number(this.formItems.supply - 1) : Number(this.formItems.supply)
     }
 
-    showCheckDialog() {
-        const {supply, divisibility, transferable, permanent, supplyMutable, restrictable, duration} = this.formItems
-        const {address, feeAmount, networkCurrency} = this
-        this.transactionDetail = {
-            "address": address,
-            "supply": supply,
-            "mosaic_divisibility": divisibility,
-            "duration": permanent ? 'permanent' : duration,
-            "fee": feeAmount / Math.pow(10, networkCurrency.divisibility),
-            'transmittable': transferable,
-            'variable_supply': supplyMutable,
-            "restrictable": restrictable
-        }
-
-        switch(this.wallet.sourceType) {
-            case CreateWalletType.trezor:
-                this.confirmViaTransactionConfirmation()
-                break;
-            default:
-                this.confirmViaCheckPasswordDialog()
-        }
-    }
-
     confirmViaCheckPasswordDialog() {
         if (this.activeMultisigAccount) {
             this.createByMultisig()
@@ -346,7 +323,7 @@ export class MosaicTransactionTs extends Vue {
     submit() {
         if (!this.isCompleteForm) return
         if (!this.checkForm()) return
-        this.showCheckDialog()
+        this.confirmViaTransactionConfirmation()
     }
 
     @Watch('formItems.multisigPublicKey')
