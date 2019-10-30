@@ -5,7 +5,6 @@ import {
     Address,
     AliasAction,
     NamespaceId,
-    Password,
     Transaction,
     MosaicId,
     AddressAliasTransaction,
@@ -14,10 +13,9 @@ import {
     MosaicAliasTransaction
 } from "nem2-sdk"
 import {mapState} from "vuex"
-import {networkConfig} from "@/config/index"
 import {cloneData, getAbsoluteMosaicAmount} from "@/core/utils"
 import {StoreAccount, AppInfo, AppWallet, AppNamespace, DefaultFee, MosaicNamespaceStatusType} from "@/core/model"
-import {AppMosaics} from '@/core/services'
+import {AppMosaics, signTransaction} from '@/core/services'
 import DisabledForms from '@/components/disabled-forms/DisabledForms.vue'
 
 @Component({
@@ -33,7 +31,6 @@ import DisabledForms from '@/components/disabled-forms/DisabledForms.vue'
 export class AliasTs extends Vue {
     activeAccount: StoreAccount
     app: AppInfo
-    isCompleteForm = true
     formItems = cloneData(formDataConfig.alias)
     bindTypes: Record<string, string> = {
         address: 'address',
@@ -168,7 +165,6 @@ export class AliasTs extends Vue {
 
     checkForm(): boolean {
         const {target, alias, bindTypes, bindType} = this
-        const {password} = this.formItems
 
         if (bindType == bindTypes.address) {
             try {
@@ -191,22 +187,7 @@ export class AliasTs extends Vue {
             this.showErrorMessage(this.$t(Message.INPUT_EMPTY_ERROR) + '')
             return false
         }
-        if (!(password || password.trim())) {
-            this.showErrorMessage(this.$t(Message.INPUT_EMPTY_ERROR) + '')
-            return false
-        }
-        if (password.length < 8) {
-            this.showErrorMessage(this.$t('password_error') + '')
-            return false
-        }
-
-        const validPassword = new AppWallet(this.wallet)
-            .checkPassword(password)
-
-        if (!validPassword) {
-            this.showErrorMessage(this.$t('password_error') + '')
-            return false
-        }
+       
         return true
     }
 
@@ -218,9 +199,8 @@ export class AliasTs extends Vue {
     }
 
     submit() {
-        if (!this.isCompleteForm) return
         if (!this.checkForm()) return
-        this.signAndAnnounce(this.transaction())
+        this.confirmViaTransactionConfirmation()
     }
 
     transaction(): Transaction {
@@ -239,21 +219,31 @@ export class AliasTs extends Vue {
             : MosaicAliasTransaction.create(
                 Deadline.create(),
                 aliasAction,
-                new NamespaceId(alias),
+                new NamespaceId('fsdfsdfd'), // new NamespaceId(alias)
                 new MosaicId(target),
                 networkType,
                 UInt64.fromUint(feeAmount),
             )
     }
 
-    signAndAnnounce(transaction: Transaction): void {
-        const {node, generationHash} = this.activeAccount
-        const {password} = this.formItems
-        new AppWallet(this.wallet).signAndAnnounceNormal(new Password(password),
-            node,
-            generationHash,
-            [transaction],
-            this)
-        this.show = false
+    async confirmViaTransactionConfirmation() {
+        try {
+            this.show = false;
+
+            const {
+                success,
+                signedTransaction,
+                signedLock,
+            } = await signTransaction({
+                transaction: this.transaction(),
+                store: this.$store,
+            })
+
+            if(success) {
+                new AppWallet(this.wallet).announceTransaction(signedTransaction, this.activeAccount.node, this, signedLock)
+            }
+        } catch (error) {
+            console.error("AliasTs -> confirmViaTransactionConfirmation -> error", error)
+        }
     }
 }

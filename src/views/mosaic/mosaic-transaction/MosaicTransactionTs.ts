@@ -17,7 +17,6 @@ import {
 import {
     formatSeconds, formatAddress, getAbsoluteMosaicAmount, cloneData,
 } from '@/core/utils'
-import CheckPWDialog from '@/components/check-password-dialog/CheckPasswordDialog.vue'
 import {formDataConfig, Message, DEFAULT_FEES, FEE_GROUPS} from '@/config'
 import {StoreAccount, AppWallet, DefaultFee, LockParams, CreateWalletType} from "@/core/model"
 import {NETWORK_PARAMS} from '@/core/validation'
@@ -25,10 +24,7 @@ import {createBondedMultisigTransaction, createCompleteMultisigTransaction, sign
 import DisabledForms from '@/components/disabled-forms/DisabledForms.vue'
 
 @Component({
-    components: {
-        CheckPWDialog,
-        DisabledForms
-    },
+    components: { DisabledForms },
     computed: {
         ...mapState({
             activeAccount: 'account',
@@ -39,9 +35,7 @@ export class MosaicTransactionTs extends Vue {
     activeAccount: StoreAccount
     duration = 0
     transactionDetail = {}
-    showCheckPWDialog = false
     transactionList = []
-    isCompleteForm = true
     formItems = cloneData(formDataConfig.mosaicTransactionForm)
     formatAddress = formatAddress
 
@@ -156,40 +150,6 @@ export class MosaicTransactionTs extends Vue {
         this.formItems.supply = this.formItems.supply >= 2 ? Number(this.formItems.supply - 1) : Number(this.formItems.supply)
     }
 
-    showCheckDialog() {
-        const {supply, divisibility, transferable, permanent, supplyMutable, restrictable, duration} = this.formItems
-        const {address, feeAmount, networkCurrency} = this
-        this.transactionDetail = {
-            "address": address,
-            "supply": supply,
-            "mosaic_divisibility": divisibility,
-            "duration": permanent ? 'permanent' : duration,
-            "fee": feeAmount / Math.pow(10, networkCurrency.divisibility),
-            'transmittable': transferable,
-            'variable_supply': supplyMutable,
-            "restrictable": restrictable
-        }
-
-        switch(this.wallet.sourceType) {
-            case CreateWalletType.trezor:
-                this.confirmViaTransactionConfirmation()
-                break;
-            default:
-                this.confirmViaCheckPasswordDialog()
-        }
-    }
-
-    confirmViaCheckPasswordDialog() {
-        if (this.activeMultisigAccount) {
-            this.createByMultisig()
-            this.showCheckPWDialog = true
-            return
-        }
-
-        this.createBySelf()
-        this.showCheckPWDialog = true
-    }
-
     async confirmViaTransactionConfirmation() {
         if (this.activeMultisigAccount) {
             this.createByMultisig()
@@ -212,20 +172,6 @@ export class MosaicTransactionTs extends Vue {
             }
         } catch (error) {
             console.error("MosaicTransactionTs -> confirmViaTransactionConfirmation -> error", error)
-        }
-    }
-
-    closeCheckPWDialog() {
-        this.showCheckPWDialog = false
-    }
-
-    checkEnd(isPasswordRight) {
-        if (!isPasswordRight) {
-            this.showCheckPWDialog = false
-            this.$Notice.destroy()
-            this.$Notice.error({
-                title: this.$t(Message.WRONG_PASSWORD_ERROR) + ''
-            })
         }
     }
 
@@ -344,9 +290,8 @@ export class MosaicTransactionTs extends Vue {
     }
 
     submit() {
-        if (!this.isCompleteForm) return
         if (!this.checkForm()) return
-        this.showCheckDialog()
+        this.confirmViaTransactionConfirmation()
     }
 
     @Watch('formItems.multisigPublicKey')
