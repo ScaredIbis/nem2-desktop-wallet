@@ -219,7 +219,7 @@ export class AliasTs extends Vue {
             : MosaicAliasTransaction.create(
                 Deadline.create(),
                 aliasAction,
-                new NamespaceId('fsdfsdfd'), // new NamespaceId(alias)
+                new NamespaceId(alias),
                 new MosaicId(target),
                 networkType,
                 UInt64.fromUint(feeAmount),

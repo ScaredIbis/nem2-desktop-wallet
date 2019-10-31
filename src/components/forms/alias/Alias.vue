@@ -106,10 +106,7 @@
      
       <div class="button_content">
         <span class="cancel pointer" @click="show = false">{{$t('cancel')}}</span>
-        <span
-          :class="['bind', 'checkBtn', 'pointer']"
-          @click="submit()"
-        >{{bind ? $t('bind') : $t('unbind')}}</span>
+        <span class="bind checkBtn pointer" @click="submit()">{{bind ? $t('bind') : $t('unbind')}}</span>
       </div>
     </Modal>
   </div>

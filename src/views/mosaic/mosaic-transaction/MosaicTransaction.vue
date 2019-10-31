@@ -92,9 +92,8 @@
           </div>
         </div>
 
-        <div :class="['create_button', 'pointer']"
-             @click="submit">
-          {{$t('create')}}
+        <div class="create_button pointer" @click="submit">
+            {{$t('create')}}
         </div>
       </div>
     </div>
