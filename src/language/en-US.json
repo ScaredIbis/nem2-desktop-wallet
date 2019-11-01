@@ -453,7 +453,6 @@
     "Please_set_the_minimum_number_of_signatures_number_of_co_signers": "Minimum of signatures <= co-signers",
     "min_removal": "Min removal",
     "The_number_of_signatures_required_to_remove_someone_from_multiple_sign_ups": "Min signatures required to remove someone",
-    "Operation_list": "Operation list",
     "address": "Address",
     "add": "Add",
     "please_add_publicKey": "Please add publicKey",
@@ -731,7 +730,6 @@
     "refresh_too_fast_warning": "The refresh rate is too high, please try again later.",
     "display_mnemonic_QR_code": "Display mnemonic QR code",
     "fromWhere": "from",
-    "Input_account_public_key": "Input account public key",
     "Wallet_network_type_does_not_match_current_network_type":"Wallet network type does not match the current node network type.",
     "mosaicId": "Mosaic ID",
     "supplyMutable": "Supply Mutable",
@@ -742,5 +740,6 @@
     "User_aborted_transaction_confirmation": "User aborted transaction confirmation",
     "Expired": "Expired",
     "Transactions_to_cosign": "Transactions to cosign",
-    "Refresh_partial_transaction_of_address": "Refresh partial transactions of a given address"
+    "Refresh_partial_transaction_of_address": "Refresh partial transactions of a given address",
+    "Actions_list": "Actions list"
 }

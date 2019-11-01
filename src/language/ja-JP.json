@@ -447,7 +447,6 @@
     "Please_set_the_minimum_number_of_signatures_number_of_co_signers": "最小署名数を設定してください",
     "min_removal": "最小削除承認者数",
     "The_number_of_signatures_required_to_remove_someone_from_multiple_sign_ups": "複数の署名から必要な署名の数を削除します",
-    "Operation_list": "操作リスト",
     "address": "アドレス",
     "add": "追加",
     "please_add_publicKey": "公開鍵を追加してください",
@@ -672,6 +671,5 @@
     "meta_data": "メタデータ",
     "node_exists_error": "ノードは既に存在します",
     "please_input_mosaic_and_amount": "モザイクと数量を入力してください",
-    "Input_account_public_key": "Input account publicKey",
     "refresh": "更新"
 }

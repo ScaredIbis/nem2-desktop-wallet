@@ -43,7 +43,6 @@ export class TransactionFormTs extends Vue {
     transactionList = []
     transactionDetail = {}
     isShowSubAlias = false
-    isCompleteForm = true
     currentCosignatoryList = []
     currentMosaic: string = ''
     currentAmount: number = 0

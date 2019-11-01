@@ -9,7 +9,7 @@ import {
     Address,
 } from 'nem2-sdk'
 import {mapState} from "vuex"
-import {Component, Vue, Watch, Prop} from 'vue-property-decorator'
+import {Component, Vue, Watch, Prop, Provide} from 'vue-property-decorator'
 import {Message, DEFAULT_FEES, FEE_GROUPS, formDataConfig, MULTISIG_INFO} from "@/config/index.ts"
 import {StoreAccount, DefaultFee, AppWallet, ANNOUNCE_TYPES, MULTISIG_FORM_MODES, LockParams} from "@/core/model"
 import {getAbsoluteMosaicAmount, formatAddress, cloneData} from "@/core/utils"
@@ -36,9 +36,9 @@ import MultisigTree from '@/views/multisig/multisig-tree/MultisigTree.vue'
     }
 })
 export class MultisigTransactionFormTs extends Vue {
+    @Provide() validator: any = this.$validator
     activeAccount: StoreAccount
     publicKeyToAdd = ''
-    isCompleteForm = false
     showCheckPWDialog = false
     transactionDetail = {}
     transactionList = []
@@ -261,7 +261,6 @@ export class MultisigTransactionFormTs extends Vue {
     }
 
     submit() {
-        if (!this.isCompleteForm) return
         if (!this.checkForm()) return
         const {hasCosignatories} = this
 
@@ -418,18 +417,13 @@ export class MultisigTransactionFormTs extends Vue {
 
     @Watch('formItems', {immediate: true, deep: true})
     onFormItemChange(newVal, oldVal) {
-        const {publicKeyList, minApproval, minRemoval} = this.formItems
-        const newMinApproval = Number(minApproval)
-        const newMinRemoval = Number(minRemoval)
-        const {feeAmount} = this
+        // if (MULTISIG_FORM_MODES.CONVERSION) {
+        //     this.isCompleteForm = publicKeyList.length !== 0 && newMinApproval + '' !== '' && newMinRemoval + '' !== '' && feeAmount + '' !== ''
+        // }
 
-        if (MULTISIG_FORM_MODES.CONVERSION) {
-            this.isCompleteForm = publicKeyList.length !== 0 && newMinApproval + '' !== '' && newMinRemoval + '' !== '' && feeAmount + '' !== ''
-        }
-
-        if (MULTISIG_FORM_MODES.MODIFICATION) {
-            this.isCompleteForm = publicKeyList.length !== 0 || newMinApproval !== 0 || newMinRemoval !== 0
-        }
+        // if (MULTISIG_FORM_MODES.MODIFICATION) {
+        //     this.isCompleteForm = publicKeyList.length !== 0 || newMinApproval !== 0 || newMinRemoval !== 0
+        // }
 
         if (MULTISIG_FORM_MODES.MODIFICATION) {
             if (!newVal.multisigPublicKey || newVal.multisigPublicKey === oldVal.multisigPublicKey) return
