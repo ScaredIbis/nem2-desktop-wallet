@@ -1,7 +1,7 @@
 <template>
-    <div class="multisig_form_container">
-      <div class="left_form radius scroll">
-        <form @submit.prevent="validateForm('multisig-transaction')" @keyup.enter="submit">
+  <div class="multisig_form_container">
+    <div class="left_form radius scroll">
+      <form @submit.prevent="validateForm('multisig-transaction')" @keyup.enter="submit">
         <div
                 v-if="!displayForm"
                 class="multisig_convert_container secondary_page_animate"
@@ -16,24 +16,30 @@
 
           <div class="multisig_convert_head">{{ $t(formHeadline) }}</div>
           <div class="convert_form">
+            <p
+              v-if="hasMultisigAccounts && mode === MULTISIG_FORM_MODES.CONVERSION"
+              class="title"
+            >Account to be converted: {{Address.createFromRawAddress(wallet.address).pretty()}} ({{wallet.name}})</p>
+
+
             <div
                     v-if="hasMultisigAccounts && mode === MULTISIG_FORM_MODES.MODIFICATION"
                     class="multisig_add"
             >
               <div class="title">{{ $t('sender') }}</div>
-              <span class="multisig_property_fee">
-              <Select
-                      :placeholder="$t('publicKey')"
-                      v-model="formItems.multisigPublicKey"
-                      class="select"
-              >
-                <Option
-                        v-for="item in multisigPublicKeyList"
-                        :value="item.publicKey" :key="item.publicKey"
-                >{{ item.address }}
-                </Option>
-              </Select>
-            </span>
+                <span class="multisig_property_fee">
+                <Select
+                        :placeholder="$t('publicKey')"
+                        v-model="formItems.multisigPublicKey"
+                        class="select"
+                >
+                  <Option
+                          v-for="item in multisigPublicKeyList"
+                          :value="item.publicKey" :key="item.publicKey"
+                  >{{ item.address }}
+                  </Option>
+                </Select>
+              </span>
             </div>
 
 
@@ -41,39 +47,45 @@
               <span class="gray_content">
                 <div class="title">{{$t('min_approval')}}</div>
                 <div class="title_describe">
-                  {{$t('The_number_of_signatures_required_to_add_someone_from_a_multi_sign_or_complete_this_multi_tap_transaction')}}
+                  {{$t('Min_signatures_to_sign_a_transaction_or_to_add_a_cosigner')}}
                 </div>
                 <div class="input_content">
-                  <input type="text" class="radius"
-                        v-model="formItems.minApproval"
-                        :placeholder="$t('Please_set_the_minimum_number_of_signatures_number_of_co_signers')">
+                  <input
+                      type="text" class="radius"
+                      v-model="formItems.minApproval"
+                      :placeholder="$t('Min_signatures_required_to_remove_a_cosigner')"
+                  >
                 </div>
               </span>
 
                 <span class="gray_content">
                 <div class="title">{{$t('min_removal')}}</div>
                 <div class="title_describe">
-                  {{$t('The_number_of_signatures_required_to_remove_someone_from_multiple_sign_ups')}}
+                  {{$t('Min_signatures_required_to_remove_a_cosigner')}}
                 </div>
                 <div class="input_content">
                   <input type="text" class="radius"
                         v-model="formItems.minRemoval"
-                        :placeholder="$t('Please_set_the_minimum_number_of_signatures_number_of_co_signers')">
+                        :placeholder="$t('Min_signatures_required_to_remove_a_cosigner')">
                 </div>
               </span>
             </div>
 
 
             <div class="multisig_add gray_content">
-              <div class="title">{{ $t('cosigner') }}</div>
-              <div class="title_describe">
-                {{$t('Add_co_signers_here_will_be_displayed_in_the_action_list_click_delete_to_cancel_the_operation')}}
-              </div>
+              <div class="title title-padding">{{ $t('Add_cosigners') }}</div>
               <div class="input_content">
-                <input v-model="publicKeyToAdd"
+                <ErrorTooltip fieldName="cosigner" placementOverride="top">
+                  <input
                       v-focus
-                      type="text" class="radius"
-                      :placeholder="$t('Address')">
+                      data-vv-name="cosigner"
+                      v-model="addressToAdd"
+                      v-validate="'address'"
+                      :data-vv-as="$t('cosigner')"
+                      :placeholder="$t('Address')"
+                      type="text"
+                  >
+                </ErrorTooltip>
                 <span
                         @click="addCosigner(CosignatoryModificationAction.Add)"
                         class="add_button radius pointer"
@@ -90,13 +102,13 @@
               <div class="head_title">{{$t('Actions_list')}}</div>
               <div class="list_container radius scroll">
                 <div class="list_head">
-                  <span class="address_alias">{{$t('publicKey')}}/{{$t('alias')}}</span>
-                  <span class="action">{{$t('operating')}}</span>
-                  <span class="delete">{{$t('delete')}}</span>
+                  <span class="address_alias">{{$t('Address')}}</span>
+                  <span class="action">{{$t('operation')}}</span>
+                  <span class="delete">$nbsp;</span>
                 </div>
                 <div class="list_body scroll">
                   <div class="please_add_address" v-if="formItems.publicKeyList.length == 0">
-                    {{$t('please_add_publicKey')}}
+                    {{$t('The_action_list_is_empty')}}
                   </div>
 
                   <div class="list_item radius" v-for="(i,index) in formItems.publicKeyList" :key="index">
@@ -114,7 +126,7 @@
 
 
             <div class="multisig_property_fee">
-              <div class="title">{{$t('Fee')}}</div>
+              <div class="title">{{$t('fee')}}</div>
               <Select
                       data-vv-name="fee"
                       class="select"
@@ -130,22 +142,20 @@
             </div>
           </div>
 
-          <div
-                  :class="['confirm_button',isCompleteForm?'pointer':'not_allowed'] "
-                  @click="submit"
-          >{{$t('send')}}
+          <div class="confirm_button pointer" @click="submit">
+            {{ $t('send') }}
           </div>
-          </div>
+        </div>
       </form>
 
-          <CheckPWDialog
-                  :showCheckPWDialog="showCheckPWDialog"
-                  @closeCheckPWDialog="closeCheckPWDialog"
-                  @checkEnd="checkEnd"
-                  :transactionDetail="transactionDetail"
-                  :transactionList="transactionList"
-                  :lockParams=lockParams
-          ></CheckPWDialog>
+      <CheckPWDialog
+              :showCheckPWDialog="showCheckPWDialog"
+              @closeCheckPWDialog="closeCheckPWDialog"
+              @checkEnd="checkEnd"
+              :transactionDetail="transactionDetail"
+              :transactionList="transactionList"
+              :lockParams=lockParams
+      />
     </div>
 
     <div class="right_multisig_info radius scroll">

@@ -22,12 +22,14 @@ import {
 import DisabledForms from '@/components/disabled-forms/DisabledForms.vue'
 import CheckPWDialog from '@/components/check-password-dialog/CheckPasswordDialog.vue'
 import MultisigTree from '@/views/multisig/multisig-tree/MultisigTree.vue'
+import ErrorTooltip from '@/components/other/forms/errorTooltip/ErrorTooltip.vue'
 
 @Component({
     components: {
         CheckPWDialog,
         DisabledForms,
         MultisigTree,
+        ErrorTooltip,
     },
     computed: {
         ...mapState({
@@ -37,17 +39,17 @@ import MultisigTree from '@/views/multisig/multisig-tree/MultisigTree.vue'
 })
 export class MultisigTransactionFormTs extends Vue {
     @Provide() validator: any = this.$validator
+
     activeAccount: StoreAccount
-    publicKeyToAdd = ''
+    addressToAdd = ''
     showCheckPWDialog = false
     transactionDetail = {}
     transactionList = []
     formItems = {...this.defaultFormItems}
-    formatAddress = formatAddress
     MULTISIG_FORM_MODES = MULTISIG_FORM_MODES
     CosignatoryModificationAction = CosignatoryModificationAction
-    Message = Message
-
+    Address = Address
+    
     @Prop() mode: string
 
     treeClicked(nodeKey: any) {
@@ -235,24 +237,27 @@ export class MultisigTransactionFormTs extends Vue {
     }
 
     addCosigner(modificationAction: number) {
-        const {publicKeyToAdd} = this
-
-        if (this.formItems.publicKeyList
-            .findIndex(({publicAccount}) => publicAccount.publicKey === publicKeyToAdd) > -1) {
-            this.publicKeyToAdd = ''
-            return
-        }
+        if(this.$validator.errors.has('cosigner')) return
 
         try {
+            // @ts-ignore
+            const publicAccount = new PublicAccount('', Address.createFromRawAddress(this.addressToAdd)) 
+
+            // if (this.formItems.publicKeyList
+            //     .findIndex(({publicAccount}) => publicAccount.publicKey === publicAccount.publicKey) > -1) {
+            //     this.addressToAdd = ''
+            //     return
+            // }
+
             const modificationToAdd = new MultisigCosignatoryModification(
                 modificationAction,
-                PublicAccount.createFromPublicKey(publicKeyToAdd, this.networkType),
+                publicAccount,
             )
             this.formItems.publicKeyList.push(modificationToAdd)
         } catch (error) {
-            this.showErrorMessage(this.$t(Message.INPUT_EMPTY_ERROR) + '')
+            this.showErrorMessage(this.$t(Message.ADDRESS_FORMAT_ERROR) + '')
         } finally {
-            this.publicKeyToAdd = ''
+            this.addressToAdd = ''
         }
     }
 
@@ -276,6 +281,7 @@ export class MultisigTransactionFormTs extends Vue {
     }
 
     async confirmViaTransactionConfirmation() {
+        console.log(this.transactionList[0],'this.transactionList[0]')
         const {
             success,
             signedTransaction,

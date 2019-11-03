@@ -4,7 +4,6 @@ import {
     Message as Msg,
     Deadline,
     PlainMessage,
-    TransactionType
 } from 'nem2-sdk'
 import {mapState} from "vuex"
 import {DEFAULT_FEES, FEE_GROUPS, formDataConfig} from "@/config"
