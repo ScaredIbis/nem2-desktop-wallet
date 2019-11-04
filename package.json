@@ -1,6 +1,6 @@
 {
   "name": "nem2_desk_wallet_cn",
-  "version": "0.8.4",
+  "version": "0.8.5",
   "private": true,
   "scripts": {
     "dev": "vue-cli-service serve ",
@@ -27,7 +27,7 @@
     "moment-timezone": "^0.5.26",
     "nem2-hd-wallets": "^0.4.2",
     "nem2-qr-library": "^0.4.1",
-    "nem2-sdk": "^0.14.3",
+    "nem2-sdk": "^0.14.4",
     "node-pre-gyp": "^0.13.0",
     "node-uuid": "^1.4.8",
     "rxjs": "^6.5.2",
