@@ -238,10 +238,10 @@ export class AliasTs extends Vue {
                 transaction: this.transaction(),
                 store: this.$store,
             })
-
+            
             if(success) {
-                new AppWallet(this.wallet).announceTransaction(signedTransaction, this.activeAccount.node, this, signedLock)
-            }
+                new AppWallet(this.wallet).announceTransaction(signedTransaction, this.activeAccount.node, this.$root, signedLock)
+            }            
         } catch (error) {
             console.error("AliasTs -> confirmViaTransactionConfirmation -> error", error)
         }
