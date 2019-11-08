@@ -118,6 +118,9 @@ const mutations: MutationTree<StoreAccount> = {
     SET_TRANSACTION_LIST(state: StoreAccount, list: FormattedTransaction[]) {
         state.transactionList = list
     },
+    SET_UNCONFIRMED_TRANSACTION_LIST(state: StoreAccount, list: FormattedTransaction[]) {
+        state.transactionList.unshift(...list)
+    },
     ADD_UNCONFIRMED_TRANSACTION(state: StoreAccount, txList: any) {
         state.transactionList.unshift(txList[0])
     },
@@ -128,10 +131,7 @@ const mutations: MutationTree<StoreAccount> = {
         const txIndex = newStateTransactions
             .findIndex(({txHeader}) => newTx.txHeader.hash === txHeader.hash)
 
-        if (txIndex > -1 && newStateTransactions[txIndex].isTxUnconfirmed) {
-            newStateTransactions.splice(txIndex, 1)
-        }
-
+        if (txIndex > -1) newStateTransactions.splice(txIndex, 1)
         newStateTransactions.unshift(newTx)
         state.transactionList = newStateTransactions
     },

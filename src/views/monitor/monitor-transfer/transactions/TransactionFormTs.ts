@@ -290,7 +290,7 @@ export class TransactionFormTs extends Vue {
         this.formItems.mosaicTransferList.splice(index, 1)
     }
 
-    async submit() {
+    submit() {
         this.$validator
             .validate()
             .then((valid) => {

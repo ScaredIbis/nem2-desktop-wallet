@@ -90,7 +90,7 @@
     "no_such_currency_transaction_record_yet": "No trading record",
     "price": "Price",
     "quantity": "Quantity",
-    "sub_namespace": "sub namespace",
+    "sub_namespace": "Sub namespace",
     "wallet_balance": "Balance",
     "asset_setting": "Asset setting",
     "search_for_asset_name": "Search for mosaic",
@@ -525,7 +525,7 @@
     "add_entity_type": "Add entity type",
     "Any_information_cannot_be_empty": "Any information cannot be empty",
     "success": "The operation was successful ",
-    "Transaction_sending": "The node has received the transaction",
+    "Transaction_sending": "New unconfirmed transaction",
     "Transaction_Reception": "New transaction confirmed",
     "Multisig_Transaction_Reception": "New multisig transaction confirmed",
     "co_signers_amount_less_than_0": "The number of co-signers cannot be less than 1",
@@ -738,5 +738,10 @@
     "Refresh_partial_transaction_of_address": "Refresh partial transactions of a given address",
     "Actions_list": "Actions list",
     "The_action_list_is_empty": "The action list is empty",
-    "Add_cosigners": "Add cosigners"
+    "Add_cosigners": "Add cosigners",
+    "hide_debug_console": "Hide debug console",
+    "show_debug_console": "Show debug console",
+    "Debug_console": "Debug console",
+    "Data": "Data",
+    "divisibility_can_not_more_than_6": "Divisibility can not be more than 6."
 }
