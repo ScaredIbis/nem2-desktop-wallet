@@ -9,7 +9,7 @@ import {mapState} from "vuex"
 import {DEFAULT_FEES, FEE_GROUPS, formDataConfig} from "@/config"
 import {Component, Provide, Vue, Watch} from 'vue-property-decorator'
 import {getAbsoluteMosaicAmount, getRelativeMosaicAmount, formatAddress, cloneData} from "@/core/utils"
-import {standardFields, isAddress, NETWORK_PARAMS} from "@/core/validation"
+import {standardFields, NETWORK_PARAMS} from "@/core/validation"
 import {signTransaction} from '@/core/services/transactions'
 import {
     AppMosaic,
@@ -21,6 +21,7 @@ import {
     LockParams
 } from "@/core/model"
 import {createBondedMultisigTransaction, createCompleteMultisigTransaction} from '@/core/services'
+import {validateAddress} from '@/core/validation'
 import ErrorTooltip from '@/components/other/forms/errorTooltip/ErrorTooltip.vue'
 
 @Component({
@@ -185,7 +186,9 @@ export class TransactionFormTs extends Vue {
 
     get recipient(): Address | NamespaceId {
         const {recipient} = this.formItems
-        if (isAddress(this.formItems.recipient)) return Address.createFromRawAddress(recipient)
+        if (validateAddress(this.formItems.recipient).valid) {
+            return Address.createFromRawAddress(recipient)
+        }
         return new NamespaceId(recipient)
     }
 
@@ -267,7 +270,6 @@ export class TransactionFormTs extends Vue {
         )
         this.sortMosaics()
         this.clearAssetData()
-
     }
 
     clearAssetData() {

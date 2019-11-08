@@ -1,12 +1,8 @@
-import {Address, MosaicId, NamespaceId} from 'nem2-sdk'
+import {MosaicId} from 'nem2-sdk'
 import {networkConfig} from '@/config/constants'
-import {AppAccounts} from "@/core/model"
-
-const {maxNameSize} = networkConfig
-
-interface ValidationObject {
-    valid: false | string
-}
+import {AppAccounts, ValidationObject} from "@/core/model"
+import {validateAddress, validatePublicKey, validateAlias} from './validators'
+const {PUBLIC_KEY_LENGTH} = networkConfig
 
 const getOtherFieldValue = (otherField, validator) => {
     const validatorFields = validator.Validator.$vee._validator.fields.items
@@ -17,30 +13,12 @@ const getOtherFieldValue = (otherField, validator) => {
 
 export const CUSTOM_VALIDATORS_NAMES = {
     address: 'address',
+    addressOrPublicKey: 'addressOrPublicKey',
     confirmPassword: 'confirmPassword',
     confirmLock: 'confirmLock',
     mosaicId: 'mosaicId',
     addressOrAlias: 'addressOrAlias',
     alias: 'alias',
-}
-
-const validateAddress = (address): ValidationObject => {
-    try {
-        Address.createFromRawAddress(address)
-        return {valid: address}
-    } catch (error) {
-        return {valid: false}
-    }
-}
-
-const validateAlias = (alias): ValidationObject => {
-    if (alias.length > maxNameSize) return {valid: false}
-    try {
-        new NamespaceId(alias)
-        return {valid: alias}
-    } catch (error) {
-        return {valid: false}
-    }
 }
 
 const aliasValidator = (context): Promise<ValidationObject> => {
@@ -115,13 +93,29 @@ const addressValidator = (context): Promise<ValidationObject> => {
     )
 }
 
+const addressOrPublicKeyValidator = (context): Promise<ValidationObject> => {
+    return context.Validator.extend(
+        CUSTOM_VALIDATORS_NAMES.addressOrPublicKey,
+        (addressOrPublicKey) => new Promise(async (resolve) => {
+        console.log("TCL: addressOrPublicKey", addressOrPublicKey.length)
+            if (addressOrPublicKey.length === PUBLIC_KEY_LENGTH) {
+                const r = validatePublicKey(addressOrPublicKey)
+                console.log("TCL: r", r)
+                resolve(r)
+            }
+            resolve(validateAddress(addressOrPublicKey))
+        }),
+    )
+}
+
 const customValidatorFactory = {
     [CUSTOM_VALIDATORS_NAMES.address]: addressValidator,
+    [CUSTOM_VALIDATORS_NAMES.addressOrAlias]: addressOrAliasValidator,
+    [CUSTOM_VALIDATORS_NAMES.addressOrPublicKey]: addressOrPublicKeyValidator,
+    [CUSTOM_VALIDATORS_NAMES.alias]: aliasValidator,
     [CUSTOM_VALIDATORS_NAMES.confirmLock]: confirmLockValidator,
     [CUSTOM_VALIDATORS_NAMES.confirmPassword]: confirmPasswordValidator,
     [CUSTOM_VALIDATORS_NAMES.mosaicId]: mosaicIdValidator,
-    [CUSTOM_VALIDATORS_NAMES.addressOrAlias]: addressOrAliasValidator,
-    [CUSTOM_VALIDATORS_NAMES.alias]: aliasValidator,
 }
 
 const CustomValidator = (name, Validator) => ({
@@ -136,3 +130,4 @@ export const registerCustomValidators = (Validator) => {
     Object.keys(CUSTOM_VALIDATORS_NAMES)
         .forEach(name => CustomValidator(name, Validator).register())
 }
+ 

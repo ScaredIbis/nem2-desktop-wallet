@@ -197,7 +197,6 @@ export const networkConfig = {
     maxMultisigDepth: 3,
     maxCosignatoriesPerAccount: 10,
     maxCosignedAccountsPerAccount: 14,
-    maxNameSize: 64,
     maxChildNamespaces: 256,
     maxNamespaceDepth: 3,
     minNamespaceDuration: "1m",
@@ -215,4 +214,6 @@ export const networkConfig = {
     seedWalletMaxAmount: 10,
     testMnemonicString: 'this is a test string his is a test string this is',
     EMPTY_LINKED_ACCOUNT_KEY: '0000000000000000000000000000000000000000000000000000000000000000',
+    PUBLIC_KEY_LENGTH: 64,
+    NAMESPACE_MAX_LENGTH: 64,
 }

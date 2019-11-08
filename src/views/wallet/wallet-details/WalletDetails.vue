@@ -37,7 +37,7 @@
                       src="@/common/img/wallet/copyIcon.png"></i>
             </p>
             <p class="link_text">
-              <span class="tit">{{$t('alias')}}</span>
+              <span class="tit">{{$t('Aliases')}}</span>
               <span class="  alias_add pointer" @click="bindNamespace()" />
               <span class="walletPublicKey">
                 <span v-if='!selfAliases.length'>-</span>

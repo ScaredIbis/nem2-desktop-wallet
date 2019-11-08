@@ -80,7 +80,7 @@
                       v-focus
                       data-vv-name="cosigner"
                       v-model="addressToAdd"
-                      v-validate="'address'"
+                      v-validate="'addressOrPublicKey'"
                       :data-vv-as="$t('cosigner')"
                       :placeholder="$t('Address')"
                       type="text"
@@ -104,7 +104,7 @@
                 <div class="list_head">
                   <span class="address_alias">{{$t('Address')}}</span>
                   <span class="action">{{$t('operation')}}</span>
-                  <span class="delete">$nbsp;</span>
+                  <span class="delete">&nbsp;</span>
                 </div>
                 <div class="list_body scroll">
                   <div class="please_add_address" v-if="formItems.publicKeyList.length == 0">

@@ -42,7 +42,8 @@ module.exports = {
   ],
   globals: {
     'ts-jest': {
-      babelConfig: true
+      babelConfig: true,
+      disableSourceMapSupport: true,
     },
   },
   coverageDirectory: "coverage",
@@ -52,5 +53,6 @@ module.exports = {
     "!**/node_modules/**",
     "!**/*.{png}",
     "!**/*.{d.ts}",
+    "!**/*.{less}",
   ],
 }

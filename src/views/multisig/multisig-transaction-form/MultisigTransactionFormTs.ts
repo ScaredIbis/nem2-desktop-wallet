@@ -237,6 +237,10 @@ export class MultisigTransactionFormTs extends Vue {
     }
 
     addCosigner(modificationAction: number) {
+        this.$store.commit('SET_LOADING_OVERLAY', {
+            show: true,
+            message: 'this is a message'
+        })
         if(this.$validator.errors.has('cosigner')) return
 
         try {

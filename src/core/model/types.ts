@@ -59,6 +59,11 @@ export interface StoreAccount {
     networkMosaics: Record<string, AppMosaic>,
 }
 
+export interface LoadingOverlayObject {
+    show: boolean,
+    message: string,
+}
+
 export interface AppInfo {
     timeZone: number,
     locale: string,
@@ -77,6 +82,7 @@ export interface AppInfo {
     stagedTransaction: StagedTransaction,
     nodeNetworkType: string,
     logs: Log[],
+    loadingOverlay: LoadingOverlayObject,
 }
 
 export interface StagedTransaction {
@@ -124,6 +130,16 @@ export enum TRANSACTIONS_CATEGORIES {
     NORMAL = 'NORMAL',
     MULTISIG = 'MULTISIG',
     TO_COSIGN = 'TO_COSIGN',
+}
+
+export enum RECIPIENT_TYPES {
+    ADDRESS = 'ADDRESS',
+    ALIAS = 'ALIAS',
+    PUBLIC_KEY = 'PUBLIC_KEY',
+}
+
+export interface ValidationObject {
+    valid: false | string
 }
 
 /**

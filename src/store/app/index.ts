@@ -1,4 +1,4 @@
-import {AppInfo, ChainStatus, LockParams, StagedTransaction, Log} from '@/core/model'
+import {AppInfo, ChainStatus, LockParams, StagedTransaction, Log, LoadingOverlayObject} from '@/core/model'
 import {localRead} from "@/core/utils";
 import {MutationTree} from 'vuex';
 
@@ -24,6 +24,10 @@ const state: AppInfo = {
     },
     nodeNetworkType: '',
     logs: [],
+    loadingOverlay: {
+        show: false,
+        message: '',
+    }
 }
 
 const mutations: MutationTree<AppInfo> = {
@@ -78,6 +82,9 @@ const mutations: MutationTree<AppInfo> = {
     ADD_LOG(state: AppInfo, log: Log) {
         state.logs.unshift(log)
     },
+    SET_LOADING_OVERLAY(state: AppInfo, loadingOverlay: LoadingOverlayObject) {
+        state.loadingOverlay = loadingOverlay
+    }
 }
 
 export const appState = {state}
