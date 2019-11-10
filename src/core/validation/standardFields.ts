@@ -71,7 +71,7 @@ export const standardFields = {
     },
     hint: {
         default: '',
-        label: 'Hint',
+        label: 'hint',
         name: 'cipherHint',
         type: 'text',
         hint: ['HINT_cipher_hint1', 'HINT_new_password2'],
@@ -91,8 +91,8 @@ export const standardFields = {
         label: 'amount',
         name: 'amount',
         type: 'text',
-        validation: `min_value:0|max_value:${MAX_MOSAIC_ATOMIC_UNITS}`,
-        hint: 'HINT_amount',
+        validation: `min_value:0|max_value:${MAX_MOSAIC_ATOMIC_UNITS}|decimal:0`,
+        hint: [],
         placeholder: 'PLACEHOLDER_amount',
     },
     mosaicListLength: {

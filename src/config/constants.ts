@@ -1,7 +1,7 @@
 import {TransactionType} from 'nem2-sdk'
 import {DefaultFee, NetworkCurrency} from '@/core/model'
 
-export const WALLET_VERSION = '0.8.4'
+export const WALLET_VERSION = '0.8.5'
 
 export const isWindows = require('./packge.ts').isWin32
 
@@ -65,6 +65,7 @@ export const Message = {
     FEE_LESS_THAN_0_ERROR: 'fee_can_not_be_less_than_0',
     SUPPLY_LESS_THAN_0_ERROR: 'supply_can_not_less_than_0',
     DIVISIBILITY_LESS_THAN_0_ERROR: 'divisibility_can_not_less_than_0',
+    DIVISIBILITY_MORE_THAN_6_ERROR: 'divisibility_can_not_more_than_6',
     DURATION_LESS_THAN_0_ERROR: 'duration_can_not_less_than_0',
     DURATION_MORE_THAN_1_YEARS_ERROR: 'duration_can_not_more_than_1_years',
     DURATION_MORE_THAN_10_YEARS_ERROR: 'duration_can_not_more_than_10_years',
@@ -131,19 +132,19 @@ export const MULTISIG_INFO: Record<string, string> = {
 }
 export const DEFAULT_FEES: Record<string, DefaultFee[]> = {
     [FEE_GROUPS.SINGLE]: [
-        {speed: FEE_SPEEDS.SLOW, value: 0.5},
-        {speed: FEE_SPEEDS.NORMAL, value: 1},
-        {speed: FEE_SPEEDS.FAST, value: 2},
+        {speed: FEE_SPEEDS.SLOW, value: 0.05},
+        {speed: FEE_SPEEDS.NORMAL, value: 0.1},
+        {speed: FEE_SPEEDS.FAST, value: 1},
     ],
     [FEE_GROUPS.DOUBLE]: [
-        {speed: FEE_SPEEDS.SLOW, value: 1},
-        {speed: FEE_SPEEDS.NORMAL, value: 2},
-        {speed: FEE_SPEEDS.FAST, value: 3},
+        {speed: FEE_SPEEDS.SLOW, value: 0.1},
+        {speed: FEE_SPEEDS.NORMAL, value: 0.2},
+        {speed: FEE_SPEEDS.FAST, value: 2},
     ],
     [FEE_GROUPS.TRIPLE]: [
-        {speed: FEE_SPEEDS.SLOW, value: 1.5},
-        {speed: FEE_SPEEDS.NORMAL, value: 3},
-        {speed: FEE_SPEEDS.FAST, value: 6},
+        {speed: FEE_SPEEDS.SLOW, value: 0.3},
+        {speed: FEE_SPEEDS.NORMAL, value: 0.9},
+        {speed: FEE_SPEEDS.FAST, value: 3},
     ],
 }
 

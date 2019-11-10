@@ -23,13 +23,17 @@ module.exports = {
   ],
   moduleNameMapper: {
     "^@/(.*)$": "<rootDir>/src/$1",
+    "^@@/(.*)$": "<rootDir>/__tests__/$1",
     "\\.(css|less)$": "identity-obj-proxy"
   },
   snapshotSerializers: [
     'jest-serializer-vue'
   ],
   testMatch: [
-    '**/__tests__/**/*.(js|jsx|ts|tsx)'
+    '**/__tests__/components/**/*.(ts)',
+    '**/__tests__/core/**/*.(ts)',
+    '**/__tests__/store/**/*.(ts)',
+    '**/__tests__/views/**/*.(ts)',
   ],
   testURL: 'http://localhost/',
   watchPlugins: [
@@ -42,4 +46,11 @@ module.exports = {
     },
   },
   coverageDirectory: "coverage",
+  collectCoverageFrom: [
+    "**/*.{ts}",
+    "**/*.{vue}",
+    "!**/node_modules/**",
+    "!**/*.{png}",
+    "!**/*.{d.ts}",
+  ],
 }

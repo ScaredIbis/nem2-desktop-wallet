@@ -1,6 +1,6 @@
 import {Address, MosaicId, NamespaceId} from 'nem2-sdk'
-import {AppLock} from '@/core/utils/appLock'
 import {networkConfig} from '@/config/constants'
+import {AppAccounts} from "@/core/model"
 
 const {maxNameSize} = networkConfig
 
@@ -33,15 +33,6 @@ const validateAddress = (address): ValidationObject => {
     }
 }
 
-const addressValidator = (context): Promise<ValidationObject> => {
-    return context.Validator.extend(
-        CUSTOM_VALIDATORS_NAMES.address,
-        (address) => new Promise((resolve) => {
-            resolve(validateAddress(address))
-        }),
-    )
-}
-
 const validateAlias = (alias): ValidationObject => {
     if (alias.length > maxNameSize) return {valid: false}
     try {
@@ -54,7 +45,7 @@ const validateAlias = (alias): ValidationObject => {
 
 const aliasValidator = (context): Promise<ValidationObject> => {
     return context.Validator.extend(
-        CUSTOM_VALIDATORS_NAMES.address,
+        CUSTOM_VALIDATORS_NAMES.alias,
         (alias) => new Promise((resolve) => {
             resolve(validateAlias(alias))
         }),
@@ -66,8 +57,8 @@ const confirmLockValidator = (context): Promise<ValidationObject> => {
         CUSTOM_VALIDATORS_NAMES.confirmLock,
         (password, [otherField]) => new Promise((resolve) => {
             const passwordCipher = getOtherFieldValue(otherField, context)
-            if (AppLock.decryptString(passwordCipher, password) !== password) resolve({valid: false})
-            resolve({valid: password})
+            if (AppAccounts().decryptString(passwordCipher, password) !== password) resolve({valid: false})
+            resolve({valid: true})
         }),
         {hasTarget: true},
     )
@@ -105,12 +96,21 @@ const addressOrAliasValidator = (context): Promise<ValidationObject> => {
         (addressOrAlias) => new Promise(async (resolve) => {
             const isValidAddress = validateAddress(addressOrAlias)
             const isValidAlias = validateAlias(addressOrAlias)
-            
+
             if (isValidAddress.valid || isValidAlias.valid) {
-                resolve({valid: addressOrAlias}) 
+                resolve({valid: addressOrAlias})
             } else {
-                resolve({valid: false})  
+                resolve({valid: false})
             }
+        }),
+    )
+}
+
+const addressValidator = (context): Promise<ValidationObject> => {
+    return context.Validator.extend(
+        CUSTOM_VALIDATORS_NAMES.address,
+        (address) => new Promise(async (resolve) => {
+                resolve(validateAddress(address))
         }),
     )
 }

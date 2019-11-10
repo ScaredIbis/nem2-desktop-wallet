@@ -20,14 +20,9 @@ const routers = [
                 children: [
                     {
                         path: '/dashBoard',
-                        name: 'dashBoard',
+                        name: 'dash_board',
                         // @ts-ignore
                         component: () => import('@/views/monitor/monitor-dashboard/MonitorDashBoard.vue')
-                    }, {
-                        path: '/market',
-                        name: 'market',
-                        // @ts-ignore
-                        component: () => import('@/views/monitor/monitor-market/MonitorMarket.vue')
                     }, {
                         path: '/transfer',
                         name: 'transfer',
@@ -35,9 +30,14 @@ const routers = [
                         component: () => import('@/views/monitor/monitor-transfer/MonitorTransfer.vue')
                     }, {
                         path: '/invoice',
-                        name: 'invoice',
+                        name: 'Invoice',
                         // @ts-ignore
                         component: () => import('@/views/monitor/monitor-invoice/MonitorInvoice.vue')
+                    }, {
+                        path: '/market',
+                        name: 'market',
+                        // @ts-ignore
+                        component: () => import('@/views/monitor/monitor-market/MonitorMarket.vue')
                     },
                 ]
             },
@@ -74,7 +74,7 @@ const routers = [
                                 name: 'walletImportKeystore',
                                 // @ts-ignore
                                 component: () => import('@/views/wallet/wallet-functions/wallet-import/wallet-import-keystore/WalletImportKeystore.vue'),
-                            },{
+                            }, {
                                 path: '/walletImportPrivatekey',
                                 name: 'walletImportPrivatekey',
                                 // @ts-ignore
@@ -139,7 +139,7 @@ const routers = [
                         path: '/multisigManagement',
                         name: 'multisigManagement',
                         component: () => import('@/views/multisig/MultisigModification.vue')
-                    },  {
+                    }, {
                         path: '/multisigMap',
                         name: 'multisigMap',
                         component: () => import('@/views/multisig/multisig-map/TopographicMap.vue')
@@ -187,26 +187,34 @@ const routers = [
                 component: () => import('@/views/setting/Setting.vue'),
                 children: [
                     {
-                        path: '/settingAbout',
-                        name: 'settingAbout',
-                        // @ts-ignore
-                        component: () => import('@/views/setting/setting-about/SettingAbout.vue')
-                    },
-                    {
-                        path: '/settingLock',
-                        name: 'settingLock',
-                        // @ts-ignore
-                        component: () => import('@/views/setting/setting-lock/SettingLock.vue')
+                        path: '/settingNormal',
+                        name: 'settingNormal',
+                        meta: {
+                            title: 'general_settings',
+                        },
+                        component: () => import('@/views/setting/setting-normal/SettingNormal.vue')
+                    }, {
+                        path: '/settingPassword',
+                        name: 'settingPassword',
+                        meta: {
+                            title: 'account_password',
+                        },
+                        component: () => import('@/views/setting/setting-password/SettingPassword.vue')
                     }, {
                         path: '/settingNetwork',
                         name: 'settingNetwork',
-                        // @ts-ignore
+                        meta: {
+                            disabled: true,
+                            title: 'network_settings',
+                        },
                         component: () => import('@/views/setting/setting-network/SettingNetwork.vue')
                     }, {
-                        path: '/settingNormal',
-                        name: 'settingNormal',
-                        // @ts-ignore
-                        component: () => import('@/views/setting/setting-normal/SettingNormal.vue')
+                        path: '/settingAbout',
+                        name: 'settingAbout',
+                        meta: {
+                            title: 'about',
+                        },
+                        component: () => import('@/views/setting/setting-about/SettingAbout.vue')
                     },
                 ]
             },
