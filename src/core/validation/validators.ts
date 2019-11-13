@@ -1,4 +1,4 @@
-import {Address, NamespaceId, PublicAccount, NetworkType} from 'nem2-sdk'
+import {Address, NamespaceId, PublicAccount, NetworkType, MosaicId} from 'nem2-sdk'
 import {networkConfig} from '@/config/constants'
 import {ValidationObject} from "@/core/model"
 const {NAMESPACE_MAX_LENGTH} = networkConfig
@@ -27,6 +27,24 @@ export const validateAlias = (alias): ValidationObject => {
   try {
       new NamespaceId(alias)
       return {valid: alias}
+  } catch (error) {
+      return {valid: false}
+  }
+}
+
+export const validateMosaicId = (mosaicId): ValidationObject => {
+  try {
+      new MosaicId(mosaicId)
+      return {valid: mosaicId}
+  } catch (error) {
+      return {valid: false}
+  }
+}
+
+export const validateNamespace = (namespace): ValidationObject => {
+  try {
+      new NamespaceId(namespace)
+      return {valid: namespace}
   } catch (error) {
       return {valid: false}
   }
