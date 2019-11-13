@@ -1,73 +1,75 @@
 <template>
- <div>
- </div>
+  <div></div>
 </template>
 <script lang="ts">
-  import {Component, Vue, Watch} from 'vue-property-decorator'
-  import {AppInfo, StoreAccount, AppState} from "@/core/model"
-  import {mapState} from "vuex"
+import { Component, Vue, Watch } from "vue-property-decorator";
+import { AppInfo, StoreAccount, AppState } from "@/core/model";
+import { mapState } from "vuex";
 
-  @Component({ computed: { ...mapState({ app: 'app' }) } })
-  export default class LoadingOverlay extends Vue {
-    app: AppInfo
+@Component({ computed: { ...mapState({ app: "app" }) } })
+export default class LoadingOverlay extends Vue {
+  app: AppInfo;
 
-    get show() {
-        return this.app.loadingOverlay.show
-    }
-
-    @Watch('show')
-    onLoadingOverlayShowChange(newValue: boolean, oldValue: boolean) {
-       console.log("TCL: onLoadingOverlayShowChange -> oldValue", oldValue)
-       console.log("TCL: onLoadingOverlayShowChange -> newValue", newValue)
-       if (newValue !== oldValue) {
-         if(newValue) this.open()
-      // @ts-ignore
-         if(!newValue) this.$Spin.hide()
-       }
-    }
-
-    open () {
-      // @ts-ignore
-      this.$Spin.show({
-        render: (h) => {
-          return h('div', [
-            h('Icon', {
-              'class': 'demo-spin-icon-load',
-              props: {
-                type: 'ios-loading',
-                size: 18
-              }
-            }),
-            h('div', this.app.loadingOverlay.message),
-            h('a', {
+  open() {
+    // @ts-ignore
+    this.$Spin.show({
+      render: h => {
+        return h("div", [
+          h("div", this.app.loadingOverlay.message),
+          h("i", {
+            class: "ivu-icon ivu-icon-ios-close-circle icon"
+          }),
+          h(
+            "a",
+            {
               on: {
                 click: this.closeScreen
-            }}, 'close')
-          ])
-        }
-      });
+              }
+            },
+            "close"
+          )
+        ]);
+      }
+    });
 
-      this
-    }
-
-    mounted() {
-      this.open()
-    }
-
-    closeScreen() {
-      console.log("TCL: closeScreen -> closeScreen", this)
-      // @ts-ignore
-this.$Spin.hide()
-      this.$store.commit('SET_LOADING_OVERLAY', {
-          show: false,
-          message: ''
-      })
-    }
+    this;
   }
+
+  mounted() {
+    this.open();
+  }
+
+  closeScreen() {
+    // @ts-ignore
+    this.$Spin.hide();
+    this.$store.commit("SET_LOADING_OVERLAY", {
+      show: false,
+      message: ""
+    });
+  }
+}
 </script>
 
 <style>
-  .demo-spin-icon-load {
-    animation: ani-demo-spin 1s linear infinite;
-  }
+.demo-spin-icon-load {
+  animation: ani-demo-spin 1s linear infinite;
+}
+
+.ivu-spin-dot {
+  position: relative;
+  display: block;
+  border-radius: 50%;
+  background-color: #2d8cf0;
+  width: 20px;
+  height: 20px;
+  -webkit-animation: ani-spin-bounce 1s 0s ease-in-out infinite;
+  animation: ani-spin-bounce 1s 0s ease-in-out infinite;
+  width: 32px;
+  height: 32px;
+  margin-bottom: 20px;
+}
+
+.icon {
+  margin-right: 4px;
+}
 </style>

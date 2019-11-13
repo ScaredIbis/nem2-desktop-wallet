@@ -108,6 +108,7 @@ export const Message = {
     MULTISIG_ACCOUNTS_NO_TX: "Multisig_accounts_can_not_send_a_transaction_by_themselves",
     USER_ABORTED_TX_CONFIRMATION: 'User_aborted_transaction_confirmation',
     PRIVATE_KEY_INVALID_ERROR: 'PRIVATE_KEY_INVALID_ERROR',
+    ADDRESS_UNKNOWN: 'address_unknown',
 }
 
 export const FEE_SPEEDS: Record<string, string> = {

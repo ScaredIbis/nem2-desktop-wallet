@@ -779,5 +779,6 @@
     "please_input_mosaic_hex":"Please input mosaic hex",
     "please_input_divisibility": "Please input divisibility",
     "PRIVATE_KEY_INVALID_ERROR": "This private key is invalid.",
-    "Address_or_public_key": "Address or public key"
+    "Address_or_public_key": "Address or public key",
+    "address_unknown": "This address is unknown. It should have sent at least one transaction"
 }
