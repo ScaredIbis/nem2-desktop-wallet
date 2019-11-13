@@ -38,7 +38,6 @@ export const standardFields = {
         hint: ['HINT_previous_password'],
         placeholder: 'PLACEHOLDER_previous_password'
     },
-
     newPassword: {
         default: '',
         label: 'LABEL_new_password',
@@ -51,6 +50,7 @@ export const standardFields = {
         hint: ['HINT_new_password1', 'HINT_new_password2'],
         placeholder: 'PLACEHOLDER_new_password'
     },
+
     confirmPassword: {
         default: '',
         label: 'LABEL_confirm_password',
@@ -60,6 +60,30 @@ export const standardFields = {
         hint: [],
         placeholder: 'PLACEHOLDER_confirm_password'
     },
+
+    password: {
+        default: '',
+        label: 'password',
+        name: 'password',
+        type: 'text',
+        validation: {
+            required: true,
+            min: MIN_PASSWORD_LENGTH,
+        },
+        hint: 'HINT_password',
+        placeholder: 'PLACEHOLDER_password',
+    },
+
+    walletPassword: {
+        default: '',
+        label: 'password',
+        name: 'password',
+        type: 'password',
+        validation: 'required|confirmWalletPassword:wallet',
+        hint: 'HINT_password',
+        placeholder: 'PLACEHOLDER_password',
+    },
+
     cipher: {
         default: '',
         label: '',
@@ -139,7 +163,7 @@ export const standardFields = {
         label: 'generationHash',
         name: 'generationHash',
         type: 'text',
-        validation: `min:${GENERATION_HASH_LENGTH}|max:${GENERATION_HASH_LENGTH}`,
+        validation: `required: true|min:${GENERATION_HASH_LENGTH}|max:${GENERATION_HASH_LENGTH}`,
         hint: 'HINT_generationHash',
         placeholder: 'PLACEHOLDER_generationHash',
     },
@@ -235,19 +259,6 @@ export const standardFields = {
         validation: '',
         hint: 'HINT_networkType',
         items: availableNetworkTypes,
-    },
-
-    password: {
-        default: '',
-        label: 'password',
-        name: 'password',
-        type: 'text',
-        validation: {
-            required: true,
-            min: MIN_PASSWORD_LENGTH,
-        },
-        hint: 'HINT_password',
-        placeholder: 'PLACEHOLDER_password',
     },
 
     privateKey: {

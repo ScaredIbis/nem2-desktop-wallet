@@ -1,7 +1,7 @@
-import {MosaicId} from 'nem2-sdk'
+import {MosaicId, Account} from 'nem2-sdk'
 import {networkConfig} from '@/config/constants'
-import {AppAccounts, ValidationObject} from "@/core/model"
-import {validateAddress, validatePublicKey, validateAlias} from './validators'
+import {AppAccounts, ValidationObject, AppWallet} from "@/core/model"
+import {validateAddress, validatePublicKey, validateAlias, validateMosaicId, validateNamespace} from './validators'
 const {PUBLIC_KEY_LENGTH} = networkConfig
 
 const getOtherFieldValue = (otherField, validator) => {
@@ -16,9 +16,13 @@ export const CUSTOM_VALIDATORS_NAMES = {
     addressOrPublicKey: 'addressOrPublicKey',
     confirmPassword: 'confirmPassword',
     confirmLock: 'confirmLock',
+    confirmWalletPassword: 'confirmWalletPassword',
     mosaicId: 'mosaicId',
     addressOrAlias: 'addressOrAlias',
     alias: 'alias',
+    remoteAccountPrivateKey: 'remoteAccountPrivateKey',
+    publicKey: 'publicKey',
+    namespaceOrMosaicId: 'namespaceOrMosaicId',
 }
 
 const aliasValidator = (context): Promise<ValidationObject> => {
@@ -30,6 +34,15 @@ const aliasValidator = (context): Promise<ValidationObject> => {
     )
 }
 
+const publicKeyValidator = (context): Promise<ValidationObject> => {
+    return context.Validator.extend(
+        CUSTOM_VALIDATORS_NAMES.publicKey,
+        (publicKey) => new Promise((resolve) => {
+            resolve(validatePublicKey(publicKey))
+        }),
+    )
+}
+
 const confirmLockValidator = (context): Promise<ValidationObject> => {
     return context.Validator.extend(
         CUSTOM_VALIDATORS_NAMES.confirmLock,
@@ -37,6 +50,27 @@ const confirmLockValidator = (context): Promise<ValidationObject> => {
             const passwordCipher = getOtherFieldValue(otherField, context)
             if (AppAccounts().decryptString(passwordCipher, password) !== password) resolve({valid: false})
             resolve({valid: true})
+        }),
+        {hasTarget: true},
+    )
+}
+
+const remoteAccountPrivateKeyValidator = (context): Promise<ValidationObject> => {
+    return context.Validator.extend(
+        CUSTOM_VALIDATORS_NAMES.remoteAccountPrivateKey,
+        (privateKey, [otherField]) => new Promise((resolve) => {
+            const wallet: AppWallet = getOtherFieldValue(otherField, context)
+            if (!(wallet instanceof AppWallet)) resolve({valid: false})
+
+            try {
+                const account = Account.createFromPrivateKey(privateKey, wallet.networkType)
+                if (wallet.linkedAccountKey && wallet.linkedAccountKey !== account.publicKey) {
+                    resolve({valid: false})
+                }
+                resolve({valid: true})
+            } catch (error) {
+                resolve({valid: false})
+            }
         }),
         {hasTarget: true},
     )
@@ -54,6 +88,18 @@ const confirmPasswordValidator = (context): Promise<ValidationObject> => {
     )
 }
 
+const confirmWalletPasswordValidator = (context): Promise<ValidationObject> => {
+    return context.Validator.extend(
+        CUSTOM_VALIDATORS_NAMES.confirmWalletPassword,
+        (password, [otherField]) => new Promise((resolve) => {
+            const wallet = getOtherFieldValue(otherField, context)
+            if(!(wallet instanceof AppWallet)) resolve({valid: false})
+            resolve({valid: wallet.checkPassword(password)})
+        }),
+        {hasTarget: true},
+    )
+}
+
 const mosaicIdValidator = (context): Promise<ValidationObject> => {
     return context.Validator.extend(
         CUSTOM_VALIDATORS_NAMES.mosaicId,
@@ -62,6 +108,22 @@ const mosaicIdValidator = (context): Promise<ValidationObject> => {
                 new MosaicId(mosaicId)
                 resolve({valid: mosaicId})
             } catch (error) {
+                resolve({valid: false})
+            }
+        }),
+    )
+}
+
+const namespaceOrMosaicIdValidator = (context): Promise<ValidationObject> => {
+    return context.Validator.extend(
+        CUSTOM_VALIDATORS_NAMES.namespaceOrMosaicId,
+        (namespaceOrMosaicId) => new Promise((resolve) => {
+            const isValidNamespace = validateMosaicId(namespaceOrMosaicId)
+            const isValidMosaicId = validateNamespace(namespaceOrMosaicId)
+
+            if (isValidNamespace.valid || isValidMosaicId.valid) {
+                resolve({valid: namespaceOrMosaicId})
+            } else {
                 resolve({valid: false})
             }
         }),
@@ -83,6 +145,7 @@ const addressOrAliasValidator = (context): Promise<ValidationObject> => {
         }),
     )
 }
+
 
 const addressValidator = (context): Promise<ValidationObject> => {
     return context.Validator.extend(
@@ -115,7 +178,11 @@ const customValidatorFactory = {
     [CUSTOM_VALIDATORS_NAMES.alias]: aliasValidator,
     [CUSTOM_VALIDATORS_NAMES.confirmLock]: confirmLockValidator,
     [CUSTOM_VALIDATORS_NAMES.confirmPassword]: confirmPasswordValidator,
+    [CUSTOM_VALIDATORS_NAMES.confirmWalletPassword]: confirmWalletPasswordValidator,
     [CUSTOM_VALIDATORS_NAMES.mosaicId]: mosaicIdValidator,
+    [CUSTOM_VALIDATORS_NAMES.remoteAccountPrivateKey]: remoteAccountPrivateKeyValidator,
+    [CUSTOM_VALIDATORS_NAMES.publicKey]: publicKeyValidator,
+    [CUSTOM_VALIDATORS_NAMES.namespaceOrMosaicId]: namespaceOrMosaicIdValidator,
 }
 
 const CustomValidator = (name, Validator) => ({

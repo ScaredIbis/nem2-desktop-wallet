@@ -8,10 +8,15 @@ import {registerCustomValidators} from '@/core/validation'
 const customMessagesEn = {
     address: () => `this address is invalid`,
     confirmLock: () => `this password is incorrect`,
+    confirmWalletPassword: () => `this password is incorrect`,
     confirmPassword: () => 'passwords do not match',
     max_value:()=>'current value is too big',
-    decimal:()=>'current value does not match divisibility'
+    decimal:()=>'current value does not match divisibility',
+    remoteAccountPrivateKey:()=>'the private key is incorrect',
+    publicKey:()=>'the public key is incorrect',
+    namespaceOrMosaicId:()=>'this is not a correct namespace or mosaic ID',
 }
+
 const customMessagesZh = {
     address: () => `地址错误`,
     confirmLock: () => `密码错误`,

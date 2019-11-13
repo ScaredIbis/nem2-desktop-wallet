@@ -17,7 +17,7 @@ export const nodeListConfig: Endpoint[] = [
         value: 'http://api-01.mt.eu-central-1.nemtech.network:3000',
         name: 'central',
         url: 'api-01.mt.eu-central-1.nemtech.network',
-        isSelected: false,
+        isSelected: true,
     },
     {
         value: 'http://api-01.mt.us-east-1.nemtech.network:3000',
@@ -70,3 +70,5 @@ export const nodeListConfig: Endpoint[] = [
         isSelected: false,
     },
 ]
+
+export const explorerUrlHead = 'http://explorer.mt.nemtech.network/transaction/'

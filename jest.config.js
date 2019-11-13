@@ -48,7 +48,10 @@ module.exports = {
   },
   coverageDirectory: "coverage",
   collectCoverageFrom: [
-    "**/*.{ts}",
+    "**/components/**/*.{ts}",
+    "**/core/**/*.{js}",
+    "**/store/**/*.{js}",
+    "**/views/**/*.{ts}",
     "**/*.{vue}",
     "!**/node_modules/**",
     "!**/*.{png}",

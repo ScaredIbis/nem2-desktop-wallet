@@ -65,7 +65,7 @@
                         :class="['overflow_ellipsis', c.txHeader.isReceipt ? 'green' : 'red']"
                         v-if="c.rawTx.type === TransactionType.TRANSFER"
                 >
-                    {{ c.txHeader.isReceipt ? '' : '-' }} {{ renderMosaics(c.rawTx.mosaics, $store) }}
+                    {{ renderMosaics(c.rawTx.mosaics, $store, c.txHeader.isReceipt) }}
                 </span>
                   <span
                           class="red "
@@ -87,7 +87,9 @@
 
                 <!-- FIFTH COLUMN -->
                 <div class="col5">
-                  <span class="item"> {{ miniHash(c.txHeader.hash) }} </span>
+                  <span class="item">
+                    <a target="_blank" :href="getExplorerUrl(c.txHeader.hash)"> {{ miniHash(c.txHeader.hash) }} </a>
+                  </span>
                   <span class="item bottom">{{c.txHeader.time}}</span>
                 </div>
 
