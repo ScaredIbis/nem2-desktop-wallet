@@ -49,16 +49,13 @@ export class WalletTs extends Vue {
     }
 
     toWalletDetails() {
+        this.tabIndex = -1
+        this.toMethod = false
         this.$router.replace({path: '/walletPanel'})
-        this.toMethod = false
-    }
-
-    backToGuideInto() {
-        this.toMethod = false
     }
 
     copyObj(obj) {
-        const newObj: any = Object.prototype.toString.call(obj) == '[object Array]' ? [] : {}
+        const newObj: any = obj instanceof Array ? [] : {}
 
         for (const key in obj) {
             const value = obj[key]

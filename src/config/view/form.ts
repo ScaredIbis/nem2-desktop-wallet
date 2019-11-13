@@ -3,6 +3,13 @@ import {FEE_SPEEDS} from '@/config'
 
 
 export const formDataConfig = {
+    offsetLineForm: {
+        generationHash: '',
+        mosaicId: '',
+        divisibility: 1,
+        ticker: 'XEM',
+        mosaicName: '',
+    },
     createAccountForm: {
         accountName: '',
         password: '',
@@ -12,7 +19,6 @@ export const formDataConfig = {
     },
     importKeystoreConfig: {
         walletName: 'keystore-wallet',
-        networkType: NetworkType.MIJIN_TEST,
         keystoreStr: '',
         keystorePassword: ''
     },
@@ -102,17 +108,19 @@ export const formDataConfig = {
     },
     walletImportMnemonicForm: {
         mnemonic: '',
-        networkType: 0,
         walletName: '',
     },
     walletImportPrivateKeyForm: {
         privateKey: '',
-        networkType: NetworkType.MIJIN_TEST,
         walletName: 'wallet-privateKey',
     },
     trezorImportForm: {
         networkType: NetworkType.MIJIN_TEST,
         accountIndex: 0,
         walletName: 'Trezor Wallet'
+    },
+    walletCreateForm: {
+        walletName: 'wallet-create',
+        path: 0
     }
 }

@@ -3,9 +3,11 @@ import router from '@/router/routers.ts'
 
 @Component
 export class SettingTs extends Vue {
-    currentHeadText = ''
     navigatorList = router[0].children[6].children
 
+    get currentHeadText(){
+        return this.$route.meta.title
+    }
     get routeName(){
         return this.$route.name
     }
@@ -16,5 +18,4 @@ export class SettingTs extends Vue {
             name: n.name
         })
     }
-
 }

@@ -6,12 +6,24 @@ import {Message} from "@/config"
 import {mapState} from "vuex"
 import {AppWallet, StoreAccount} from "@/core/model"
 import failureIcon from "@/common/img/monitor/failure.png"
+import {of} from 'rxjs'
+import {pluck, concatMap} from 'rxjs/operators'
 
 @Component({
     computed: {
         ...mapState({
             activeAccount: 'account',
         })
+    },
+    subscriptions() {
+        const qrCode$ = this
+            .$watchAsObservable('qrCodeArgs', {immediate: true})
+            .pipe(pluck('newValue'),
+                concatMap((args) => {
+                    if (args instanceof AccountQR) return args.toBase64()
+                    return of(failureIcon)
+                }))
+        return {qrCode$}
     }
 })
 export class PrivatekeyDialogTs extends Vue {
@@ -32,7 +44,7 @@ export class PrivatekeyDialogTs extends Vue {
 
     set show(val) {
         if (!val) {
-            this.$emit('close')
+            this.$emit('closePrivatekeyDialog')
         }
     }
 
@@ -48,17 +60,17 @@ export class PrivatekeyDialogTs extends Vue {
         return this.activeAccount.generationHash
     }
 
-    privatekeyDialogCancel() {
-        this.wallet = {
-            password: '',
-            privatekey: ''
+    get qrCodeArgs(): AccountQR {
+        const {networkType} = this.getWallet
+        const {generationHash} = this
+        const {password, privatekey} = this.wallet
+        try {
+            const account: any = Account.createFromPrivateKey(privatekey, networkType)
+            return new AccountQR(account, password, networkType, generationHash)
+        } catch (e) {
+            return null
         }
-        this.$emit('closePrivatekeyDialog')
-        setTimeout(() => {
-            this.stepIndex = 0
-        }, 300)
     }
-
 
     checkPassword() {
         if (!this.checkInput()) return
@@ -84,7 +96,6 @@ export class PrivatekeyDialogTs extends Vue {
                 this.checkPassword()
                 break
             case 1 :
-                this.createQRCode()
                 this.stepIndex = 2
                 break
             case 2 :
@@ -115,18 +126,5 @@ export class PrivatekeyDialogTs extends Vue {
 
     toPrevPage() {
         this.stepIndex = 2
-    }
-
-    createQRCode() {
-        const {networkType} = this.getWallet
-        const {generationHash} = this
-        const {password, privatekey} = this.wallet
-        try {
-            const account: any = Account.createFromPrivateKey(privatekey, networkType) // @QR
-            this.QRCode = new AccountQR(account, new Password(password), networkType, generationHash).toBase64()
-        } catch (e) {
-            return failureIcon
-        }
-
     }
 }
