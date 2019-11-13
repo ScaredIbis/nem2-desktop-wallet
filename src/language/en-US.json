@@ -778,5 +778,6 @@
     "please_input_generation_hash": "Please input generation hash",
     "please_input_mosaic_hex":"Please input mosaic hex",
     "please_input_divisibility": "Please input divisibility",
-    "PRIVATE_KEY_INVALID_ERROR": "This private key is invalid."
+    "PRIVATE_KEY_INVALID_ERROR": "This private key is invalid.",
+    "Address_or_public_key": "Address or public key"
 }

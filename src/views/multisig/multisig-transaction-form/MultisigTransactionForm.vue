@@ -79,10 +79,10 @@
                   <input
                       v-focus
                       data-vv-name="cosigner"
-                      v-model="addressToAdd"
+                      v-model="cosignerToAdd"
                       v-validate="'addressOrPublicKey'"
                       :data-vv-as="$t('cosigner')"
-                      :placeholder="$t('Address')"
+                      :placeholder="$t('Address_or_public_key')"
                       type="text"
                   >
                 </ErrorTooltip>

@@ -7,10 +7,12 @@ import {
     UInt64,
     MultisigAccountInfo,
     Address,
+    NetworkHttp,
+    AccountHttp,
 } from 'nem2-sdk'
 import {mapState} from "vuex"
 import {Component, Vue, Watch, Prop, Provide} from 'vue-property-decorator'
-import {Message, DEFAULT_FEES, FEE_GROUPS, formDataConfig, MULTISIG_INFO} from "@/config/index.ts"
+import {Message, DEFAULT_FEES, FEE_GROUPS, formDataConfig, MULTISIG_INFO, networkConfig} from "@/config/index.ts"
 import {StoreAccount, DefaultFee, AppWallet, ANNOUNCE_TYPES, MULTISIG_FORM_MODES, LockParams} from "@/core/model"
 import {getAbsoluteMosaicAmount, formatAddress, cloneData} from "@/core/utils"
 import {
@@ -23,6 +25,8 @@ import DisabledForms from '@/components/disabled-forms/DisabledForms.vue'
 import CheckPWDialog from '@/components/check-password-dialog/CheckPasswordDialog.vue'
 import MultisigTree from '@/views/multisig/multisig-tree/MultisigTree.vue'
 import ErrorTooltip from '@/components/other/forms/errorTooltip/ErrorTooltip.vue'
+import { setTimeout } from 'timers'
+import { timeout, finalize } from 'rxjs/operators'
 
 @Component({
     components: {
@@ -41,7 +45,7 @@ export class MultisigTransactionFormTs extends Vue {
     @Provide() validator: any = this.$validator
 
     activeAccount: StoreAccount
-    addressToAdd = ''
+    cosignerToAdd = ''
     showCheckPWDialog = false
     transactionDetail = {}
     transactionList = []
@@ -236,32 +240,70 @@ export class MultisigTransactionFormTs extends Vue {
         this.formItems.multisigPublicKey = this.initialPublicKey
     }
 
-    addCosigner(modificationAction: number) {
-        this.$store.commit('SET_LOADING_OVERLAY', {
-            show: true,
-            message: 'this is a message'
-        })
-        if(this.$validator.errors.has('cosigner')) return
-
+    addModification(publicAccount: PublicAccount, modificationAction: number): void {
         try {
-            // @ts-ignore
-            const publicAccount = new PublicAccount('', Address.createFromRawAddress(this.addressToAdd)) 
-
-            // if (this.formItems.publicKeyList
-            //     .findIndex(({publicAccount}) => publicAccount.publicKey === publicAccount.publicKey) > -1) {
-            //     this.addressToAdd = ''
-            //     return
-            // }
-
             const modificationToAdd = new MultisigCosignatoryModification(
                 modificationAction,
                 publicAccount,
             )
             this.formItems.publicKeyList.push(modificationToAdd)
         } catch (error) {
-            this.showErrorMessage(this.$t(Message.ADDRESS_FORMAT_ERROR) + '')
-        } finally {
-            this.addressToAdd = ''
+            console.error("addModification: error", error)
+        }
+
+        
+            // if (this.formItems.publicKeyList
+            //     .findIndex(({publicAccount}) => publicAccount.publicKey === publicAccount.publicKey) > -1) {
+            //     this.cosignerToAdd = ''
+            //     return
+            // }
+
+    }
+
+    async addCosigner(modificationAction: number) {
+        if(this.$validator.errors.has('cosigner')) return
+
+        const {cosignerToAdd, networkType} = this
+
+        
+        if (this.cosignerToAdd.length === networkConfig.PUBLIC_KEY_LENGTH) {
+            this.addModification(
+                PublicAccount.createFromPublicKey(cosignerToAdd, networkType),
+                modificationAction,
+            )
+            this.cosignerToAdd = ''
+            return
+        }
+        
+        try {
+            console.log("TCL: addCosigner -> address", this.cosignerToAdd)
+            const address = Address.createFromRawAddress(this.cosignerToAdd)
+            this.$store.commit('SET_LOADING_OVERLAY', {
+                show: true,
+                message:  `resolving address ${address.pretty()}...` 
+            })
+
+            const accountInfoPromise = new AccountHttp(this.activeAccount.node)
+                .getAccountInfo(address)
+                .pipe(
+                    timeout(6000),
+                    finalize(() => {
+                        this.$store.commit('SET_LOADING_OVERLAY', {
+                            show: false,
+                            message:  '' 
+                        })
+                    }))
+                .subscribe(
+                    (accountInfo) => {
+                        this.addModification(accountInfo.publicAccount, modificationAction)
+                    },
+                    (error) => {
+                        this.showErrorMessage(`${this.$t(Message.ADDRESS_FORMAT_ERROR)}`)
+                        console.log("TCL: addCosigner -> error", error)
+                    })
+        } catch(error) {
+            console.log("MultisigTransactionForm: getAccountInfo -> error", error)
+            this.$store.commit('SET_LOADING_OVERLAY', { show: false, message:  '' })
         }
     }
 

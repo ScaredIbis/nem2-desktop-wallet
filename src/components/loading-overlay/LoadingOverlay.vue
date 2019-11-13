@@ -4,24 +4,31 @@
 </template>
 <script lang="ts">
   import {Component, Vue, Watch} from 'vue-property-decorator'
-  import {DisabledFormsTs} from '@/components/disabled-forms/DisabledFormsTs.ts'
-  import {AppInfo, StoreAccount} from "@/core/model"
+  import {AppInfo, StoreAccount, AppState} from "@/core/model"
   import {mapState} from "vuex"
 
   @Component({ computed: { ...mapState({ app: 'app' }) } })
-  export default class DisabledForms extends DisabledFormsTs {
-    spin: any = this.$Spin
+  export default class LoadingOverlay extends Vue {
+    app: AppInfo
 
-    @Watch('app.loadingOverlay.show')
+    get show() {
+        return this.app.loadingOverlay.show
+    }
+
+    @Watch('show')
     onLoadingOverlayShowChange(newValue: boolean, oldValue: boolean) {
+       console.log("TCL: onLoadingOverlayShowChange -> oldValue", oldValue)
+       console.log("TCL: onLoadingOverlayShowChange -> newValue", newValue)
        if (newValue !== oldValue) {
          if(newValue) this.open()
-         if(!newValue) this.closeScreen()
+      // @ts-ignore
+         if(!newValue) this.$Spin.hide()
        }
     }
 
     open () {
-      this.spin.show({
+      // @ts-ignore
+      this.$Spin.show({
         render: (h) => {
           return h('div', [
             h('Icon', {
@@ -39,9 +46,18 @@
           ])
         }
       });
+
+      this
+    }
+
+    mounted() {
+      this.open()
     }
 
     closeScreen() {
+      console.log("TCL: closeScreen -> closeScreen", this)
+      // @ts-ignore
+this.$Spin.hide()
       this.$store.commit('SET_LOADING_OVERLAY', {
           show: false,
           message: ''

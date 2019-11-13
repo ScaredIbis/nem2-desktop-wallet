@@ -24,7 +24,6 @@
       <WalletImport
               v-if="currentIndex === 1"
               @toWalletDetails="$emit('toWalletDetails')"
-              @closeImport="closeImport"
       ></WalletImport>
     </div>
   </div>
