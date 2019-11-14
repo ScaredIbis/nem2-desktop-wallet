@@ -7,29 +7,22 @@ import {
     UInt64,
     MultisigAccountInfo,
     Address,
-    NetworkHttp,
     AccountHttp,
+    AggregateTransaction,
 } from 'nem2-sdk'
 import { mapState } from "vuex"
 import { Component, Vue, Watch, Prop, Provide } from 'vue-property-decorator'
-import { Message, DEFAULT_FEES, FEE_GROUPS, formDataConfig, MULTISIG_INFO, networkConfig } from "@/config/index.ts"
+import { timeout, finalize } from 'rxjs/operators'
+import { Message, DEFAULT_FEES, FEE_GROUPS, formDataConfig, networkConfig } from "@/config/index.ts"
 import { StoreAccount, DefaultFee, AppWallet, ANNOUNCE_TYPES, MULTISIG_FORM_MODES, LockParams } from "@/core/model"
 import { getAbsoluteMosaicAmount, formatAddress, cloneData } from "@/core/utils"
-import {
-    createBondedMultisigTransaction,
-    createCompleteMultisigTransaction,
-    getMultisigAccountMultisigAccountInfo,
-    signTransaction,
-} from '@/core/services'
+import { createBondedMultisigTransaction, createCompleteMultisigTransaction, signTransaction} from '@/core/services'
 import DisabledForms from '@/components/disabled-forms/DisabledForms.vue'
-import CheckPWDialog from '@/components/check-password-dialog/CheckPasswordDialog.vue'
 import MultisigTree from '@/views/multisig/multisig-tree/MultisigTree.vue'
 import ErrorTooltip from '@/components/other/forms/errorTooltip/ErrorTooltip.vue'
-import { timeout, finalize } from 'rxjs/operators'
 
 @Component({
     components: {
-        CheckPWDialog,
         DisabledForms,
         MultisigTree,
         ErrorTooltip,
@@ -42,77 +35,14 @@ import { timeout, finalize } from 'rxjs/operators'
 })
 export class MultisigTransactionFormTs extends Vue {
     @Provide() validator: any = this.$validator
-
     activeAccount: StoreAccount
-    cosignerToAdd = ''
-    showCheckPWDialog = false
-    transactionDetail = {}
-    transactionList = []
-    formItems = { ...this.defaultFormItems }
     MULTISIG_FORM_MODES = MULTISIG_FORM_MODES
     CosignatoryModificationAction = CosignatoryModificationAction
     Address = Address
+    formItems = { ...this.defaultFormItems }
+    cosignerToAdd = ''
 
     @Prop() mode: string
-
-    treeClicked(nodeKey: any) {
-        const [node] = nodeKey
-        if (!node || !node.publicKey) return
-        getMultisigAccountMultisigAccountInfo(node.publicKey, this.$store)
-    }
-
-    get multisigTreeData() {
-        const { multisigInfo, currentAccountMultisigInfo } = this
-        if (typeof (currentAccountMultisigInfo) == 'string' || !currentAccountMultisigInfo || !currentAccountMultisigInfo.multisigAccounts) return false
-        const { multisigAccounts } = currentAccountMultisigInfo
-        return [{
-            title: MULTISIG_INFO.MULTISIG_ACCOUNTS,
-            expand: true,
-            children: multisigAccounts.map((item: PublicAccount) => {
-                return {
-                    title: item.address.pretty(),
-                    children: [
-                        { title: MULTISIG_INFO.PUBLIC_KEY + item.publicKey },
-                        {
-                            title: MULTISIG_INFO.MIN_APPROVAL + (multisigInfo[item.address.plain()] ? multisigInfo[item.address.plain()].minApproval : this.$t(Message.CLICK_TO_LOAD)),
-                            publicKey: item.publicKey,
-                        },
-                        {
-                            title: MULTISIG_INFO.MIN_REMOVAL + (multisigInfo[item.address.plain()] ? multisigInfo[item.address.plain()].minRemoval : this.$t(Message.CLICK_TO_LOAD)),
-                            publicKey: item.publicKey,
-                        },
-                    ]
-                }
-            })
-        }]
-    }
-
-    get cosignatoryTreeData() {
-        const { multisigInfo, currentAccountMultisigInfo } = this
-        if (typeof (currentAccountMultisigInfo) == 'string' || !currentAccountMultisigInfo || !currentAccountMultisigInfo.multisigAccounts) return false
-        const { cosignatories } = currentAccountMultisigInfo
-        return [{
-            title: MULTISIG_INFO.COSIGNATORIES,
-            expand: true,
-            children: cosignatories.map((item: PublicAccount) => {
-                return {
-                    title: item.address.pretty(),
-                    publicKey: item.publicKey,
-                    children: [
-                        { title: MULTISIG_INFO.PUBLIC_KEY + item.publicKey },
-                        {
-                            title: MULTISIG_INFO.MIN_APPROVAL + (multisigInfo[item.address.plain()] ? multisigInfo[item.address.plain()].minApproval : this.$t(Message.CLICK_TO_LOAD)),
-                            publicKey: item.publicKey,
-                        },
-                        {
-                            title: MULTISIG_INFO.MIN_REMOVAL + (multisigInfo[item.address.plain()] ? multisigInfo[item.address.plain()].minRemoval : this.$t(Message.CLICK_TO_LOAD)),
-                            publicKey: item.publicKey,
-                        },
-                    ]
-                }
-            })
-        }]
-    }
 
 
     get wallet(): AppWallet {
@@ -124,7 +54,6 @@ export class MultisigTransactionFormTs extends Vue {
             ? cloneData(formDataConfig.multisigConversionForm)
             : cloneData(formDataConfig.multisigModificationForm)
     }
-
 
     get currentAccountMultisigInfo(): MultisigAccountInfo {
         const { address } = this.wallet
@@ -234,6 +163,11 @@ export class MultisigTransactionFormTs extends Vue {
             : this.multisigPublicKeyList && this.multisigPublicKeyList[0].publicKey || ''
     }
 
+    get lockParams(): LockParams {
+        const { announceInLock, feeAmount, feeDivider } = this
+        return new LockParams(announceInLock, feeAmount / feeDivider)
+    }
+
     initForm() {
         this.formItems = { ...this.defaultFormItems }
         this.formItems.multisigPublicKey = this.initialPublicKey
@@ -314,28 +248,27 @@ export class MultisigTransactionFormTs extends Vue {
     }
 
     submit() {
-        if (!this.checkForm()) return
-        const { hasCosignatories } = this
-
-        if (!hasCosignatories) this.sendMultisigConversionTransaction()
-        if (hasCosignatories) this.sendMultisigModificationTransaction()
-        this.initForm()
-        this.confirmViaTransactionConfirmation()
+        console.log("TCL: submit -> this.$validator", this.$validator)
+        this.$validator
+            .validate()
+            .then((valid) => {
+                if (!valid) return
+                this.confirmViaTransactionConfirmation()
+            })
     }
 
-    get lockParams(): LockParams {
-        const { announceInLock, feeAmount, feeDivider } = this
-        return new LockParams(announceInLock, feeAmount / feeDivider)
-    }
 
     async confirmViaTransactionConfirmation() {
-        console.log(this.transactionList[0], 'this.transactionList[0]')
+        const transaction = this.mode === MULTISIG_FORM_MODES.CONVERSION
+            ? this.createMultisigConversionTransaction()
+            : this.getMultisigModificationTransaction()
+
         const {
             success,
             signedTransaction,
             signedLock,
         } = await signTransaction({
-            transaction: this.transactionList[0],
+            transaction,
             store: this.$store,
             lockParams: this.lockParams,
         })
@@ -387,21 +320,7 @@ export class MultisigTransactionFormTs extends Vue {
         return true
     }
 
-    closeCheckPWDialog() {
-        this.showCheckPWDialog = false
-    }
-
-    checkEnd(isPasswordRight) {
-        if (!isPasswordRight) {
-            this.$Notice.destroy()
-            this.$Notice.error({
-                title: this.$t(Message.WRONG_PASSWORD_ERROR) + ''
-            })
-        }
-    }
-
-
-    sendMultisigConversionTransaction(): void {
+    createMultisigConversionTransaction(): AggregateTransaction {
         const { minApproval, minRemoval, publicKeyList } = this.formItems
         const { feeAmount, feeDivider, networkType, publicKey } = this
 
@@ -414,23 +333,18 @@ export class MultisigTransactionFormTs extends Vue {
             UInt64.fromUint(feeAmount / feeDivider)
         )
 
-        this.transactionList = [createBondedMultisigTransaction(
+        return createBondedMultisigTransaction(
             [modifyMultisigAccountTransaction],
             publicKey,
             networkType,
             feeAmount / feeDivider,
-        )]
+        )
     }
 
-    sendMultisigModificationTransaction(): void {
-        const { announceType } = this
-
-        if (announceType === ANNOUNCE_TYPES.AGGREGATE_BONDED) {
-            this.createBondedModifyTransaction()
-            return
-        }
-
-        this.createCompleteModifyTransaction()
+    getMultisigModificationTransaction(): AggregateTransaction {
+        return this.announceType === ANNOUNCE_TYPES.AGGREGATE_BONDED
+            ? this.getBondedModifyTransaction()
+            : this.getCompleteModifyTransaction()
     }
 
     get multisigAccountModificationTransaction() {
@@ -447,26 +361,26 @@ export class MultisigTransactionFormTs extends Vue {
         )
     }
 
-    createBondedModifyTransaction() {
+    getBondedModifyTransaction(): AggregateTransaction {
         const { networkType, publicKey, feeAmount, feeDivider, multisigAccountModificationTransaction } = this
 
-        this.transactionList = [createBondedMultisigTransaction(
+        return createBondedMultisigTransaction(
             [multisigAccountModificationTransaction],
             publicKey,
             networkType,
             feeAmount / feeDivider
-        )]
+        )
     }
 
-    createCompleteModifyTransaction() {
+    getCompleteModifyTransaction() {
         const { networkType, feeAmount, feeDivider, multisigAccountModificationTransaction, publicKey } = this
 
-        this.transactionList = [createCompleteMultisigTransaction(
+        return createCompleteMultisigTransaction(
             [multisigAccountModificationTransaction],
             publicKey,
             networkType,
             feeAmount / feeDivider,
-        )]
+        )
     }
 
     @Watch('formItems', { immediate: true, deep: true })
