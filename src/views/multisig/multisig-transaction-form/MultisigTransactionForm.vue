@@ -112,23 +112,14 @@
                     v-if="formItems.publicKeyList.length == 0"
                   >{{$t('The_action_list_is_empty')}}</div>
 
-                  <div
-                    class="list_item radius"
-                    v-for="(i,index) in formItems.publicKeyList"
-                    :key="index"
-                  >
-                    <span class="address_alias">{{i.cosignatoryPublicAccount.publicKey}}</span>
-                    <span class="action">
-                      {{ i.modificationAction == CosignatoryModificationAction.Add
-                      ? $t('add'):$t('cut_back') }}
-                    </span>
-                    <img
-                      class="delete pointer"
-                      @click="removeCosigner(index)"
-                      src="@/common/img/service/multisig/multisigDelete.png"
-                      alt
-                    />
-                  </div>
+                <div class="list_item radius" v-for="(i,index) in formItems.publicKeyList" :key="index">
+                  <span class="address_alias">{{i.cosignatoryPublicAccount.publicKey}}</span>
+                  <span class="action">
+                {{ i.modificationAction == CosignatoryModificationAction.Add
+                  ? $t('add'):$t('cut_back') }}
+              </span>
+                  <img class="delete pointer" @click="removeCosigner(index)"
+                       src="@/common/img/service/multisig/multisigDelete.png" alt="">
                 </div>
               </div>
             </div>

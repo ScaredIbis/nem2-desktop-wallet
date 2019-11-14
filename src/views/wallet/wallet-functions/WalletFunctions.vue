@@ -13,7 +13,6 @@
     <div class="walletFnContent">
       <WalletCreate
               v-if="currentIndex === 0 && !walletCreated"
-              @isCreated="isCreated"
               @toWalletDetails="$emit('toWalletDetails')"
       ></WalletCreate>
       <WalletCreated

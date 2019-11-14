@@ -313,7 +313,6 @@
     "wallet_name": "Wallet name",
     "switch_point": "Switch Node",
     "current_point": "Current Node",
-    "please_enter_a_custom_nod_address": "Please enter a custom node URL",
     "point_null_error": "Node null error",
     "please_enter_your_wallet_password_to_ensure_your_own_operation_and_keep_your_wallet_safe": "Please enter your wallet password to ensure your own operation and keep your wallet safe.",
     "please_choose": "Please choose",
@@ -780,5 +779,6 @@
     "please_input_divisibility": "Please input divisibility",
     "PRIVATE_KEY_INVALID_ERROR": "This private key is invalid.",
     "Address_or_public_key": "Address or public key",
-    "address_unknown": "This address is unknown. It should have sent at least one transaction"
+    "address_unknown": "This address is unknown. It should have sent at least one transaction",
+    "please_enter_a_custom_nod_address": "Please enter a custom node URL"
 }
