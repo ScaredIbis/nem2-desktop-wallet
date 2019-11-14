@@ -780,5 +780,6 @@
     "PRIVATE_KEY_INVALID_ERROR": "This private key is invalid.",
     "Address_or_public_key": "Address or public key",
     "address_unknown": "This address is unknown. It should have sent at least one transaction",
-    "please_enter_a_custom_nod_address": "Please enter a custom node URL"
+    "please_enter_a_custom_nod_address": "Please enter a custom node URL",
+    "cosigners": "Cosigners"
 }
