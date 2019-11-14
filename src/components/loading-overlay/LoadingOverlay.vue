@@ -56,17 +56,16 @@ export default class LoadingOverlay extends Vue {
 }
 
 .ivu-spin-dot {
+  display: block !important;
   position: relative;
+  margin: 0 auto 30px;
   display: block;
   border-radius: 50%;
   background-color: #2d8cf0;
-  width: 20px;
-  height: 20px;
-  -webkit-animation: ani-spin-bounce 1s 0s ease-in-out infinite;
+  width: 50px;
+  height: 50px;
   animation: ani-spin-bounce 1s 0s ease-in-out infinite;
-  width: 32px;
-  height: 32px;
-  margin-bottom: 20px;
+  border-radius: 50%;
 }
 
 .icon {
