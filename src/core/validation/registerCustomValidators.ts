@@ -160,10 +160,8 @@ const addressOrPublicKeyValidator = (context): Promise<ValidationObject> => {
     return context.Validator.extend(
         CUSTOM_VALIDATORS_NAMES.addressOrPublicKey,
         (addressOrPublicKey) => new Promise(async (resolve) => {
-        console.log("TCL: addressOrPublicKey", addressOrPublicKey.length)
             if (addressOrPublicKey.length === PUBLIC_KEY_LENGTH) {
                 const r = validatePublicKey(addressOrPublicKey)
-                console.log("TCL: r", r)
                 resolve(r)
             }
             resolve(validateAddress(addressOrPublicKey))

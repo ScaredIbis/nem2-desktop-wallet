@@ -105,7 +105,7 @@
                 style="width: 720px; text-align:center"
               >
                 <input
-                  v-model="formItems.publicKeyList.length"
+                  v-model="formItems.modificationList.length"
                   data-vv-name="cosigners"
                   v-validate="validations.cosigners"
                   :data-vv-as="$t('cosigners')"
@@ -121,12 +121,12 @@
                 <div class="list_body scroll">
                   <div
                     class="please_add_address"
-                    v-if="formItems.publicKeyList.length == 0"
+                    v-if="formItems.modificationList.length == 0"
                   >{{$t('The_action_list_is_empty')}}</div>
 
                   <div
                     class="list_item radius"
-                    v-for="(i,index) in formItems.publicKeyList"
+                    v-for="(i,index) in formItems.modificationList"
                     :key="index"
                   >
                     <span class="address_alias">{{i.cosignatoryPublicAccount.publicKey}}</span>

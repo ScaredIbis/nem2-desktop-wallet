@@ -36,6 +36,7 @@ export class MultisigTransactionFormTs extends Vue {
     @Provide() validator: any = this.$validator
     activeAccount: StoreAccount
     MULTISIG_FORM_MODES = MULTISIG_FORM_MODES
+    signTransaction = signTransaction
     CosignatoryModificationAction = CosignatoryModificationAction
     Address = Address
     formItems = { ...this.defaultFormItems }
@@ -87,7 +88,7 @@ export class MultisigTransactionFormTs extends Vue {
     }
 
     get addedCosigners(): boolean {
-        return this.formItems.publicKeyList
+        return this.formItems.modificationList
             .find(({ type }) => type === CosignatoryModificationAction.Add) !== undefined
     }
 
@@ -200,7 +201,7 @@ export class MultisigTransactionFormTs extends Vue {
     }
 
     addModification(publicAccount: PublicAccount, modificationAction: number): void {
-        if (this.formItems.publicKeyList
+        if (this.formItems.modificationList
             .findIndex(({ cosignatoryPublicAccount }) => cosignatoryPublicAccount
                 .publicKey === publicAccount.publicKey) > -1) {
             this.cosignerToAdd = ''
@@ -212,27 +213,13 @@ export class MultisigTransactionFormTs extends Vue {
                 modificationAction,
                 publicAccount,
             )
-            this.formItems.publicKeyList.push(modificationToAdd)
+            this.formItems.modificationList.push(modificationToAdd)
         } catch (error) {
             console.error("addModification: error", error)
         }
     }
 
-    async addCosigner(modificationAction: number) {
-        if (this.$validator.errors.has('cosigner')) return
-
-        const { cosignerToAdd, networkType } = this
-
-
-        if (this.cosignerToAdd.length === networkConfig.PUBLIC_KEY_LENGTH) {
-            this.addModification(
-                PublicAccount.createFromPublicKey(cosignerToAdd, networkType),
-                modificationAction,
-            )
-            this.cosignerToAdd = ''
-            return
-        }
-
+    async addCosignerFromAddress(modificationAction: number) {
         try {
             const address = Address.createFromRawAddress(this.cosignerToAdd)
             this.$store.commit('SET_LOADING_OVERLAY', {
@@ -262,15 +249,31 @@ export class MultisigTransactionFormTs extends Vue {
                     },
                 )
         } catch (error) {
-            console.log("MultisigTransactionForm: getAccountInfo -> error", error)
+            console.error("TCL: getAddressPublicKey -> error", error)
             // @ts-ignore
             this.$Spin.hide()
             this.$store.commit('SET_LOADING_OVERLAY', { show: false, message: '' })
         }
     }
 
+    addCosigner(modificationAction: number) {
+        if (this.$validator.errors.has('cosigner')) return
+        const { cosignerToAdd, networkType } = this
+
+        if (this.cosignerToAdd.length === networkConfig.PUBLIC_KEY_LENGTH) {
+            this.addModification(
+                PublicAccount.createFromPublicKey(cosignerToAdd, networkType),
+                modificationAction,
+            )
+            this.cosignerToAdd = ''
+            return
+        }
+
+        this.addCosignerFromAddress(modificationAction)
+    }
+
     removeCosigner(index) {
-        this.formItems.publicKeyList.splice(index, 1)
+        this.formItems.modificationList.splice(index, 1)
     }
 
     submit() {
@@ -282,7 +285,6 @@ export class MultisigTransactionFormTs extends Vue {
             })
     }
 
-
     async confirmViaTransactionConfirmation() {
         const transaction = this.mode === MULTISIG_FORM_MODES.CONVERSION
             ? this.createMultisigConversionTransaction()
@@ -292,7 +294,7 @@ export class MultisigTransactionFormTs extends Vue {
             success,
             signedTransaction,
             signedLock,
-        } = await signTransaction({
+        } = await this.signTransaction({
             transaction,
             store: this.$store,
             lockParams: this.lockParams,
@@ -311,14 +313,14 @@ export class MultisigTransactionFormTs extends Vue {
     }
 
     createMultisigConversionTransaction(): AggregateTransaction {
-        const { minApproval, minRemoval, publicKeyList } = this.formItems
+        const { minApproval, minRemoval, modificationList } = this.formItems
         const { feeAmount, feeDivider, networkType, publicKey } = this
 
         const modifyMultisigAccountTransaction = MultisigAccountModificationTransaction.create(
             Deadline.create(),
             minApproval,
             minRemoval,
-            publicKeyList,
+            modificationList,
             networkType,
             UInt64.fromUint(feeAmount / feeDivider)
         )
@@ -339,13 +341,13 @@ export class MultisigTransactionFormTs extends Vue {
 
     getMultisigAccountModificationTransaction() {
         const { networkType, feeAmount, feeDivider } = this
-        const { minApproval, minRemoval, publicKeyList } = this.formItems
+        const { minApproval, minRemoval, modificationList } = this.formItems
 
         return MultisigAccountModificationTransaction.create(
             Deadline.create(),
             Number(minApproval),
             Number(minRemoval),
-            publicKeyList,
+            modificationList,
             networkType,
             UInt64.fromUint(feeAmount / feeDivider)
         )
