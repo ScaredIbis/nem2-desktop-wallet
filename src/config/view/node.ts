@@ -29,7 +29,7 @@ export const nodeListConfig: Endpoint[] = [
         value: 'http://api-01.mt.us-west-2.nemtech.network:3000',
         name: 'west',
         url: 'api-01.mt.us-west-2.nemtech.network',
-        isSelected: true,
+        isSelected: false,
     },
 
     // test net node

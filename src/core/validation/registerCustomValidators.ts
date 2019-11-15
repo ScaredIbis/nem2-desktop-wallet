@@ -161,8 +161,7 @@ const addressOrPublicKeyValidator = (context): Promise<ValidationObject> => {
         CUSTOM_VALIDATORS_NAMES.addressOrPublicKey,
         (addressOrPublicKey) => new Promise(async (resolve) => {
             if (addressOrPublicKey.length === PUBLIC_KEY_LENGTH) {
-                const r = validatePublicKey(addressOrPublicKey)
-                resolve(r)
+                resolve(validatePublicKey(addressOrPublicKey))
             }
             resolve(validateAddress(addressOrPublicKey))
         }),
