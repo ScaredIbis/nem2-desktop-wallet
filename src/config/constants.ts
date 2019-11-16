@@ -109,6 +109,13 @@ export const Message = {
     USER_ABORTED_TX_CONFIRMATION: 'User_aborted_transaction_confirmation',
     PRIVATE_KEY_INVALID_ERROR: 'PRIVATE_KEY_INVALID_ERROR',
     ADDRESS_UNKNOWN: 'address_unknown',
+    ADDRESS_INVALID: 'address_invalid',
+    PUBLIC_KEY_INVALID: 'public_key_invalid',
+    PASSWORDS_NOT_MATCHING: 'passwords_not_matching',
+    INVALID_NAMESPACE_OR_MOSAIC_ID: 'invalid_namespace_or_mosaic_id',
+    NETWORK_TYPE_INVALID: 'network_type_invalid',
+    VALUE_TOO_BIG: 'value_too_big',
+    DIVISIBILITY_INVALID: 'divisibility_invalid',
 }
 
 export const FEE_SPEEDS: Record<string, string> = {

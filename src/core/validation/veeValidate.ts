@@ -2,36 +2,24 @@ import i18n from '@/language'
 import VeeValidate from 'vee-validate'
 import en from 'vee-validate/dist/locale/en'
 import zhCN from 'vee-validate/dist/locale/zh_CN'
-import {registerCustomValidators} from '@/core/validation'
+import { registerCustomValidators, CUSTOM_VALIDATORS_NAMES } from '.'
+import { Message } from '@/config/constants'
 
-// @TODO: refactor dictionaries import
 const customMessagesEn = {
-    address: () => `this address is invalid`,
-    confirmLock: () => `this password is incorrect`,
-    confirmWalletPassword: () => `this password is incorrect`,
-    confirmPassword: () => 'passwords do not match',
-    max_value:()=>'current value is too big',
-    remoteAccountPrivateKey:()=>'the private key is incorrect',
-    publicKey:()=>'the public key is incorrect',
-    namespaceOrMosaicId:()=>'this is not a correct namespace or mosaic ID',
+    [CUSTOM_VALIDATORS_NAMES.address]: () => Message.ADDRESS_INVALID,
+    [CUSTOM_VALIDATORS_NAMES.confirmLock]: () => Message.WRONG_PASSWORD_ERROR,
+    [CUSTOM_VALIDATORS_NAMES.confirmWalletPassword]: () => Message.WRONG_PASSWORD_ERROR,
+    [CUSTOM_VALIDATORS_NAMES.confirmPassword]: () => Message.PASSWORDS_NOT_MATCHING,
+    [CUSTOM_VALIDATORS_NAMES.remoteAccountPrivateKey]: () => Message.PRIVATE_KEY_INVALID_ERROR,
+    [CUSTOM_VALIDATORS_NAMES.publicKey]: () => Message.PUBLIC_KEY_INVALID,
+    [CUSTOM_VALIDATORS_NAMES.namespaceOrMosaicId]: () => Message.INVALID_NAMESPACE_OR_MOSAIC_ID,
+    [CUSTOM_VALIDATORS_NAMES.addressNetworkType]: () => Message.NETWORK_TYPE_INVALID,
+    max_value: () => Message.VALUE_TOO_BIG,
 }
 
 const errorPerFieldEn = {
     amount: {
-        integer: () => `The divisibility is incorrect`,
-    }
-}
-
-const customMessagesZh = {
-    address: () => `地址错误`,
-    confirmLock: () => `密码错误`,
-    confirmPassword: () => '密码不匹配',
-    max_value:()=>'输入的值太大',
-}
-
-const errorPerFieldZh = {
-    amount: {
-        integer: () => `当前值与可分性不匹配`,
+        integer: () => Message.DIVISIBILITY_INVALID,
     }
 }
 
@@ -40,12 +28,11 @@ export const veeValidateConfig = {
     fieldsBagName: 'fieldBags',
     dictionary: {
         'en-US': {
-            messages: {...en.messages, ...customMessagesEn},
+            messages: { ...en.messages, ...customMessagesEn },
             custom: errorPerFieldEn,
         },
         'zh-CN': {
-            messages: {...zhCN.messages, ...customMessagesZh},
-            custom: errorPerFieldZh,
+            messages: { ...zhCN.messages },
         },
     },
     inject: {

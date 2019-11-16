@@ -1,6 +1,6 @@
-import {MosaicId, Account} from 'nem2-sdk'
+import {MosaicId, Account, Address} from 'nem2-sdk'
 import {networkConfig} from '@/config/constants'
-import {AppAccounts, ValidationObject, AppWallet} from "@/core/model"
+import {AppAccounts, ValidationObject, AppWallet, CurrentAccount} from "@/core/model"
 import {validateAddress, validatePublicKey, validateAlias, validateMosaicId, validateNamespace} from './validators'
 const {PUBLIC_KEY_LENGTH} = networkConfig
 
@@ -23,6 +23,7 @@ export const CUSTOM_VALIDATORS_NAMES = {
     remoteAccountPrivateKey: 'remoteAccountPrivateKey',
     publicKey: 'publicKey',
     namespaceOrMosaicId: 'namespaceOrMosaicId',
+    addressNetworkType: 'addressNetworkType',
 }
 
 const aliasValidator = (context): Promise<ValidationObject> => {
@@ -168,6 +169,23 @@ const addressOrPublicKeyValidator = (context): Promise<ValidationObject> => {
     )
 }
 
+const addressNetworkTypeValidator = (context): Promise<ValidationObject> => {
+    return context.Validator.extend(
+        CUSTOM_VALIDATORS_NAMES.addressNetworkType,
+        (address, [otherField]) => new Promise((resolve) => {
+            const currentAccount: CurrentAccount = getOtherFieldValue(otherField, context)
+            try {
+                const _address = Address.createFromRawAddress(address)
+                if (_address.networkType === currentAccount.networkType) resolve({valid: address})
+                resolve({valid: false})
+            } catch (error) {
+                resolve({valid: false})
+            }
+        }),
+        {hasTarget: true},
+    )
+}
+
 const customValidatorFactory = {
     [CUSTOM_VALIDATORS_NAMES.address]: addressValidator,
     [CUSTOM_VALIDATORS_NAMES.addressOrAlias]: addressOrAliasValidator,
@@ -180,6 +198,7 @@ const customValidatorFactory = {
     [CUSTOM_VALIDATORS_NAMES.remoteAccountPrivateKey]: remoteAccountPrivateKeyValidator,
     [CUSTOM_VALIDATORS_NAMES.publicKey]: publicKeyValidator,
     [CUSTOM_VALIDATORS_NAMES.namespaceOrMosaicId]: namespaceOrMosaicIdValidator,
+    [CUSTOM_VALIDATORS_NAMES.addressNetworkType]: addressNetworkTypeValidator,
 }
 
 const CustomValidator = (name, Validator) => ({
