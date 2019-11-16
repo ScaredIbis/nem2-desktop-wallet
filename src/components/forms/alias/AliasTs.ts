@@ -1,5 +1,5 @@
-import {Message, formDataConfig, DEFAULT_FEES, FEE_GROUPS} from "@/config/index.ts"
-import {Component, Prop, Vue} from 'vue-property-decorator'
+import { Message, formDataConfig, DEFAULT_FEES, FEE_GROUPS } from "@/config/index.ts"
+import { Component, Prop, Vue, Provide } from 'vue-property-decorator'
 import {
     Address,
     AliasAction,
@@ -12,23 +12,25 @@ import {
     MosaicAliasTransaction,
     EmptyAlias
 } from "nem2-sdk"
-import {mapState} from "vuex"
-import {cloneData, getAbsoluteMosaicAmount} from "@/core/utils"
-import {StoreAccount, AppInfo, AppWallet, AppNamespace, DefaultFee, MosaicNamespaceStatusType} from "@/core/model"
-import {AppMosaics, signTransaction} from '@/core/services'
+import { mapState } from "vuex"
+import { cloneData, getAbsoluteMosaicAmount } from "@/core/utils"
+import { StoreAccount, AppInfo, AppWallet, AppNamespace, DefaultFee, MosaicNamespaceStatusType, CurrentAccount } from "@/core/model"
+import { AppMosaics, signTransaction } from '@/core/services'
 import DisabledForms from '@/components/disabled-forms/DisabledForms.vue'
+import ErrorTooltip from '@/components/other/forms/errorTooltip/ErrorTooltip.vue'
 
 @Component({
-  computed: {
-    ...mapState({
-      activeAccount: 'account',
-      app: 'app'
-    })
-  },
-  components:{ DisabledForms }
+    computed: {
+        ...mapState({
+            activeAccount: 'account',
+            app: 'app'
+        })
+    },
+    components: { DisabledForms, ErrorTooltip }
 })
 
 export class AliasTs extends Vue {
+    @Provide() validator: any = this.$validator
     activeAccount: StoreAccount
     app: AppInfo
     formItems = cloneData(formDataConfig.alias)
@@ -51,15 +53,15 @@ export class AliasTs extends Vue {
     /**
      * True for binding, false for unbinding
      */
-    @Prop({required: true}) bind: boolean
+    @Prop({ required: true }) bind: boolean
 
     /**
      * Is the prop spawned from a click on a namespace?
      */
-    @Prop({required: true}) fromNamespace: boolean
-    @Prop({default: null}) namespace: AppNamespace
-    @Prop({default: null}) mosaic: string
-    @Prop({default: null}) address: string
+    @Prop({ required: true }) fromNamespace: boolean
+    @Prop({ default: null }) namespace: AppNamespace
+    @Prop({ default: null }) mosaic: string
+    @Prop({ default: null }) address: string
 
     get show(): boolean {
         return this.visible
@@ -71,8 +73,12 @@ export class AliasTs extends Vue {
         }
     }
 
+    get currentAccount() {
+        return this.activeAccount.currentAccount
+    }
+
     get getTarget(): string {
-        const {mosaic, address} = this
+        const { mosaic, address } = this
         if (address) return address
         if (mosaic) return mosaic
         return null
@@ -83,7 +89,7 @@ export class AliasTs extends Vue {
     }
 
     get getAlias(): string {
-        const {bind, fromNamespace, namespace} = this
+        const { bind, fromNamespace, namespace } = this
         if (fromNamespace) return namespace.name
         if (!bind) return namespace.name
         return null
@@ -94,14 +100,14 @@ export class AliasTs extends Vue {
     }
 
     get restrictedBindType(): boolean {
-        const {fromNamespace, bind} = this
+        const { fromNamespace, bind } = this
         if (!fromNamespace && bind) return true
         if (!bind) return true
         return false
     }
 
     get getBindType(): string {
-        const {fromNamespace, bind, address, mosaic, bindTypes} = this
+        const { fromNamespace, bind, address, mosaic, bindTypes } = this
         if (fromNamespace && bind) return bindTypes.address
         if (mosaic) return bindTypes.mosaic
         if (address) return bindTypes.address
@@ -136,35 +142,35 @@ export class AliasTs extends Vue {
     }
 
     get feeAmount(): number {
-        const {feeSpeed} = this.formItems
-        const feeAmount = this.defaultFees.find(({speed}) => feeSpeed === speed).value
+        const { feeSpeed } = this.formItems
+        const feeAmount = this.defaultFees.find(({ speed }) => feeSpeed === speed).value
         return getAbsoluteMosaicAmount(feeAmount, this.networkCurrency.divisibility)
     }
 
     get linkableMosaics(): string[] {
-        const {currentHeight} = this
-        const {address} = this.wallet
+        const { currentHeight } = this
+        const { address } = this.wallet
         const availableToBeLinked = AppMosaics()
             .getAvailableToBeLinked(currentHeight, address, this.$store)
         if (!availableToBeLinked.length) return []
         return availableToBeLinked
             .filter((item) => currentHeight < item.expirationHeight || item.expirationHeight == MosaicNamespaceStatusType.FOREVER)
-            .map(({hex}) => hex)
+            .map(({ hex }) => hex)
     }
 
     get linkableNamespaces(): string[] {
-        const {currentHeight} = this
+        const { currentHeight } = this
         // @TODO handle namespace list loading state
         return this.NamespaceList
             .filter((namespace: AppNamespace) => {
                 return namespace.alias instanceof EmptyAlias
                     && !namespace.expirationInfo(currentHeight).expired
             })
-            .map(({name}) => name)
+            .map(({ name }) => name)
     }
 
     checkForm(): boolean {
-        const {target, alias, bindTypes, bindType} = this
+        const { target, alias, bindTypes, bindType } = this
 
         if (bindType == bindTypes.address) {
             try {
@@ -187,7 +193,7 @@ export class AliasTs extends Vue {
             this.showErrorMessage(this.$t(Message.INPUT_EMPTY_ERROR) + '')
             return false
         }
-       
+
         return true
     }
 
@@ -199,13 +205,17 @@ export class AliasTs extends Vue {
     }
 
     submit() {
-        if (!this.checkForm()) return
-        this.confirmViaTransactionConfirmation()
+        this.$validator
+            .validate()
+            .then((valid) => {
+                if (!valid) return
+                this.confirmViaTransactionConfirmation()
+            })
     }
 
     transaction(): Transaction {
-        const {alias, feeAmount, bindType, bindTypes, aliasAction, target} = this
-        const {networkType} = this.wallet
+        const { alias, feeAmount, bindType, bindTypes, aliasAction, target } = this
+        const { networkType } = this.wallet
 
         return bindType === bindTypes.address
             ? AddressAliasTransaction.create(
@@ -238,10 +248,10 @@ export class AliasTs extends Vue {
                 transaction: this.transaction(),
                 store: this.$store,
             })
-            
-            if(success) {
+
+            if (success) {
                 new AppWallet(this.wallet).announceTransaction(signedTransaction, this.activeAccount.node, this.$root, signedLock)
-            }            
+            }
         } catch (error) {
             console.error("AliasTs -> confirmViaTransactionConfirmation -> error", error)
         }
