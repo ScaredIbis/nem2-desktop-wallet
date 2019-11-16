@@ -15,7 +15,7 @@ export const formDataConfig = {
         password: '',
         passwordAgain: '',
         hint: '',
-        currentNetType: NetworkType.MIJIN_TEST,
+        networkType: NetworkType.MIJIN_TEST,
     },
     importKeystoreConfig: {
         walletName: 'keystore-wallet',

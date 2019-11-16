@@ -23,7 +23,7 @@ export class WalletCreateTs extends Vue {
     NetworkType = NetworkType
 
     get accountNetworkType (){
-        return JSON.parse(localRead('accountMap'))[this.accountName].currentNetType
+        return JSON.parse(localRead('accountMap'))[this.accountName].networkType
     }
 
     get accountName() {

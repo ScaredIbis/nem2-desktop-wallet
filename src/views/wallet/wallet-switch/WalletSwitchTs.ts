@@ -120,13 +120,13 @@ export class WalletSwitchTs extends Vue {
     passwordValidated(password) {
         if (!password) return
         const {accountName, pathToCreate} = this
-        const currentNetType = JSON.parse(localRead('accountMap'))[accountName].currentNetType
+        const networkType = JSON.parse(localRead('accountMap'))[accountName].networkType
         try {
             new AppWallet().createFromPath(
                 seedWalletTitle + pathToCreate,
                 new Password(password),
                 pathToCreate,
-                currentNetType,
+                networkType,
                 this.$store,
             )
         } catch (error) {

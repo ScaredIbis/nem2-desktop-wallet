@@ -27,7 +27,7 @@ export class AccountImportMnemonicTs extends Vue {
     get accountNetworkType() {
         this.accountName
         return 144 
-        // return JSON.parse(localRead('accountMap'))[this.accountName].currentNetType
+        // return JSON.parse(localRead('accountMap'))[this.accountName].networkType
     }
 
     get accountName() {

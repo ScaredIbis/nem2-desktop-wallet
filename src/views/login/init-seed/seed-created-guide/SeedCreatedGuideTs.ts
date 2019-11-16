@@ -27,7 +27,7 @@ export class SeedCreatedGuideTs extends Vue {
     mnemonicRandomArr = []
     confirmedMnemonicList = []
     formItem = {
-        currentNetType: '',
+        networkType: '',
         walletName: '',
         password: '',
         checkPW: '',
@@ -91,14 +91,14 @@ export class SeedCreatedGuideTs extends Vue {
     createFromMnemonic() {
         const {accountName} = this
         const {seed, password} = this.formInfo
-        const {currentNetType} = JSON.parse(localRead('accountMap'))[accountName]
+        const {networkType} = JSON.parse(localRead('accountMap'))[accountName]
         
         try {
             new AppWallet().createFromMnemonic(
                 'seedWallet',
                 new Password(password),
                 seed,
-                currentNetType,
+                networkType,
                 this.$store,
             )
         } catch (error) {

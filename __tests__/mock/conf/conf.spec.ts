@@ -190,7 +190,7 @@ export const hdAccount = {
     ],
     "password": "U2FsdGVkX19BmVzvm8prhK/Wy30gQvowdN4rR2UTSAJwk8NSeo4NSXT3huLlyTZd",
     "hint": "password is password",
-    "currentNetType": 144,
+    "networkType": 144,
     "seed": "U2FsdGVkX19Eh+ZbVrg88WN+wI7YErErtsGmGtDnjO/CN9aP4LOe/OHrMGkMQzCYmBcEXZ6Vi7W64lQq4he/iIMxGYoEXD0to4vwpWZDrOWPekjkCRvgNC4xVNY+CHyS19AGhM088il2EHSrbM/rXcff7dN+CfQYQfcqmheVaspaJIyDxmr6bJidl2nj/L7NR4XD29cqPFhnkBK71Tzvr47trNPdahXkbaCg77Aaj/uLlvs6zq1jFNYo5k+j5kr7CFX6tA/D9LtxvU9prJaIU14dLV23KBQOPYVSh5/pnlpWfX91UtXCmWrLSEVnZaQmAjuIqjlcsiISlTuowGF+jsO6FXp8zqtPgvS/33BJw/h2UdrIidc2sXci+qek6OUdQMwiC1yRIZnoaUkGE08u0AN5DGmrIZn9h5wgy45ZhQw=",
     "activeWalletAddress": "SBOENUE4JRGPMBV4HAOA2MIJGIY4AAHLI2YSKHRF"
 }

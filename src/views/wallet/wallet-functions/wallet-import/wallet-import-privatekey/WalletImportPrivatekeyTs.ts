@@ -32,7 +32,7 @@ export class WalletImportPrivatekeyTs extends Vue {
     get accountNetworkType() {
 
         return 144
-        // return JSON.parse(localRead('accountMap'))[this.accountName].currentNetType
+        // return JSON.parse(localRead('accountMap'))[this.accountName].networkType
     }
 
     get accountName() {

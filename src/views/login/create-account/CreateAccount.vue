@@ -18,7 +18,7 @@
             </li>
             <li>
               <FormItem :label="$t('choose_network')">
-                <Select :placeholder="$t('choose_network')" v-model="formItem.currentNetType" required>
+                <Select :placeholder="$t('choose_network')" v-model="formItem.networkType" required>
                   <Option :value="item.value" v-for="(item,index) in networkTypeList" :key="index">{{item.label}}
                   </Option>
                 </Select>
