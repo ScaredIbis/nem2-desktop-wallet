@@ -38,12 +38,12 @@
       <span class="import right" @click="submit">{{$t('import')}}</span>
     </div>
     <CheckPasswordDialog
-            :showCheckPWDialog="showCheckPWDialog"
-            :isOnlyCheckPassword="true"
-            @closeCheckPWDialog="closeCheckPWDialog"
-            @checkEnd="checkEnd"
-    ></CheckPasswordDialog>
-
+      v-if="showCheckPWDialog"
+      :visible="showCheckPWDialog"
+      :returnPassword="true"
+      @close="this.showCheckPWDialog = false"
+      @passwordValidated="passwordValidated"
+    />
   </div>
 </template>
 

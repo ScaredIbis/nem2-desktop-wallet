@@ -1,6 +1,5 @@
 import {Component, Vue} from 'vue-property-decorator'
 import AccountImportMnemonic from '@/views/login/init-seed/account-import-mnemonic/AccountImportMnemonic.vue'
-import AccountCreateMnemonic from '@/views/login/init-seed/account-create-mnemonic/AccountCreateMnemonic.vue'
 import AccountImportHardware from '@/views/login/init-seed/account-import-hardware/AccountImportHardware.vue'
 import SeedCreatedGuide from '@/views/login/init-seed/seed-created-guide/SeedCreatedGuide.vue'
 import {mapState} from "vuex"
@@ -13,7 +12,6 @@ import {createMnemonic} from "@/core/utils"
     components: {
         CheckPasswordDialog,
         AccountImportMnemonic,
-        AccountCreateMnemonic,
         AccountImportHardware,
         SeedCreatedGuide
     },
@@ -34,7 +32,7 @@ export class InitSeedTs extends Vue {
         return this.activeAccount.accountName
     }
 
-    closeCheckPWDialog() {
+    close() {
         this.goToPage(1)
     }
 
@@ -63,7 +61,7 @@ export class InitSeedTs extends Vue {
         this.pageIndex = index
     }
 
-    checkEnd(password) {
+    passwordValidated(password) {
         if (!password) return
 
         const seed = createMnemonic()

@@ -3,7 +3,7 @@
     <router-view/>
     <DisabledUiOverlay/>
     <TransactionConfirmation/>
-    <LoadingOverlay v-if="app.loadingOverlay.show"/>
+    <LoadingOverlay v-if="showLoadingOverlay"/>
   </div>
 </template>
 
@@ -22,7 +22,7 @@
         getMarketOpenPrice, setTransactionList, setNamespaces, getNamespacesFromAddress,
         setWalletsBalances, ChainListeners, getMultisigAccountMultisigAccountInfo, getNodeInfo,
     } from '@/core/services'
-    import {AppMosaic, AppWallet, AppInfo, StoreAccount} from '@/core/model'
+    import {AppMosaic, AppWallet, AppInfo, StoreAccount, AppAccount} from '@/core/model'
     import DisabledUiOverlay from '@/components/disabled-ui-overlay/DisabledUiOverlay.vue'
     import TransactionConfirmation from '@/components/transaction-confirmation/TransactionConfirmation.vue'
     import LoadingOverlay from '@/components/loading-overlay/LoadingOverlay.vue'
@@ -42,6 +42,10 @@
         activeAccount: StoreAccount
         app: AppInfo
         chainListeners: ChainListeners = null
+
+        get showLoadingOverlay() {
+            return this.app.loadingOverlay && this.app.loadingOverlay.show || false
+        }
 
         get node() {
             return this.activeAccount.node
@@ -77,27 +81,26 @@
         }
 
         get accountMap() {
-            return localRead('accountMap') ? JSON.parse(localRead('accountMap')) : null
+            return localRead('accountMap') !== '' ? JSON.parse(localRead('accountMap')) : null
         }
 
-        // @TODO: move out from there
         async setWalletsList() {
             try {
-                // @TODO: quick fix, to review when refactoring wallets
                 const {accountName, accountMap} = this
                 if (!accountMap) return
+
                 const currentAccountName = accountName && accountName !== ''
                     ? accountName : getTopValueInObject(accountMap)['accountName']
 
                 if (!currentAccountName || currentAccountName === '') return
-                await this.$store.commit('SET_ACCOUNT_NAME', currentAccountName)
-                // get active wallet
-                const wallets = getTopValueInObject(accountMap)['wallets']
+
+                const accountData: AppAccount = this.accountMap[currentAccountName]
+                const {wallets, password} = accountData
+                console.log("TCL: App -> setWalletsList -> wallets, password", wallets, password)
                 this.$store.commit('SET_WALLET_LIST', wallets)
-                const activeWalletAddress = JSON.parse(localRead('accountMap'))[currentAccountName].activeWalletAddress
-                AppWallet.updateActiveWalletAddress(activeWalletAddress, this.$store)
+                this.$store.commit('SET_ACCOUNT_DATA', {currentAccountName, password})
             } catch (error) {
-                console.error(error)
+                console.error("App -> setWalletsList -> error", error)
             }
         }
 

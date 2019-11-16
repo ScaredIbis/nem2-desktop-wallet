@@ -27,6 +27,7 @@ export const setWalletsBalances = async (store: Store<AppState>): Promise<void> 
     try {
         const {wallet, accountName, node, networkCurrency} = store.state.account
         const {walletList} = store.state.app
+        console.log("TCL: walletList", walletList)
         if (!walletList.length) return
         const addresses = walletList.map(({address}) => Address.createFromRawAddress(address))
         const accountsInfo = await new AccountHttp(node).getAccountsInfo(addresses).toPromise()

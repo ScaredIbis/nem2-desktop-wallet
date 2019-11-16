@@ -66,10 +66,6 @@ export class WalletSwitchTs extends Vue {
         return multisigAccountInfo.cosignatories.length > 0
     }
 
-    closeCheckPWDialog() {
-        this.showCheckPWDialog = false
-    }
-
     closeUpdateDialog() {
         this.showUpdateDialog = false
     }
@@ -121,7 +117,7 @@ export class WalletSwitchTs extends Vue {
         this.showCheckPWDialog = true
     }
 
-    checkEnd(password) {
+    passwordValidated(password) {
         if (!password) return
         const {accountName, pathToCreate} = this
         const currentNetType = JSON.parse(localRead('accountMap'))[accountName].currentNetType
@@ -133,7 +129,6 @@ export class WalletSwitchTs extends Vue {
                 currentNetType,
                 this.$store,
             )
-            this.closeCheckPWDialog()
         } catch (error) {
             throw new Error(error)
         }

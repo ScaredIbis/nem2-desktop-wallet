@@ -34,7 +34,7 @@ export class WalletCreateTs extends Vue {
         this.showCheckPWDialog = false
     }
 
-    checkEnd(password) {
+    passwordValidated(password) {
         if (!password) return
         const {accountNetworkType} = this
         const {walletName, path} = this.formItem

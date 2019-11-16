@@ -37,31 +37,32 @@ export interface RemoteAccount {
 }
 
 export interface StoreAccount {
-    node: string,
-    wallet: AppWallet,
-    mosaics: Record<string, AppMosaic>,
-    namespaces: AppNamespace[],
-    errorTx: Array<any>,
+    node: string
+    wallet: AppWallet
+    mosaics: Record<string, AppMosaic>
+    namespaces: AppNamespace[]
+    errorTx: Array<any>
     addressAliasMap: any,
-    generationHash: string,
-    transactionList: FormattedTransaction[],
-    transactionsToCosign: Record<string, FormattedTransaction[]>,
+    generationHash: string
+    transactionList: FormattedTransaction[]
+    transactionsToCosign: Record<string, FormattedTransaction[]>
     accountName: string
-    activeMultisigAccount: string,
-    multisigAccountsMosaics: Record<string, Record<string, AppMosaic>>,
-    multisigAccountsNamespaces: Record<string, AppNamespace[]>,
-    multisigAccountsTransactions: Record<string, Transaction[]>,
-    multisigAccountInfo: Record<string, MultisigAccountInfo>,
+    accountPassword: string
+    activeMultisigAccount: string
+    multisigAccountsMosaics: Record<string, Record<string, AppMosaic>>
+    multisigAccountsNamespaces: Record<string, AppNamespace[]>
+    multisigAccountsTransactions: Record<string, Transaction[]>
+    multisigAccountInfo: Record<string, MultisigAccountInfo>
     activeWalletAddress: string
     /**
      *  The network currency, to be used for fees management,
      *  formatting, defaulting...
      */
-    networkCurrency: NetworkCurrency,
+    networkCurrency: NetworkCurrency
     /**
      * This property is ONLY for mosaic list initialization purposes
      */
-    networkMosaics: Record<string, AppMosaic>,
+    networkMosaics: Record<string, AppMosaic>
 }
 
 export interface LoadingOverlayObject {

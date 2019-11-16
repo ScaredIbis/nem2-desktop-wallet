@@ -19,6 +19,7 @@ const state: StoreAccount = {
     transactionList: [],
     transactionsToCosign: {},
     accountName: '',
+    accountPassword: null,
     activeMultisigAccount: null,
     multisigAccountsMosaics: {},
     multisigAccountsNamespaces: {},
@@ -135,8 +136,9 @@ const mutations: MutationTree<StoreAccount> = {
         newStateTransactions.unshift(newTx)
         state.transactionList = newStateTransactions
     },
-    SET_ACCOUNT_NAME(state: StoreAccount, accountName: string) {
+    SET_ACCOUNT_DATA(state: StoreAccount, {accountName, password}) {
         state.accountName = accountName
+        state.accountPassword = password
     },
     SET_MULTISIG_ACCOUNT_INFO(state: StoreAccount, addressAndMultisigInfo: AddressAndMultisigInfo) {
         const {address, multisigAccountInfo} = addressAndMultisigInfo

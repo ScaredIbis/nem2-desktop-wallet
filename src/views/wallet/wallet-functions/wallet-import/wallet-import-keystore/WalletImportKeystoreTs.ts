@@ -36,8 +36,7 @@ export class WalletImportKeystoreTs extends Vue {
         return this.activeAccount.accountName
     }
 
-
-    checkEnd(password) {
+    passwordValidated(password) {
         if (!password) return
         this.importWallet(password)
     }

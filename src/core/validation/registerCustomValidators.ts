@@ -93,6 +93,7 @@ const confirmWalletPasswordValidator = (context): Promise<ValidationObject> => {
         CUSTOM_VALIDATORS_NAMES.confirmWalletPassword,
         (password, [otherField]) => new Promise((resolve) => {
             const wallet = getOtherFieldValue(otherField, context)
+            console.log("TCL: wallet", wallet)
             if(!(wallet instanceof AppWallet)) resolve({valid: false})
             resolve({valid: wallet.checkPassword(password)})
         }),

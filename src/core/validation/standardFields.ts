@@ -74,6 +74,16 @@ export const standardFields = {
         placeholder: 'PLACEHOLDER_password',
     },
 
+    accountPassword: {
+        default: '',
+        label: 'password',
+        name: 'password',
+        type: 'password',
+        validation: 'required|confirmLock:accountPassword',
+        hint: 'HINT_password',
+        placeholder: 'PLACEHOLDER_password',
+    },
+
     walletPassword: {
         default: '',
         label: 'password',

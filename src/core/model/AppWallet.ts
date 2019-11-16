@@ -1,11 +1,9 @@
 import {Store} from 'vuex'
 import {
     Account,
-    Crypto,
     NetworkType,
     SimpleWallet,
     Password,
-    WalletAlgorithm,
     Listener,
     AccountHttp,
     Address,
@@ -52,10 +50,6 @@ export class AppWallet {
     importance: number
     linkedAccountKey: string
     remoteAccount: RemoteAccount | null
-
-    generateWalletTitle(createType: string, coinType: string, netType: string) {
-        return `${createType}-${coinType}-${netType}`
-    }
 
     createFromPrivateKey(name: string,
                          password: Password,
@@ -105,7 +99,6 @@ export class AppWallet {
         }
     }
 
-    // TODO USE ACCOUNT NETWORK TYPE
     createFromMnemonic(
         name: string,
         password: Password,
@@ -194,15 +187,6 @@ export class AppWallet {
             return new EncryptedPrivateKey(encryptedKey, iv).decrypt(_password).toUpperCase()
         } catch(error) {
             throw new Error(error)
-        }
-    }
-
-    getMnemonic(password: Password): string {
-        if (this.encryptedMnemonic === undefined) throw new Error('This wallet has no encrypted mnemonic')
-        try {
-            return AppAccounts().decryptString(this.encryptedMnemonic, password.value)
-        } catch (error) {
-            throw new Error('Could not decrypt the mnemonic')
         }
     }
 

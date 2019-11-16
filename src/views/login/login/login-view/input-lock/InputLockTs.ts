@@ -121,11 +121,12 @@ export class InputLockTs extends Vue {
     onWalletChange(newVal, oldVal) {
         if (newVal === oldVal) return
         const {currentAccountName} = this.formItems
-        this.$store.commit('SET_ACCOUNT_NAME', currentAccountName)
         const {accountMap} = this
         if (!accountMap[currentAccountName]) return
-        this.cipher = accountMap[currentAccountName].password
-        this.cipherHint = accountMap[currentAccountName].hint
+        const {password, hint} = accountMap[currentAccountName]
+        this.cipher = password
+        this.cipherHint = hint
+        this.$store.commit('SET_ACCOUNT_DATA', {currentAccountName, password})
     }
 
 
@@ -133,6 +134,6 @@ export class InputLockTs extends Vue {
         const {accountMap} = this
         const accountName = getTopValueInObject(accountMap)['accountName']
         this.formItems.currentAccountName = accountName
-        if (accountName) this.$store.commit('SET_ACCOUNT_NAME', accountName)
+        if (accountName) this.$store.commit('SET_ACCOUNT_DATA', accountName)
     }
 }

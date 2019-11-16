@@ -30,7 +30,10 @@ export class WalletImportPrivatekeyTs extends Vue {
     NetworkType = NetworkType
 
     get accountNetworkType() {
-        return JSON.parse(localRead('accountMap'))[this.accountName].currentNetType
+        console.log("TCL: WalletImportKeystoreTs -> getaccountNetworkType -> this.accountName", this.accountName)
+
+        return 144
+        // return JSON.parse(localRead('accountMap'))[this.accountName].currentNetType
     }
 
     get accountName() {
@@ -42,14 +45,9 @@ export class WalletImportPrivatekeyTs extends Vue {
         this.showCheckPWDialog = true
     }
 
-    checkEnd(password) {
+    passwordValidated(password) {
         if (!password) return
-        this.closeCheckPWDialog()
         this.importWallet(password)
-    }
-
-    closeCheckPWDialog() {
-        this.showCheckPWDialog = false
     }
 
     importWallet(password) {
