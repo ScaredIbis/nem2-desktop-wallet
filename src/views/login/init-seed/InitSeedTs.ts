@@ -32,10 +32,6 @@ export class InitSeedTs extends Vue {
         return this.activeAccount.accountName
     }
 
-    close() {
-        this.goToPage(1)
-    }
-
     isCreated() {
         this.walletCreated = true
         this.updatePageIndex(-1)
@@ -62,7 +58,10 @@ export class InitSeedTs extends Vue {
     }
 
     passwordValidated(password) {
-        if (!password) return
+        if (!password) {
+            this.goToPage(1)
+            return
+        } 
 
         const seed = createMnemonic()
         this.$store.commit('SET_MNEMONIC', AppAccounts().encryptString(seed, password))

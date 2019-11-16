@@ -80,30 +80,6 @@
             return this.activeAccount.accountName
         }
 
-        get accountMap() {
-            return localRead('accountMap') !== '' ? JSON.parse(localRead('accountMap')) : null
-        }
-
-        async setWalletsList() {
-            try {
-                const {accountName, accountMap} = this
-                if (!accountMap) return
-
-                const currentAccountName = accountName && accountName !== ''
-                    ? accountName : getTopValueInObject(accountMap)['accountName']
-
-                if (!currentAccountName || currentAccountName === '') return
-
-                const accountData: AppAccount = this.accountMap[currentAccountName]
-                const {wallets, password} = accountData
-                console.log("TCL: App -> setWalletsList -> wallets, password", wallets, password)
-                this.$store.commit('SET_WALLET_LIST', wallets)
-                this.$store.commit('SET_ACCOUNT_DATA', {currentAccountName, password})
-            } catch (error) {
-                console.error("App -> setWalletsList -> error", error)
-            }
-        }
-
         async onWalletChange(newWallet) {
             // reset tx list
             try {
@@ -135,7 +111,7 @@
                             setTransactionList(newWallet.address, this.$store)
                             appWallet.setMultisigStatus(this.node, this.$store)
                         } catch (error) {
-                            console.error("TCL: App -> onWalletChange -> setTimeout -> error", error)
+                            console.error("App -> onWalletChange -> setTimeout -> error", error)
                         }
                     }, 1000)
                 getNodeInfo(this.$store)
@@ -208,7 +184,6 @@
                  */
                 setTimeout(async () => {
                     try {
-                        await this.setWalletsList()
                         setWalletsBalances(this.$store)
                     } catch (error) {
                         console.error("App -> mounted -> setTimeout -> error", error)

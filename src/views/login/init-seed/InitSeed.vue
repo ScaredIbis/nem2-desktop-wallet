@@ -34,7 +34,6 @@
       v-if="navList[0].active"
       :visible="navList[0].active"
       :returnPassword="true"
-      @close="close"
       @passwordValidated="passwordValidated"
     />
   </div>

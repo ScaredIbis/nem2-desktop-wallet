@@ -30,7 +30,6 @@ export class WalletImportPrivatekeyTs extends Vue {
     NetworkType = NetworkType
 
     get accountNetworkType() {
-        console.log("TCL: WalletImportKeystoreTs -> getaccountNetworkType -> this.accountName", this.accountName)
 
         return 144
         // return JSON.parse(localRead('accountMap'))[this.accountName].currentNetType

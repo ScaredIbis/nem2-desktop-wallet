@@ -40,6 +40,7 @@ export class CreateAccountTs extends Vue {
         appAccounts.saveAccountInLocalStorage(appAccount)
         this.$Notice.success({title: this.$t(Message.OPERATION_SUCCESS) + ''})
         this.$store.commit('SET_ACCOUNT_DATA', {accountName, password: encryptedPassword})
+
         this.$router.push({
             name: 'initSeed',
             params: {

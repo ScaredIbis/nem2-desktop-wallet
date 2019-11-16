@@ -249,7 +249,7 @@ export class MultisigTransactionFormTs extends Vue {
                     },
                 )
         } catch (error) {
-            console.error("TCL: getAddressPublicKey -> error", error)
+            console.error("getAddressPublicKey -> error", error)
             // @ts-ignore
             this.$Spin.hide()
             this.$store.commit('SET_LOADING_OVERLAY', { show: false, message: '' })

@@ -3,7 +3,7 @@ import {standardFields} from '@/core/validation'
 import {mapState} from "vuex"
 import {localRead, getObjectLength, getTopValueInObject} from "@/core/utils/utils"
 import {Message} from "@/config"
-import {AppInfo, StoreAccount} from "@/core/model"
+import {AppInfo, StoreAccount, AppAccount} from "@/core/model"
 
 @Component({
     computed: {
@@ -80,6 +80,7 @@ export class InputLockTs extends Vue {
         const {currentAccountName} = this.formItems
         const {accountMap} = this
         const that = this
+
         if (this.errors.items.length > 0) {
             this.showErrorNotice(this.errors.items[0].msg)
             return
@@ -109,16 +110,13 @@ export class InputLockTs extends Vue {
                     that.$router.push('walletCreate')
                     return
                 }
-                // have wallet and seed ,init wallet
-                that.$store.commit('SET_WALLET_LIST', accountMap[currentAccountName].wallets)
-                that.$store.commit('SET_WALLET', accountMap[currentAccountName].wallets[0])
                 that.jumpToDashBoard()
             })
     }
 
 
     @Watch('formItems.currentAccountName')
-    onWalletChange(newVal, oldVal) {
+    onAccountNameChange(newVal, oldVal) {
         if (newVal === oldVal) return
         const {currentAccountName} = this.formItems
         const {accountMap} = this
@@ -126,14 +124,19 @@ export class InputLockTs extends Vue {
         const {password, hint} = accountMap[currentAccountName]
         this.cipher = password
         this.cipherHint = hint
-        this.$store.commit('SET_ACCOUNT_DATA', {currentAccountName, password})
+        this.$store.commit('SET_ACCOUNT_DATA', {accountName: currentAccountName, password})
     }
 
 
     mounted() {
         const {accountMap} = this
-        const accountName = getTopValueInObject(accountMap)['accountName']
+        const accountData: AppAccount = getTopValueInObject(accountMap)
+        if (!accountData) return
+        const {accountName, wallets} = getTopValueInObject(accountMap)
         this.formItems.currentAccountName = accountName
-        if (accountName) this.$store.commit('SET_ACCOUNT_DATA', accountName)
+        if (accountName) this.$store.commit('SET_ACCOUNT_DATA', {accountName, wallets})
+        if (!wallets.length) return
+        this.$store.commit('SET_WALLET_LIST', wallets)
+        this.$store.commit('SET_WALLET', wallets[0])
     }
 }

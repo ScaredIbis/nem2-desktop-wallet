@@ -91,7 +91,8 @@ export class SeedCreatedGuideTs extends Vue {
     createFromMnemonic() {
         const {accountName} = this
         const {seed, password} = this.formInfo
-        const currentNetType = JSON.parse(localRead('accountMap'))[accountName].currentNetType
+        const {currentNetType} = JSON.parse(localRead('accountMap'))[accountName]
+        
         try {
             new AppWallet().createFromMnemonic(
                 'seedWallet',
