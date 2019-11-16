@@ -788,5 +788,7 @@
     "invalid_namespace_or_mosaic_id": "this is not a valid mosaic Id nor namespace name",
     "network_type_invalid": "network types are not matching",
     "value_too_big": "this value is too big",
-    "divisibility_invalid": "divisibility is incorrect"
+    "divisibility_invalid": "divisibility is incorrect",
+    "Keystore_password": "Keystore password",
+    "Network_type": "Network type"
 }
