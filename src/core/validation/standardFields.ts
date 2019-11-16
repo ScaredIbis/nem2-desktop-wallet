@@ -38,6 +38,7 @@ export const standardFields = {
         hint: ['HINT_previous_password'],
         placeholder: 'PLACEHOLDER_previous_password'
     },
+
     newPassword: {
         default: '',
         label: 'LABEL_new_password',
@@ -143,7 +144,7 @@ export const standardFields = {
         label: 'divisibility',
         name: 'divisibility',
         type: 'text',
-        validation: `required: true|min_value:1|max_value:${MAX_MOSAIC_DIVISIBILITY}`,
+        validation: `required: true|min_value:1|max_value:${MAX_MOSAIC_DIVISIBILITY}|integer`,
         hint: 'HINT_divisibility',
         placeholder: 'PLACEHOLDER_divisibility',
     },
@@ -319,7 +320,7 @@ export const standardFields = {
         label: 'supply',
         name: 'supply',
         type: 'text',
-        validation: `required: true|min_value: 1|max_value:${MAX_MOSAIC_ATOMIC_UNITS}`,
+        validation: `required: true|min_value: 1|max_value:${MAX_MOSAIC_ATOMIC_UNITS}|integer`,
         hint: 'HINT_supply',
         placeholder: 'PLACEHOLDER_supply',
     },

@@ -2,8 +2,8 @@ import i18n from '@/language'
 import VeeValidate from 'vee-validate'
 import en from 'vee-validate/dist/locale/en'
 import zhCN from 'vee-validate/dist/locale/zh_CN'
-import { registerCustomValidators, CUSTOM_VALIDATORS_NAMES } from '.'
-import { Message } from '@/config/constants'
+import {registerCustomValidators, CUSTOM_VALIDATORS_NAMES} from '.'
+import {Message} from '@/config/constants'
 
 const customMessagesEn = {
     [CUSTOM_VALIDATORS_NAMES.address]: () => Message.ADDRESS_INVALID,
@@ -14,12 +14,12 @@ const customMessagesEn = {
     [CUSTOM_VALIDATORS_NAMES.publicKey]: () => Message.PUBLIC_KEY_INVALID,
     [CUSTOM_VALIDATORS_NAMES.namespaceOrMosaicId]: () => Message.INVALID_NAMESPACE_OR_MOSAIC_ID,
     [CUSTOM_VALIDATORS_NAMES.addressNetworkType]: () => Message.NETWORK_TYPE_INVALID,
-    max_value: () => Message.VALUE_TOO_BIG,
 }
 
 const errorPerFieldEn = {
     amount: {
         integer: () => Message.DIVISIBILITY_INVALID,
+        max_value: () => Message.VALUE_TOO_BIG,
     }
 }
 
@@ -28,11 +28,11 @@ export const veeValidateConfig = {
     fieldsBagName: 'fieldBags',
     dictionary: {
         'en-US': {
-            messages: { ...en.messages, ...customMessagesEn },
+            messages: {...en.messages, ...customMessagesEn},
             custom: errorPerFieldEn,
         },
         'zh-CN': {
-            messages: { ...zhCN.messages },
+            messages: {...zhCN.messages},
         },
     },
     inject: {
