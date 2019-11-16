@@ -1,4 +1,4 @@
-import {MosaicId, Account, Address} from 'nem2-sdk'
+import {MosaicId, Account, Address, NetworkType} from 'nem2-sdk'
 import {networkConfig} from '@/config/constants'
 import {AppAccounts, ValidationObject, AppWallet, CurrentAccount} from "@/core/model"
 import {validateAddress, validatePublicKey, validateAlias, validateMosaicId, validateNamespace} from './validators'
@@ -22,6 +22,7 @@ export const CUSTOM_VALIDATORS_NAMES = {
     alias: 'alias',
     remoteAccountPrivateKey: 'remoteAccountPrivateKey',
     publicKey: 'publicKey',
+    privateKey: 'privateKey',
     namespaceOrMosaicId: 'namespaceOrMosaicId',
     addressNetworkType: 'addressNetworkType',
 }
@@ -147,7 +148,6 @@ const addressOrAliasValidator = (context): Promise<ValidationObject> => {
     )
 }
 
-
 const addressValidator = (context): Promise<ValidationObject> => {
     return context.Validator.extend(
         CUSTOM_VALIDATORS_NAMES.address,
@@ -186,6 +186,21 @@ const addressNetworkTypeValidator = (context): Promise<ValidationObject> => {
     )
 }
 
+const privateKeyValidator = (context): Promise<ValidationObject> => {
+    return context.Validator.extend(
+        CUSTOM_VALIDATORS_NAMES.privateKey,
+        (privateKey) => new Promise(async (resolve) => {
+            try {
+                /** NetworkType does not matter here  */
+                Account.createFromPrivateKey(privateKey, NetworkType.MAIN_NET) 
+                resolve({valid: true})
+            } catch (error) {
+                resolve({valid: false})
+            }
+        }),
+    )
+}
+
 const customValidatorFactory = {
     [CUSTOM_VALIDATORS_NAMES.address]: addressValidator,
     [CUSTOM_VALIDATORS_NAMES.addressOrAlias]: addressOrAliasValidator,
@@ -197,6 +212,7 @@ const customValidatorFactory = {
     [CUSTOM_VALIDATORS_NAMES.mosaicId]: mosaicIdValidator,
     [CUSTOM_VALIDATORS_NAMES.remoteAccountPrivateKey]: remoteAccountPrivateKeyValidator,
     [CUSTOM_VALIDATORS_NAMES.publicKey]: publicKeyValidator,
+    [CUSTOM_VALIDATORS_NAMES.privateKey]: privateKeyValidator,
     [CUSTOM_VALIDATORS_NAMES.namespaceOrMosaicId]: namespaceOrMosaicIdValidator,
     [CUSTOM_VALIDATORS_NAMES.addressNetworkType]: addressNetworkTypeValidator,
 }

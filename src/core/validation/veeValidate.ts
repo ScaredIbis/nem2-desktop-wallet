@@ -12,6 +12,7 @@ const customMessagesEn = {
     [CUSTOM_VALIDATORS_NAMES.confirmPassword]: () => Message.PASSWORDS_NOT_MATCHING,
     [CUSTOM_VALIDATORS_NAMES.remoteAccountPrivateKey]: () => Message.PRIVATE_KEY_INVALID_ERROR,
     [CUSTOM_VALIDATORS_NAMES.publicKey]: () => Message.PUBLIC_KEY_INVALID,
+    [CUSTOM_VALIDATORS_NAMES.privateKey]: () => Message.PRIVATE_KEY_INVALID_ERROR,
     [CUSTOM_VALIDATORS_NAMES.namespaceOrMosaicId]: () => Message.INVALID_NAMESPACE_OR_MOSAIC_ID,
     [CUSTOM_VALIDATORS_NAMES.addressNetworkType]: () => Message.NETWORK_TYPE_INVALID,
 }

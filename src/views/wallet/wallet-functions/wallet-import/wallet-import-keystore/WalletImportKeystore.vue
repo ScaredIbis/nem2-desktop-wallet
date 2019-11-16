@@ -17,12 +17,12 @@
               <ErrorTooltip fieldName="keystoreStr">
                 <textarea
                   v-focus
-                  class="absolute"
                   v-model="formItem.keystoreStr"
                   v-validate="'required'"
                   :placeholder="$t('keystore_text')"
                   :data-vv-as="$t('keystore_text')"
                   data-vv-name="keystoreStr"
+                  style="display: block; height: 100%;"
                 />
               </ErrorTooltip>
             </div>
