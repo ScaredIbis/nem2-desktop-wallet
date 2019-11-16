@@ -176,8 +176,7 @@
 </template>
 
 <script lang="ts">
-// @ts-ignore
-import { MultisigTransactionFormTs } from "./MultisigTransactionFormTs.ts";
+import { MultisigTransactionFormTs } from "@/views/multisig/multisig-transaction-form/MultisigTransactionFormTs.ts"
 import "./MultisigTransactionForm.less";
 
 export default class MultisigTransactionForm extends MultisigTransactionFormTs {}
