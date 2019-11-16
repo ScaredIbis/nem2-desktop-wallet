@@ -4,7 +4,7 @@ import {defaultNetworkConfig} from "@/config/index"
 import {
     AddressAndTransaction, AddressAndNamespaces, AddressAndMosaics,
     AddressAndMultisigInfo, StoreAccount, AppMosaic, NetworkCurrency,
-    AppWallet, AppNamespace, FormattedTransaction,
+    AppWallet, AppNamespace, FormattedTransaction, CurrentAccount,
 } from '@/core/model'
 import {nodeListConfig} from "@/config/view/node"
 
@@ -18,8 +18,7 @@ const state: StoreAccount = {
     generationHash: '',
     transactionList: [],
     transactionsToCosign: {},
-    accountName: '',
-    accountPassword: null,
+    currentAccount: CurrentAccount.default(),
     activeMultisigAccount: null,
     multisigAccountsMosaics: {},
     multisigAccountsNamespaces: {},
@@ -46,7 +45,7 @@ const mutations: MutationTree<StoreAccount> = {
         state.namespaces = []
         state.addressAliasMap = {}
         state.transactionList = []
-        state.accountName = ''
+        state.currentAccount = CurrentAccount.default()
     },
     SET_WALLET(state: StoreAccount, wallet: AppWallet): void {
         state.wallet = wallet
@@ -136,9 +135,8 @@ const mutations: MutationTree<StoreAccount> = {
         newStateTransactions.unshift(newTx)
         state.transactionList = newStateTransactions
     },
-    SET_ACCOUNT_DATA(state: StoreAccount, {accountName, password}) {
-        state.accountName = accountName
-        state.accountPassword = password
+    SET_ACCOUNT_DATA(state: StoreAccount, currentAccount) {
+        state.currentAccount = currentAccount
     },
     SET_MULTISIG_ACCOUNT_INFO(state: StoreAccount, addressAndMultisigInfo: AddressAndMultisigInfo) {
         const {address, multisigAccountInfo} = addressAndMultisigInfo

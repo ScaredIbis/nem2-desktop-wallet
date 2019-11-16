@@ -1,7 +1,7 @@
 import {Component, Vue} from 'vue-property-decorator'
 import {formDataConfig, Message} from "@/config"
 import {cloneData} from "@/core/utils"
-import {AppAccounts, AppAccount} from '@/core/model'
+import {AppAccounts, AppAccount, CurrentAccount} from '@/core/model'
 import {networkTypeConfig} from "@/config/view/setting"
 
 @Component
@@ -39,7 +39,14 @@ export class CreateAccountTs extends Vue {
         const appAccount = new AppAccount(accountName, [], encryptedPassword, hint, networkType)
         appAccounts.saveAccountInLocalStorage(appAccount)
         this.$Notice.success({title: this.$t(Message.OPERATION_SUCCESS) + ''})
-        this.$store.commit('SET_ACCOUNT_DATA', {accountName, password: encryptedPassword})
+
+        const currentAccount: CurrentAccount = {
+            name: accountName,
+            password,
+            networkType,
+        }
+
+        this.$store.commit('SET_ACCOUNT_DATA', currentAccount)
 
         this.$router.push({
             name: 'initSeed',

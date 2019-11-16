@@ -2,7 +2,7 @@ import {Transaction, MultisigAccountInfo, SignedTransaction, CosignatureSignedTr
 import {AppNamespace} from './AppNamespace'
 import {AppMosaic} from './AppMosaic'
 import {FormattedTransaction} from './FormattedTransaction'
-import {ChainStatus, AppWallet, LockParams, Log} from '.'
+import {ChainStatus, AppWallet, LockParams, Log, CurrentAccount} from '.'
 
 export interface AddressAndTransaction {
     address: string
@@ -46,8 +46,7 @@ export interface StoreAccount {
     generationHash: string
     transactionList: FormattedTransaction[]
     transactionsToCosign: Record<string, FormattedTransaction[]>
-    accountName: string
-    accountPassword: string
+    currentAccount: CurrentAccount
     activeMultisigAccount: string
     multisigAccountsMosaics: Record<string, Record<string, AppMosaic>>
     multisigAccountsNamespaces: Record<string, AppNamespace[]>

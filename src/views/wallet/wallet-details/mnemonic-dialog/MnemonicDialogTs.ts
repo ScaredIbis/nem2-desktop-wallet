@@ -59,7 +59,7 @@ export class MnemonicDialogTs extends Vue {
     }
 
     get cipher() {
-        return AppAccounts().getCipherPassword(this.activeAccount.accountName)
+        return this.activeAccount.currentAccount.password
     }
 
     get qrCodeArgs(): MnemonicQR {

@@ -77,7 +77,7 @@
         }
 
         get accountName(): string {
-            return this.activeAccount.accountName
+            return this.activeAccount.currentAccount.name
         }
 
         async onWalletChange(newWallet) {

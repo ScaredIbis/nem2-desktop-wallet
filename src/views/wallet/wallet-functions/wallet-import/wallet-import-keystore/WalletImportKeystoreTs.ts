@@ -33,7 +33,7 @@ export class WalletImportKeystoreTs extends Vue {
     }
 
     get accountName() {
-        return this.activeAccount.accountName
+        return this.activeAccount.currentAccount.name
     }
 
     passwordValidated(password) {
@@ -78,7 +78,6 @@ export class WalletImportKeystoreTs extends Vue {
     }
 
     checkForm() {
-        const {accountNetworkType} = this
         const {walletName, keystorePassword, keystoreStr} = this.formItem
 
         if (!walletName || walletName == '') {

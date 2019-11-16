@@ -6,7 +6,7 @@ import CheckPasswordDialog from '@/components/check-password-dialog/CheckPasswor
 import {formDataConfig} from '@/config/view/form'
 import {networkTypeConfig} from '@/config/view/setting'
 import {AppWallet, AppInfo, StoreAccount} from "@/core/model"
-import {cloneData, localRead} from "@/core/utils"
+import {cloneData} from "@/core/utils"
 
 @Component({
     computed: {
@@ -29,14 +29,12 @@ export class WalletImportPrivatekeyTs extends Vue {
     NetworkTypeList = networkTypeConfig
     NetworkType = NetworkType
 
-    get accountNetworkType() {
-
-        return 144
-        // return JSON.parse(localRead('accountMap'))[this.accountName].networkType
+    get currentAccount() {
+        return this.activeAccount.currentAccount
     }
 
-    get accountName() {
-        return this.activeAccount.accountName
+    get accountNetworkType() {
+        return this.currentAccount.networkType
     }
 
     submit() {

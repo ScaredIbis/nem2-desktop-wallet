@@ -29,7 +29,7 @@ export class InitSeedTs extends Vue {
     navList = walletFnNavConfig
 
     get accountName() {
-        return this.activeAccount.accountName
+        return this.activeAccount.currentAccount.name
     }
 
     isCreated() {

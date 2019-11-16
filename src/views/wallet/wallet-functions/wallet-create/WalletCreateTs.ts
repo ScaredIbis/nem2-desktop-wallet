@@ -5,7 +5,7 @@ import CheckPasswordDialog from '@/components/check-password-dialog/CheckPasswor
 import {AppWallet, StoreAccount} from '@/core/model'
 import {mapState} from "vuex"
 import {createMnemonic, createSubWalletByPathNumber, localRead} from "@/core/utils"
-import {networkConfig} from '@/config/index.ts'
+
 @Component({
     components: {
         CheckPasswordDialog
@@ -27,7 +27,7 @@ export class WalletCreateTs extends Vue {
     }
 
     get accountName() {
-        return this.activeAccount.accountName
+        return this.activeAccount.currentAccount.name
     }
 
     closeCheckPWDialog() {

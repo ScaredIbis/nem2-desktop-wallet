@@ -31,7 +31,7 @@ export class AccountImportMnemonicTs extends Vue {
     }
 
     get accountName() {
-        return this.activeAccount.accountName
+        return this.activeAccount.currentAccount.name
     }
 
     submit() {

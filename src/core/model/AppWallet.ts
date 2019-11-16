@@ -78,8 +78,8 @@ export class AppWallet {
         networkType: NetworkType,
         store: Store<AppState>): AppWallet {
         try {
-            const accountName = store.state.account.accountName
-            let accountMap = localRead('accountMap') === '' ? {} : JSON.parse(localRead('accountMap'))
+            const accountName = store.state.account.currentAccount.name
+            const accountMap = localRead('accountMap') === '' ? {} : JSON.parse(localRead('accountMap'))
             const mnemonic = AppAccounts().decryptString(accountMap[accountName].seed, password.value)
             const account = createSubWalletByPathNumber(mnemonic, pathNumber)
             this.simpleWallet = SimpleWallet.createFromPrivateKey(name, password, account.privateKey, networkType)
@@ -106,7 +106,7 @@ export class AppWallet {
         networkType: NetworkType,
         store: Store<AppState>): AppWallet {
         try {
-            const accountName = store.state.account.accountName
+            const accountName = store.state.account.currentAccount.name
             const accountMap = localRead('accountMap') === '' ? {} : JSON.parse(localRead('accountMap'))
             const account = createSubWalletByPathNumber(mnemonic, 0)
             this.simpleWallet = SimpleWallet.createFromPrivateKey(name, password, account.privateKey, networkType)
@@ -214,7 +214,7 @@ export class AppWallet {
     }
 
     addNewWalletToList(store: Store<AppState>): void {
-        const accountName = store.state.account.accountName
+        const accountName = store.state.account.currentAccount.name
         const accountMap = localRead('accountMap') === ''
             ? {} : JSON.parse(localRead('accountMap'))
         const newActiveWalletAddress = this.address
@@ -237,7 +237,7 @@ export class AppWallet {
 
     delete(store: Store<AppState>, that: any) {
         const list = [...store.state.app.walletList]
-        const accountName = store.state.account.accountName
+        const accountName = store.state.account.currentAccount.name
         const accountMap = localRead('accountMap') === ''
             ? {} : JSON.parse(localRead('accountMap'))
 
@@ -266,7 +266,7 @@ export class AppWallet {
 
     static updateActiveWalletAddress(newActiveWalletAddress: string, store: Store<AppState>) {
         const walletList = store.state.app.walletList
-        const accountName = store.state.account.accountName
+        const accountName = store.state.account.currentAccount.name
         const accountMap = localRead('accountMap') === ''
             ? {} : JSON.parse(localRead('accountMap'))
 
@@ -353,7 +353,7 @@ export class AppWallet {
 
 
     updateWallet(store: Store<AppState>) {
-        const accountName = store.state.account.accountName
+        const accountName = store.state.account.currentAccount.name
         const accountMap = localRead('accountMap') === '' ? {} : JSON.parse(localRead('accountMap'))
         const localData: any[] = accountMap[accountName].wallets
         if (!localData.length) throw new Error('error at update wallet, no wallets in storage')

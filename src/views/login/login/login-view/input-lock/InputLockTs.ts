@@ -3,7 +3,7 @@ import {standardFields} from '@/core/validation'
 import {mapState} from "vuex"
 import {localRead, getObjectLength, getTopValueInObject} from "@/core/utils/utils"
 import {Message} from "@/config"
-import {AppInfo, StoreAccount, AppAccount} from "@/core/model"
+import {AppInfo, StoreAccount, AppAccount, CurrentAccount} from "@/core/model"
 
 @Component({
     computed: {
@@ -121,10 +121,16 @@ export class InputLockTs extends Vue {
         const {currentAccountName} = this.formItems
         const {accountMap} = this
         if (!accountMap[currentAccountName]) return
-        const {password, hint} = accountMap[currentAccountName]
+        const {password, hint, networkType} = accountMap[currentAccountName]
         this.cipher = password
         this.cipherHint = hint
-        this.$store.commit('SET_ACCOUNT_DATA', {accountName: currentAccountName, password})
+
+        const currentAccount: CurrentAccount = {
+            name: currentAccountName,
+            password,
+            networkType,
+        }
+        this.$store.commit('SET_ACCOUNT_DATA', currentAccount)
     }
 
 
@@ -132,9 +138,17 @@ export class InputLockTs extends Vue {
         const {accountMap} = this
         const accountData: AppAccount = getTopValueInObject(accountMap)
         if (!accountData) return
-        const {accountName, wallets} = getTopValueInObject(accountMap)
+        const {accountName, wallets, password, networkType} = getTopValueInObject(accountMap)
         this.formItems.currentAccountName = accountName
-        if (accountName) this.$store.commit('SET_ACCOUNT_DATA', {accountName, wallets})
+
+        const currentAccount: CurrentAccount = {
+            name: accountName,
+            password,
+            networkType,
+        }
+
+        this.$store.commit('SET_ACCOUNT_DATA', currentAccount)
+        if (accountName) this.$store.commit('SET_ACCOUNT_DATA', currentAccount)
         if (!wallets.length) return
         this.$store.commit('SET_WALLET_LIST', wallets)
         this.$store.commit('SET_WALLET', wallets[0])
