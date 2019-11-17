@@ -790,5 +790,7 @@
     "value_too_big": "this value is too big",
     "divisibility_invalid": "divisibility is incorrect",
     "Keystore_password": "Keystore password",
-    "Network_type": "Network type"
+    "Network_type": "Network type",
+    "mosaic_not_set": "please select a mosaic",
+    "empty_mosaic_list": "there should be at least one mosaic in the list"
 }

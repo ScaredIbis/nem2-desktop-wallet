@@ -116,6 +116,8 @@ export const Message = {
     NETWORK_TYPE_INVALID: 'network_type_invalid',
     VALUE_TOO_BIG: 'value_too_big',
     DIVISIBILITY_INVALID: 'divisibility_invalid',
+    MOSAIC_NOT_SET: 'mosaic_not_set',
+    EMPTY_MOSAIC_LIST: 'empty_mosaic_list',
 }
 
 export const FEE_SPEEDS: Record<string, string> = {
@@ -181,7 +183,7 @@ export const networkConfig = {
     maxRollbackBlocks: 40,
     maxDifficultyBlocks: 60,
     defaultDynamicFeeMultiplier: 10000,
-    maxMosaicAtomicUnits: 9000000000,
+    maxMosaicAtomicUnits: 9000000000000000,
     totalChainImportance: 15,
     minHarvesterBalance: 500,
     harvestBeneficiaryPercentage: 10,

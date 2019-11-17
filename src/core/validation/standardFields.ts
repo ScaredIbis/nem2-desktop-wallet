@@ -27,7 +27,6 @@ const {
 const {availableNetworkTypes, mosaicSupplyChangeActions} = SDK_PARAMS
 const {MIN_PASSWORD_LENGTH} = APP_PARAMS
 
-
 export const standardFields = {
     previousPassword: {
         default: '',
@@ -37,6 +36,10 @@ export const standardFields = {
         validation: 'required|confirmLock:cipher',
         hint: ['HINT_previous_password'],
         placeholder: 'PLACEHOLDER_previous_password'
+    },
+
+    amount: {
+        validation: 'decimal:6|min:0|otherField:selectedMosaic|amountDecimals:selectedMosaic|mosaicMaxAmount:selectedMosaic'
     },
 
     newPassword: {
@@ -117,19 +120,11 @@ export const standardFields = {
         label: 'address',
         name: 'address',
         type: 'text',
-        validation: 'required|address',
+        validation: 'required|address|addressNetworkType:currentAccount',
         hint: 'HINT_address',
         placeholder: 'PLACEHOLDER_address',
     },
-    amount: {
-        default: '',
-        label: 'amount',
-        name: 'amount',
-        type: 'text',
-        validation: `min_value:0|max_value:${MAX_MOSAIC_ATOMIC_UNITS}|integer`,
-        hint: [],
-        placeholder: 'PLACEHOLDER_amount',
-    },
+
     mosaicListLength: {
         default: 0,
         label: 'mosaicListLength',
@@ -346,7 +341,7 @@ export const standardFields = {
     },
 
     addressOrAlias: {
-        validation: `required|${CUSTOM_VALIDATORS_NAMES.addressOrAlias}`,
+        validation: `required|${CUSTOM_VALIDATORS_NAMES.addressOrAlias}|addressOrAliasNetworkType:currentAccount`,
     },
 
     linkActions: {default: LinkAction.Link},

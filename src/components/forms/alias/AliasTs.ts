@@ -18,6 +18,7 @@ import {StoreAccount, AppInfo, AppWallet, AppNamespace, DefaultFee, MosaicNamesp
 import {AppMosaics, signTransaction} from '@/core/services'
 import DisabledForms from '@/components/disabled-forms/DisabledForms.vue'
 import ErrorTooltip from '@/components/other/forms/errorTooltip/ErrorTooltip.vue'
+import {standardFields} from "@/core/validation"
 
 @Component({
     computed: {
@@ -33,16 +34,19 @@ export class AliasTs extends Vue {
     @Provide() validator: any = this.$validator
     activeAccount: StoreAccount
     app: AppInfo
+    standardFields = standardFields
     formItems = cloneData(formDataConfig.alias)
     bindTypes: Record<string, string> = {
         address: 'address',
         mosaic: 'mosaic',
     }
     bindType: string = this.getBindType
+
     /**
      * The namespace name
      */
     alias: string = this.getAlias
+
     /**
      * The address or the mosaic hex Id
      */
