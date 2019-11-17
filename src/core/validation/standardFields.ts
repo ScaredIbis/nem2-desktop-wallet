@@ -3,6 +3,8 @@ import {
 } from 'nem2-sdk'
 import {NETWORK_PARAMS, SDK_PARAMS, APP_PARAMS} from './constants'
 import {CUSTOM_VALIDATORS_NAMES} from './registerCustomValidators'
+import {networkConfig} from '@/config/constants'
+const {maxMosaicAtomicUnits} = networkConfig
 
 const {
     MAX_MOSAIC_ATOMIC_UNITS,
@@ -39,7 +41,11 @@ export const standardFields = {
     },
 
     amount: {
-        validation: 'decimal:6|min:0|otherField:selectedMosaic|amountDecimals:selectedMosaic|mosaicMaxAmount:selectedMosaic'
+        validation: 'decimal:6|min_value:0|otherField:selectedMosaic|amountDecimals:selectedMosaic|mosaicMaxAmount:selectedMosaic'
+    },
+
+    invoiceAmount: {
+        validation: `decimal:6|min_value:0|max_value:${maxMosaicAtomicUnits}`
     },
 
     newPassword: {

@@ -53,7 +53,6 @@ export class TransactionFormTs extends Vue {
     formatAddress = formatAddress
     maxMosaicAbsoluteAmount = 0
 
-
     get selectedMosaic() {
         const {mosaics, selectedMosaicHex} = this
         if (!mosaics || !selectedMosaicHex) return null
