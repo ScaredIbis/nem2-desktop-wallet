@@ -1,8 +1,8 @@
 import {MosaicId, Account, Address, NetworkType} from 'nem2-sdk'
 import {networkConfig} from '@/config/constants'
-import {AppAccounts, ValidationObject, AppWallet, CurrentAccount, AppMosaic} from "@/core/model"
-import {validateAddress, validatePublicKey, validateAlias, validateMosaicId, validateNamespace} from './validators'
 import {getAbsoluteMosaicAmount} from "@/core/utils"
+import {AppAccounts, ValidationObject, AppWallet, CurrentAccount, AppMosaic} from "@/core/model"
+import {validateAddress, validatePublicKey, validateAlias, validateMosaicId, validateNamespace} from '.'
 
 const {PUBLIC_KEY_LENGTH, maxMosaicAtomicUnits} = networkConfig
 

@@ -1,7 +1,8 @@
 // @VEEVALIDATE: move from here when doing vee-validate implementation
 import {RECIPIENT_TYPES} from '@/core/model'
 import {networkConfig} from '@/config'
-import {validateAddress, validatePublicKey, validateAlias} from './validators'
+import {validateAddress, validatePublicKey, validateAlias} from '.'
+
 const {NAMESPACE_MAX_LENGTH, PUBLIC_KEY_LENGTH} = networkConfig
 
 export const determineRecipientType = (str: string): RECIPIENT_TYPES => {
