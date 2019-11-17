@@ -17,10 +17,10 @@
               <input
                 v-focus
                 v-model="password"
-                :type="standardFields.accountPassword.type"
-                v-validate="standardFields.accountPassword.validation"
-                :data-vv-name="standardFields.accountPassword.name"
-                :data-vv-as="$t(standardFields.accountPassword.name)"
+                type="password"
+                v-validate="validation.accountPassword"
+                :data-vv-name="password"
+                :data-vv-as="$t('password')"
                 :placeholder="$t('please_enter_your_wallet_password')"
               />
             </ErrorTooltip>

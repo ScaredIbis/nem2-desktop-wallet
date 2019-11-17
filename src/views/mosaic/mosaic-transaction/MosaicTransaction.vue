@@ -38,7 +38,7 @@
                   type="text"
                   :placeholder="$t('supply')"
                   data-vv-name="supply"
-                  v-validate="standardFields.supply.validation"
+                  v-validate="validation.supply"
                 />
               </ErrorTooltip>
               <span class="number_controller">
@@ -64,7 +64,7 @@
                   v-model="formItems.divisibility"
                   type="text"
                   :placeholder="$t('mosaic_divisibility')"
-                  v-validate="standardFields.divisibility.validation"
+                  v-validate="validation.divisibility"
                   data-vv-name="divisibility"
                 />
               </ErrorTooltip>
@@ -106,7 +106,7 @@
                 <input
                   v-model="formItems.duration"
                   type="text"
-                  v-validate="standardFields.duration.validation"
+                  v-validate="validation.duration"
                   :placeholder="$t('duration')"
                   data-vv-name="duration"
                 />

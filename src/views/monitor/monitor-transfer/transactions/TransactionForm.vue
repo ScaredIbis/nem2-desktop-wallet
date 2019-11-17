@@ -30,7 +30,7 @@
               v-focus
               data-vv-name="recipient"
               v-model="formItems.recipient"
-              v-validate="standardFields.addressOrAlias.validation"
+              v-validate="validation.addressOrAlias"
               :data-vv-as="$t('transfer_target')"
               :placeholder="$t('receive_address_or_alias')"
               type="text"
@@ -76,7 +76,7 @@
                 <input
                   v-model="currentAmount"
                   :placeholder="$t('please_enter_the_transfer_amount')"
-                  v-validate="standardFields.amount.validation"
+                  v-validate="validation.amount"
                   :data-vv-as="$t('amount')"
                   data-vv-name="currentAmount"
                 />
@@ -97,7 +97,7 @@
             data-vv-name="mosaicListLength"
             number
             type="text"
-            v-validate="standardFields.mosaicListLength.validation"
+            v-validate="validation.mosaicListLength"
             style="display: none"
             v-model="formItems.mosaicTransferList.length"
           />
@@ -140,7 +140,7 @@
             <textarea
               class="hide_scroll"
               v-model="formItems.remark"
-              v-validate="standardFields.message.validation"
+              v-validate="validation.message"
               data-vv-name="message"
               :data-vv-as="$t('message')"
               :placeholder="$t('please_enter_a_comment')"

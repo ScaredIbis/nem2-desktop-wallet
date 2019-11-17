@@ -50,7 +50,7 @@
                   class="amount_input"
                   type="text"
                   v-model="formItems.mosaicAmount"
-                  v-validate="`${standardFields.invoiceAmount.validation}`"
+                  v-validate="validation.invoiceAmount"
                   :placeholder="$t('Please_enter_the_amount_of_transfer')"
                   data-vv-name="mosaicAmount"
                 />

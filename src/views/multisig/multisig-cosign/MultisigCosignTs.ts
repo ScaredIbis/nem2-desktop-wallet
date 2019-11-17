@@ -2,7 +2,6 @@ import {Component, Vue, Watch, Provide} from 'vue-property-decorator'
 import {Address} from "nem2-sdk"
 import {mapState} from "vuex"
 import {StoreAccount, TRANSACTIONS_CATEGORIES} from "@/core/model"
-import {standardFields} from "@/core/validation"
 import {fetchChildrenPartialTransactions, fetchPartialTransactions} from '@/core/services/multisig/partialTransactions'
 import TransactionList from '@/components/transaction-list/TransactionList.vue'
 import MultisigTree from '@/views/multisig/multisig-tree/MultisigTree.vue'
@@ -18,7 +17,6 @@ export class MultisigCosignTs extends Vue {
     activeAccount: StoreAccount
     currentAddress = ''
     TRANSACTIONS_CATEGORIES = TRANSACTIONS_CATEGORIES
-    standardFields = standardFields
 
     get wallet() {
         return this.activeAccount.wallet

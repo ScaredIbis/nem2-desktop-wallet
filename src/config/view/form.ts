@@ -3,6 +3,13 @@ import {FEE_SPEEDS} from '@/config'
 
 
 export const formDataConfig = {
+    settingPassword: {
+        previousPassword: '',
+        newPassword: '',
+        confirmPassword: '',
+        cipher: '',
+        hint: 'PLACEHOLDER_cipher_hint',
+    },
     offsetLineForm: {
         generationHash: '',
         mosaicId: '',

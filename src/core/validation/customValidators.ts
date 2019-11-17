@@ -2,7 +2,7 @@ import {MosaicId, Account, Address, NetworkType} from 'nem2-sdk'
 import {networkConfig} from '@/config/constants'
 import {getAbsoluteMosaicAmount} from "@/core/utils"
 import {AppAccounts, ValidationObject, AppWallet, CurrentAccount, AppMosaic} from "@/core/model"
-import {validateAddress, validatePublicKey, validateAlias, validateMosaicId, validateNamespace} from '.'
+import {validateAddress, validatePublicKey, validateAlias, validateMosaicId, validateNamespace} from './validators'
 
 const {PUBLIC_KEY_LENGTH, maxMosaicAtomicUnits} = networkConfig
 
@@ -56,6 +56,7 @@ const confirmLockValidator = (context): Promise<ValidationObject> => {
         CUSTOM_VALIDATORS_NAMES.confirmLock,
         (password, [otherField]) => new Promise((resolve) => {
             const passwordCipher = getOtherFieldValue(otherField, context)
+            console.log("TCL: passwordCipher", passwordCipher)
             if (AppAccounts().decryptString(passwordCipher, password) !== password) resolve({valid: false})
             resolve({valid: true})
         }),
@@ -247,7 +248,7 @@ const amountDecimalsValidator = (context): Promise<ValidationObject> => {
         CUSTOM_VALIDATORS_NAMES.amountDecimals,
         (amount, [otherField]) => new Promise((resolve) => {
             try {
-                const decimalPart: string = (amount+"").split(".")[1]
+                const decimalPart: string = (amount + "").split(".")[1]
                 if (!decimalPart) return resolve({valid: true})
                 const numberOfDecimals = decimalPart.length
                 const appMosaic: AppMosaic = getOtherFieldValue(otherField, context)

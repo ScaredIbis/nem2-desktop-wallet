@@ -1,24 +1,24 @@
-import { mapState } from "vuex"
-import { Message } from "@/config/index.ts"
-import { Component, Vue, Prop, Watch, Provide } from 'vue-property-decorator'
-import { standardFields } from '@/core/validation'
-import { StoreAccount } from "@/core/model"
+import {mapState} from "vuex"
+import {Message} from "@/config/index.ts"
+import {Component, Vue, Prop, Provide} from 'vue-property-decorator'
+import {validation} from '@/core/validation'
+import {StoreAccount} from "@/core/model"
 import ErrorTooltip from '@/components/other/forms/errorTooltip/ErrorTooltip.vue'
 
 @Component({
-    computed: { ...mapState({ activeAccount: 'account' }) },
-    components: { ErrorTooltip },
+    computed: {...mapState({activeAccount: 'account'})},
+    components: {ErrorTooltip},
 })
 export class CheckPasswordDialogTs extends Vue {
     @Provide() validator: any = this.$validator
     activeAccount: StoreAccount
-    standardFields = standardFields
+    validation = validation
     password = ''
 
-    @Prop({ default: false })
+    @Prop({default: false})
     visible: boolean
 
-    @Prop({ default: false })
+    @Prop({default: false})
     returnPassword: boolean
 
     get show(): boolean {

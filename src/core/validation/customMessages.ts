@@ -1,5 +1,5 @@
 import {Message} from '@/config'
-import {CUSTOM_VALIDATORS_NAMES} from '.'
+import {CUSTOM_VALIDATORS_NAMES} from './customValidators'
 
 export const customMessages = {
  [CUSTOM_VALIDATORS_NAMES.address]: () => Message.ADDRESS_INVALID,

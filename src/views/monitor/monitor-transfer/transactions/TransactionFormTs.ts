@@ -9,7 +9,7 @@ import {mapState} from "vuex"
 import {DEFAULT_FEES, FEE_GROUPS, formDataConfig} from "@/config"
 import {Component, Provide, Vue, Watch} from 'vue-property-decorator'
 import {getAbsoluteMosaicAmount, getRelativeMosaicAmount, formatAddress, cloneData} from "@/core/utils"
-import {standardFields} from "@/core/validation"
+import {validation} from "@/core/validation"
 import {signTransaction} from '@/core/services/transactions'
 import {
     AppMosaic,
@@ -48,7 +48,7 @@ export class TransactionFormTs extends Vue {
     currentAmount: number = 0
     isAddressMapNull = true
     formItems = cloneData(formDataConfig.transferForm)
-    standardFields: object = standardFields
+    validation = validation
     getRelativeMosaicAmount = getRelativeMosaicAmount
     formatAddress = formatAddress
     maxMosaicAbsoluteAmount = 0

@@ -2,14 +2,13 @@ import {MnemonicQR} from 'nem2-qr-library'
 import {MnemonicPassPhrase} from 'nem2-hd-wallets'
 import {Component, Vue, Prop, Provide} from 'vue-property-decorator'
 import {mapState} from "vuex"
-import { of } from 'rxjs'
-import { pluck, concatMap } from 'rxjs/operators'
-import {Password} from "nem2-sdk"
+import {of} from 'rxjs'
+import {pluck, concatMap} from 'rxjs/operators'
 import {AppAccounts, StoreAccount} from "@/core/model"
 import {copyTxt} from "@/core/utils"
 import {Message} from "@/config"
 import failureIcon from "@/common/img/monitor/failure.png"
-import {standardFields} from '@/core/validation'
+import {validation} from '@/core/validation'
 import MnemonicVerification from "@/components/mnemonic-verification/MnemonicVerification.vue"
 import ErrorTooltip from '@/components/other/forms/errorTooltip/ErrorTooltip.vue'
 
@@ -25,20 +24,20 @@ import ErrorTooltip from '@/components/other/forms/errorTooltip/ErrorTooltip.vue
     },
     subscriptions() {
         const qrCode$ = this
-            .$watchAsObservable('qrCodeArgs', { immediate: true })
+            .$watchAsObservable('qrCodeArgs', {immediate: true})
             .pipe(pluck('newValue'),
                 concatMap((args) => {
                     if (args instanceof MnemonicQR) return args.toBase64()
                     return of(failureIcon)
                 }))
-        return { qrCode$ }
+        return {qrCode$}
     }
 })
 export class MnemonicDialogTs extends Vue {
     @Provide() validator: any = this.$validator
     activeAccount: StoreAccount
     MnemonicQR = MnemonicQR
-    standardFields = standardFields
+    validation = validation
     copyTxt = copyTxt
     stepIndex = 0
     mnemonic = ''

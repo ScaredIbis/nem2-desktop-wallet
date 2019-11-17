@@ -14,7 +14,7 @@
                 <textarea
                   v-focus
                   v-model="formItems.privateKey"
-                  v-validate="standardFields.privateKey.validation"
+                  v-validate="validation.privateKey"
                   :placeholder="$t('Paste_the_private_key_string_in_the_input_box')"
                   :data-vv-as="$t('private_key_string')"
                   data-vv-name="privateKey"

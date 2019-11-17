@@ -19,7 +19,7 @@ import {
 } from '@/core/utils'
 import {formDataConfig, Message, DEFAULT_FEES, FEE_GROUPS} from '@/config'
 import {StoreAccount, AppWallet, DefaultFee, LockParams} from "@/core/model"
-import {NETWORK_PARAMS, standardFields} from '@/core/validation'
+import {NETWORK_PARAMS, validation} from '@/core/validation'
 import {createBondedMultisigTransaction, createCompleteMultisigTransaction, signTransaction} from '@/core/services'
 import DisabledForms from '@/components/disabled-forms/DisabledForms.vue'
 import ErrorTooltip from '@/components/other/forms/errorTooltip/ErrorTooltip.vue'
@@ -34,7 +34,7 @@ import ErrorTooltip from '@/components/other/forms/errorTooltip/ErrorTooltip.vue
 })
 export class MosaicTransactionTs extends Vue {
     @Provide() validator: any = this.$validator
-    standardFields = standardFields
+    validation = validation
     activeAccount: StoreAccount
     duration = 0
     transactionDetail = {}

@@ -4,7 +4,7 @@ import {mapState} from "vuex"
 import {StoreAccount, DefaultFee, AppWallet} from '@/core/model'
 import {cloneData, getAbsoluteMosaicAmount} from '@/core/utils'
 import {formDataConfig, DEFAULT_FEES, FEE_GROUPS} from '@/config'
-import {standardFields} from '@/core/validation'
+import {validation} from '@/core/validation'
 import {signTransaction} from '@/core/services/transactions'
 import DisabledForms from '@/components/disabled-forms/DisabledForms.vue'
 import ErrorTooltip from '@/components/other/forms/errorTooltip/ErrorTooltip.vue'
@@ -24,7 +24,7 @@ export class PersistentDelegationRequestTs extends Vue {
     formItems = cloneData(formDataConfig.remoteForm)
     showGetNodePublicKey = true
     newRemoteAccount: Account = null
-    standardFields = standardFields
+    validation = validation
     recipientPublicKey: string = ""
     password: string = ""
 

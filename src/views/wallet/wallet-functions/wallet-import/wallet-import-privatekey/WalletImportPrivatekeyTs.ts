@@ -8,7 +8,7 @@ import {networkTypeConfig} from '@/config/view/setting'
 import {AppWallet, AppInfo, StoreAccount} from "@/core/model"
 import {cloneData} from "@/core/utils"
 import ErrorTooltip from '@/components/other/forms/errorTooltip/ErrorTooltip.vue'
-import {standardFields} from '@/core/validation'
+import {validation} from '@/core/validation'
 
 @Component({
     computed: {
@@ -25,7 +25,7 @@ export class WalletImportPrivatekeyTs extends Vue {
     app: AppInfo
     NetworkTypeList = networkTypeConfig
     NetworkType = NetworkType
-    standardFields = standardFields
+    validation = validation
     account = {}
     formItems = cloneData(formDataConfig.walletImportPrivateKeyForm)
     networkType = networkTypeConfig

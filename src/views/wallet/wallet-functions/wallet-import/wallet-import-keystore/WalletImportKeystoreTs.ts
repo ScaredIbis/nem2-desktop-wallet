@@ -5,7 +5,6 @@ import {formDataConfig, Message} from "@/config/index.ts"
 import {networkTypeConfig} from '@/config/view/setting'
 import {AppWallet, AppInfo, StoreAccount} from "@/core/model"
 import {cloneData, localRead} from "@/core/utils"
-import {standardFields} from '@/core/validation'
 import CheckPasswordDialog from '@/components/check-password-dialog/CheckPasswordDialog.vue'
 import ErrorTooltip from '@/components/other/forms/errorTooltip/ErrorTooltip.vue'
 
@@ -23,7 +22,6 @@ export class WalletImportKeystoreTs extends Vue {
     activeAccount: StoreAccount
     app: AppInfo
     NetworkType = NetworkType
-    standardFields = standardFields
     file = ''
     fileList = []
     NetworkTypeList = networkTypeConfig

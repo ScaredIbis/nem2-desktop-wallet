@@ -11,7 +11,7 @@ import {AppInfo, MosaicNamespaceStatusType, StoreAccount} from "@/core/model"
 import failureIcon from '@/common/img/monitor/failure.png'
 import {pluck, concatMap} from 'rxjs/operators'
 import {of} from 'rxjs'
-import {validateMosaicId, validateAlias, standardFields} from '@/core/validation'
+import {validateMosaicId, validation} from '@/core/validation'
 import ErrorTooltip from '@/components/other/forms/errorTooltip/ErrorTooltip.vue'
 
 @Component({
@@ -38,6 +38,7 @@ export class MonitorInvoiceTs extends Vue {
     @Provide() validator: any = this.$validator
     activeAccount: StoreAccount
     app: AppInfo
+    validation = validation
     TransferType = TransferType
     transferTypeList = monitorReceiptTransferTypeConfig
     selectedMosaicHex: string = ""
@@ -47,7 +48,6 @@ export class MonitorInvoiceTs extends Vue {
     }
 
     QRCode: string = failureIcon
-    standardFields = standardFields
 
     get networkCurrency() {
         return this.activeAccount.networkCurrency
@@ -89,6 +89,10 @@ export class MonitorInvoiceTs extends Vue {
     }
 
     get transferTransaction(): TransferTransaction {
+        if (this.$validator.errors.any()) {
+            return null
+        }
+
         try {
             const {activeMosaic} = this
             const {networkType, address} = this.wallet
