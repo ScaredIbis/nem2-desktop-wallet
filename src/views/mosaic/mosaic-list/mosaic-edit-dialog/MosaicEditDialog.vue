@@ -19,7 +19,7 @@
             action="submit"
             onsubmit="event.preventDefault()"
             @keyup.enter="submit"
-            class="form-style"
+            class="form-style scroll"
           >
             <div class="input_content">
               <div class="title">{{ $t('mosaic_ID') }}</div>
@@ -68,48 +68,38 @@
 
             <div class="input_content">
               <div class="title">{{ $t('change_amount') }}</div>
-              <ErrorTooltip fieldName="delta" placementOverride="top">
-                <input
-                  v-focus
-                  data-vv-name="delta"
-                  v-model="formItems.delta"
-                  :data-vv-as="$t('change_amount')"
-                  v-validate="validation.supply"
-                  type="number"
-                  :placeholder="$t('please_enter_the_amount_of_change')"
-                />
-              </ErrorTooltip>
+              <div class="input_area">
+                <ErrorTooltip fieldName="delta" placementOverride="top">
+                  <input
+                    v-focus
+                    data-vv-name="delta"
+                    v-model="formItems.delta"
+                    :data-vv-as="$t('change_amount')"
+                    v-validate="validation.supply"
+                    :placeholder="$t('please_enter_the_amount_of_change')"
+                  />
+                </ErrorTooltip>
+              </div>
             </div>
 
             <div class="input_content">
               <div class="title">{{$t('fee')}}</div>
-              <Select
-                class="fee-select input_select"
-                data-vv-name="fee"
-                v-model="formItems.feeSpeed"
-                v-validate="'required'"
-                :data-vv-as="$t('fee')"
-                :placeholder="$t('fee')"
-              >
-                <Option
-                  v-for="item in defaultFees"
-                  :value="item.speed"
-                  :key="item.speed"
-                >{{$t(item.speed)}} {{ `(${item.value} ${networkCurrency.ticker})` }}</Option>
-              </Select>
-            </div>
-
-            <div class="input_content">
-              <div class="title">{{ $t('password') }}</div>
-              <ErrorTooltip fieldName="password" placementOverride="top">
-                <input
-                  v-model="formItems.password"
-                  v-validate="validation.walletPassword"
-                  data-vv-name="password"
-                  :data-vv-as="$t('password')"
-                  :placeholder="$t('please_enter_your_wallet_password')"
-                />
-              </ErrorTooltip>
+              <div class="input_area">
+                <Select
+                  class="fee-select input_select"
+                  data-vv-name="fee"
+                  v-model="formItems.feeSpeed"
+                  v-validate="'required'"
+                  :data-vv-as="$t('fee')"
+                  :placeholder="$t('fee')"
+                >
+                  <Option
+                    v-for="item in defaultFees"
+                    :value="item.speed"
+                    :key="item.speed"
+                  >{{$t(item.speed)}} {{ `(${item.value} ${networkCurrency.ticker})` }}</Option>
+                </Select>
+              </div>
             </div>
 
             <input v-show="false" v-model="wallet" v-validate disabled data-vv-name="wallet" />

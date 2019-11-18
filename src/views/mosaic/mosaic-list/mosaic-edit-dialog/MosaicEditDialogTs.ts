@@ -1,12 +1,10 @@
 import {Component, Vue, Prop, Provide, Watch} from 'vue-property-decorator'
 import {mapState} from "vuex"
-import {
-    Password, NetworkType, MosaicSupplyChangeTransaction,
-    Deadline, UInt64, MosaicId, MosaicSupplyChangeAction,
-} from 'nem2-sdk'
-import {networkConfig, DEFAULT_FEES, FEE_GROUPS, formDataConfig} from "@/config"
+import {MosaicSupplyChangeTransaction, Deadline, UInt64, MosaicId, MosaicSupplyChangeAction} from 'nem2-sdk'
+import {DEFAULT_FEES, FEE_GROUPS, formDataConfig} from "@/config"
 import {cloneData, getAbsoluteMosaicAmount, formatNumber} from '@/core/utils'
 import {AppWallet, AppMosaic, DefaultFee, StoreAccount} from "@/core/model"
+import {signTransaction} from '@/core/services'
 import {validation} from '@/core/validation'
 import DisabledForms from '@/components/disabled-forms/DisabledForms.vue'
 import ErrorTooltip from '@/components/other/forms/errorTooltip/ErrorTooltip.vue'
@@ -22,8 +20,6 @@ export class MosaicEditDialogTs extends Vue {
     activeAccount: StoreAccount
     formatNumber = formatNumber
     validation = validation
-    changedSupply = 0
-    totalSupply = networkConfig.maxMosaicAtomicUnits
     formItems = cloneData(formDataConfig.mosaicEditForm)
 
     @Prop()
@@ -64,24 +60,12 @@ export class MosaicEditDialogTs extends Vue {
         return this.activeAccount.wallet
     }
 
-    get generationHash(): string {
-        return this.activeAccount.generationHash
-    }
-
-    get node(): string {
-        return this.activeAccount.node
-    }
-
     get networkCurrency() {
         return this.activeAccount.networkCurrency
     }
 
     get mosaicId(): string {
         return this.itemMosaic.hex
-    }
-
-    get networkType(): NetworkType {
-        return this.wallet.networkType
     }
 
     get defaultFees(): DefaultFee[] {
@@ -94,44 +78,50 @@ export class MosaicEditDialogTs extends Vue {
         return getAbsoluteMosaicAmount(feeAmount, this.networkCurrency.divisibility)
     }
 
-    mosaicEditDialogCancel() {
-        this.initForm()
-        this.show = false
-    }
-
     submit() {
-        this.updateMosaic()
+        this.$validator
+            .validate()
+            .then((valid) => {
+                if (!valid) return
+                this.confirmViaTransactionConfirmation()
+            })
     }
 
-    updateMosaic() {
-        const {node, generationHash, feeAmount, mosaicId, networkType} = this
-        const password = new Password(this.formItems.password)
+    get transaction() {
+        const {feeAmount, mosaicId, wallet} = this
         const {delta, supplyType} = this.formItems
 
-        new AppWallet(this.wallet).signAndAnnounceNormal(
-            password,
-            node,
-            generationHash,
-            [
-                MosaicSupplyChangeTransaction.create(
-                    Deadline.create(),
-                    new MosaicId(mosaicId),
-                    supplyType,
-                    UInt64.fromUint(delta),
-                    networkType,
-                    UInt64.fromUint(feeAmount)
-                )
-            ],
-            this,
+        return MosaicSupplyChangeTransaction.create(
+            Deadline.create(),
+            new MosaicId(mosaicId),
+            supplyType,
+            UInt64.fromUint(delta),
+            wallet.networkType,
+            UInt64.fromUint(feeAmount)
         )
-
-        this.mosaicEditDialogCancel
     }
 
-    initForm() {
-        this.formItems = cloneData(formDataConfig.mosaicEditForm)
+    async confirmViaTransactionConfirmation() {
+        try {
+            this.show = false;
+
+            const {
+                success,
+                signedTransaction,
+                signedLock,
+            } = await signTransaction({
+                transaction: this.transaction,
+                store: this.$store,
+            })
+
+            if (success) {
+                new AppWallet(this.wallet).announceTransaction(signedTransaction, this.activeAccount.node, this.$root, signedLock)
+            }
+        } catch (error) {
+            console.error("AliasTs -> confirmViaTransactionConfirmation -> error", error)
+        }
     }
-    
+
     @Watch('newSupply')
     onSelectedMosaicHexChange() {
         /** Makes newSupply validation reactive */

@@ -43,7 +43,7 @@
                 v-model="target"
                 :placeholder="$t('address')"
                 data-vv-name="address"
-                v-validate="'required|address|addressNetworkType:currentAccount'"
+                v-validate="validation.address"
                 :data-vv-as="$t('address')"
               />
             </ErrorTooltip>

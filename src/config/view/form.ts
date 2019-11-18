@@ -49,7 +49,7 @@ export const formDataConfig = {
     mosaicEditForm: {
         id: '',
         aliasName: '',
-        delta: 0,
+        delta: 1,
         supplyType: 1,
         changeDelta: 0,
         duration: '',

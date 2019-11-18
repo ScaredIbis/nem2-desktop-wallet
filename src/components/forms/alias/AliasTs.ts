@@ -16,6 +16,7 @@ import {mapState} from "vuex"
 import {cloneData, getAbsoluteMosaicAmount} from "@/core/utils"
 import {StoreAccount, AppInfo, AppWallet, AppNamespace, DefaultFee, MosaicNamespaceStatusType} from "@/core/model"
 import {AppMosaics, signTransaction} from '@/core/services'
+import {validation} from '@/core/validation'
 import DisabledForms from '@/components/disabled-forms/DisabledForms.vue'
 import ErrorTooltip from '@/components/other/forms/errorTooltip/ErrorTooltip.vue'
 
@@ -33,6 +34,7 @@ export class AliasTs extends Vue {
     @Provide() validator: any = this.$validator
     activeAccount: StoreAccount
     app: AppInfo
+    validation = validation
     formItems = cloneData(formDataConfig.alias)
     bindTypes: Record<string, string> = {
         address: 'address',
