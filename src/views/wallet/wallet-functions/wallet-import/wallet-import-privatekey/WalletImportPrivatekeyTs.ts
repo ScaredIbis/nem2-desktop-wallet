@@ -1,14 +1,13 @@
 import {mapState} from 'vuex'
-import {Message} from "@/config/index.ts"
-import {Component, Vue, Provide} from 'vue-property-decorator'
-import {Password, Account, NetworkType} from "nem2-sdk"
-import CheckPasswordDialog from '@/components/check-password-dialog/CheckPasswordDialog.vue'
-import {formDataConfig} from '@/config/view/form'
-import {networkTypeConfig} from '@/config/view/setting'
-import {AppWallet, AppInfo, StoreAccount} from "@/core/model"
+import {NetworkType, Password} from "nem2-sdk"
+import {Component, Provide, Vue} from 'vue-property-decorator'
+import {AppInfo, AppWallet, StoreAccount} from "@/core/model"
+import {Message, formDataConfig, networkTypeConfig} from "@/config"
 import {cloneData} from "@/core/utils"
-import ErrorTooltip from '@/components/other/forms/errorTooltip/ErrorTooltip.vue'
 import {validation} from '@/core/validation'
+import CheckPasswordDialog from '@/components/check-password-dialog/CheckPasswordDialog.vue'
+import ErrorTooltip from '@/components/other/forms/errorTooltip/ErrorTooltip.vue'
+
 
 @Component({
     computed: {

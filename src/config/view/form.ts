@@ -1,6 +1,5 @@
 import {NetworkType} from "nem2-sdk"
-import {FEE_SPEEDS} from '@/config'
-
+import {defaultNetworkConfig, FEE_SPEEDS} from '../constants'
 
 export const formDataConfig = {
     settingPassword: {
@@ -22,7 +21,7 @@ export const formDataConfig = {
         password: '',
         passwordAgain: '',
         hint: '',
-        networkType: NetworkType.MIJIN_TEST,
+        networkType: defaultNetworkConfig.DEFAULT_NETWORK_TYPE,
     },
     importKeystoreConfig: {
         walletName: 'keystore-wallet',

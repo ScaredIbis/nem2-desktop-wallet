@@ -624,7 +624,6 @@
   "The_wallet_terminal_will_use_the_HD_WALLET_protocol_to_provide_1": "本钱包终端将采用HD-WALLET协议，提供给方便的钱包管理，",
   "The_wallet_terminal_will_use_the_HD_WALLET_protocol_to_provide_2": "账户默认钱包将会是一个记助词钱包；遵循一个账户，一个种子，一个密码的原则；",
   "The_wallet_terminal_will_use_the_HD_WALLET_protocol_to_provide_3": "所以一个账户下可以有多个钱包列表，用账户密码管理，一旦忘记密码，可以通过导入助记词恢复钱包；在程序的启动页你可以方便的切换到其他账户。",
-  "The_wallet_terminal_will_use_the_HD_WALLET_protocol_to_provide": "本钱包终端将采用HD-WALLET协议，提供给方便的钱包管理，账户默认钱包将会是一个记助词钱包；遵循一个账户，一个种子，一个密码的原则；所以一个账户下可以有多个钱包列表，用账户密码管理，一旦忘记密码，可以通过导入助记词恢复钱包；在程序的启动页你可以方便的切换到其他账户。",
   "Account_name_already_exists": "账户名已存在",
   "WLT_file": "WLT文件（硬件钱包）",
   "Import_a_seed_file_from_a_WLT_file_or_hardware_wallet": "从WLT文件或硬件钱包 导入种子文件",

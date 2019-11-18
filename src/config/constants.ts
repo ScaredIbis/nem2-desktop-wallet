@@ -1,4 +1,4 @@
-import {TransactionType} from 'nem2-sdk'
+import {TransactionType, NetworkType} from 'nem2-sdk'
 import {DefaultFee, NetworkCurrency} from '@/core/model'
 
 export const WALLET_VERSION = '0.8.6'
@@ -171,6 +171,7 @@ export const defaultNetworkConfig = {
     networkConfirmations: 10,
     defaultNetworkMosaic,
     DEFAULT_LOCK_AMOUNT: 10000000,
+    DEFAULT_NETWORK_TYPE: NetworkType.MIJIN_TEST
 }
 
 export const networkConfig = {

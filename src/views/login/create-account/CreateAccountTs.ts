@@ -1,40 +1,22 @@
-import {Component, Vue} from 'vue-property-decorator'
-import {formDataConfig, Message} from "@/config"
+import {Component, Provide, Vue} from 'vue-property-decorator'
+import {AppAccount, AppAccounts, CurrentAccount} from '@/core/model'
+import {Message, formDataConfig, networkTypeConfig} from "@/config"
 import {cloneData} from "@/core/utils"
-import {AppAccounts, AppAccount, CurrentAccount} from '@/core/model'
-import {networkTypeConfig} from "@/config/view/setting"
+import {validation} from '@/core/validation'
+import ErrorTooltip from '@/components/other/forms/errorTooltip/ErrorTooltip.vue'
 
-@Component
+@Component({
+    components: {ErrorTooltip}
+})
 export class CreateAccountTs extends Vue {
-    formItem = cloneData(formDataConfig.createAccountForm)
+    @Provide() validator: any = this.$validator
+    validation = validation
     networkTypeList = networkTypeConfig
+    formItem = cloneData(formDataConfig.createAccountForm)
 
-    checkInput() {
-        const {accountName, password, passwordAgain} = this.formItem
-        const appAccounts = AppAccounts()
-        if (appAccounts.getAccountFromLocalStorage(accountName)) {
-            this.$Notice.error({title: this.$t(Message.ACCOUNT_NAME_EXISTS_ERROR) + ''})
-            return false
-        }
-        if (!accountName || accountName == '') {
-            this.$Notice.error({title: this.$t(Message.ACCOUNT_NAME_INPUT_ERROR) + ''})
-            return false
-        }
-        if (!password || password.length < 8) {
-            this.$Notice.error({title: this.$t(Message.PASSWORD_SETTING_INPUT_ERROR) + ''})
-            return false
-        }
-        if (passwordAgain !== password) {
-            this.$Notice.error({title: this.$t(Message.INCONSISTENT_PASSWORD_ERROR) + ''})
-            return false
-        }
-        return true
-    }
-
-    submit() {
+    createAccount() {
         const appAccounts = AppAccounts()
         let {accountName, password, networkType, hint} = this.formItem
-        if (!this.checkInput()) return
         const encryptedPassword = AppAccounts().encryptString(password, password)
         const appAccount = new AppAccount(accountName, [], encryptedPassword, hint, networkType)
         appAccounts.saveAccountInLocalStorage(appAccount)
@@ -56,7 +38,12 @@ export class CreateAccountTs extends Vue {
         })
     }
 
-    toBack() {
-        this.$router.push('login')
+    submit() {
+        this.$validator
+            .validate()
+            .then((valid) => {
+                if (!valid) return
+                this.createAccount()
+            })
     }
 }
