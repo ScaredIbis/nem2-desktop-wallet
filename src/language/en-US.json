@@ -240,10 +240,10 @@
     "bind": "Bind",
     "mosaic_alias_operation": "Mosaic alias operation",
     "binding_success": "Binding success",
-    "existing_supply": "Existing supply",
+    "existing_supply": "Current supply",
     "change_type": "Change type",
     "increase": "Increase",
-    "cut_back": "Cut back",
+    "cut_back": "Decrease",
     "change_amount": "Change amount",
     "please_enter_the_amount_of_change": "Please enter the amount of change",
     "post_change_supply": "Post change supply",
@@ -791,5 +791,6 @@
     "Keystore_password": "Keystore password",
     "Network_type": "Network type",
     "mosaic_not_set": "please select a mosaic",
-    "empty_mosaic_list": "there should be at least one mosaic in the list"
+    "empty_mosaic_list": "there should be at least one mosaic in the list",
+    "New_supply": "New supply"
 }

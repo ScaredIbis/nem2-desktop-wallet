@@ -1,22 +1,27 @@
-import {Component, Vue, Prop, Watch} from 'vue-property-decorator'
+import {Component, Vue, Prop, Provide, Watch} from 'vue-property-decorator'
 import {mapState} from "vuex"
-import {Password, NetworkType, MosaicSupplyChangeTransaction, Deadline, UInt64, MosaicId} from 'nem2-sdk'
-import {Message, networkConfig, DEFAULT_FEES, FEE_GROUPS, formDataConfig} from "@/config/index.ts"
-import {cloneData, getAbsoluteMosaicAmount} from '@/core/utils'
+import {
+    Password, NetworkType, MosaicSupplyChangeTransaction,
+    Deadline, UInt64, MosaicId, MosaicSupplyChangeAction,
+} from 'nem2-sdk'
+import {networkConfig, DEFAULT_FEES, FEE_GROUPS, formDataConfig} from "@/config"
+import {cloneData, getAbsoluteMosaicAmount, formatNumber} from '@/core/utils'
 import {AppWallet, AppMosaic, DefaultFee, StoreAccount} from "@/core/model"
+import {validation} from '@/core/validation'
 import DisabledForms from '@/components/disabled-forms/DisabledForms.vue'
+import ErrorTooltip from '@/components/other/forms/errorTooltip/ErrorTooltip.vue'
 
 @Component({
     computed: {
         ...mapState({activeAccount: 'account'})
     },
-    components:{
-        DisabledForms
-    }
+    components: {DisabledForms, ErrorTooltip}
 })
 export class MosaicEditDialogTs extends Vue {
+    @Provide() validator: any = this.$validator
     activeAccount: StoreAccount
-    isCompleteForm = false
+    formatNumber = formatNumber
+    validation = validation
     changedSupply = 0
     totalSupply = networkConfig.maxMosaicAtomicUnits
     formItems = cloneData(formDataConfig.mosaicEditForm)
@@ -41,6 +46,20 @@ export class MosaicEditDialogTs extends Vue {
         return this.itemMosaic.mosaicInfo.supply.compact()
     }
 
+    get newSupply(): number {
+        const {supply} = this
+        const {delta} = this.formItems
+        if (!delta) return supply
+        const _delta = parseInt(delta, 10)
+        if (isNaN(_delta)) return supply
+        console.log("TCL: MosaicEditDialogTs -> supply - delta", supply, delta, _delta)
+
+        const newSupply = this.formItems.supplyType === MosaicSupplyChangeAction.Increase
+            ? supply + _delta : supply - _delta
+
+        return isNaN(newSupply) ? supply : newSupply
+    }
+
     get wallet(): AppWallet {
         return this.activeAccount.wallet
     }
@@ -58,7 +77,7 @@ export class MosaicEditDialogTs extends Vue {
     }
 
     get mosaicId(): string {
-      return this.itemMosaic.hex
+        return this.itemMosaic.hex
     }
 
     get networkType(): NetworkType {
@@ -71,7 +90,7 @@ export class MosaicEditDialogTs extends Vue {
 
     get feeAmount(): number {
         const {feeSpeed} = this.formItems
-        const feeAmount = this.defaultFees.find(({speed})=>feeSpeed === speed).value
+        const feeAmount = this.defaultFees.find(({speed}) => feeSpeed === speed).value
         return getAbsoluteMosaicAmount(feeAmount, this.networkCurrency.divisibility)
     }
 
@@ -80,64 +99,7 @@ export class MosaicEditDialogTs extends Vue {
         this.show = false
     }
 
-    // @TODO: make get newSupply() instead
-    changeSupply() {
-        this.formItems.delta = Math.abs(this.formItems.delta)
-        let supply = 0
-        if (this.formItems.supplyType === 1) {
-            supply = Number(this.formItems.delta) + Number(this.supply)
-            if (supply > this.totalSupply * Math.pow(10, this.formItems['_divisibility'])) {
-                supply = this.totalSupply * Math.pow(10, this.formItems['_divisibility'])
-                this.formItems.delta = supply - this.supply
-            }
-        } else {
-            supply = this.supply - this.formItems.delta
-            if (supply <= 0) {
-                supply = 0
-                this.formItems.delta = this.supply
-            }
-        }
-
-        this.changedSupply = supply
-    }
-
-    checkInfo() {
-        const {formItems} = this
-
-        if (formItems.delta === 0) {
-            this.$Notice.error({
-                title: '' + this.$t(Message.INPUT_EMPTY_ERROR)
-            })
-            return false
-        }
-        if (formItems.password === '') {
-            this.$Notice.error({
-                title: '' + this.$t(Message.INPUT_EMPTY_ERROR)
-            })
-            return false
-        }
-
-        if (formItems.password.length < 8) {
-            this.$Notice.error({
-                title: '' + Message.WRONG_PASSWORD_ERROR
-            })
-            return false
-        }
-
-        const validPassword = new AppWallet(this.wallet).checkPassword(formItems.password)
-
-        if (!validPassword) {
-            this.$Notice.error({
-                title: '' + Message.WRONG_PASSWORD_ERROR
-            })
-            return false
-        }
-        return true
-    }
-
     submit() {
-        if (!this.isCompleteForm) return
-        if (!this.checkInfo()) return
         this.updateMosaic()
     }
 
@@ -151,14 +113,14 @@ export class MosaicEditDialogTs extends Vue {
             node,
             generationHash,
             [
-                  MosaicSupplyChangeTransaction.create(
-                      Deadline.create(),
-                      new MosaicId(mosaicId),
-                      supplyType,
-                      UInt64.fromUint(delta),
-                      networkType,
-                      UInt64.fromUint(feeAmount)
-                  )
+                MosaicSupplyChangeTransaction.create(
+                    Deadline.create(),
+                    new MosaicId(mosaicId),
+                    supplyType,
+                    UInt64.fromUint(delta),
+                    networkType,
+                    UInt64.fromUint(feeAmount)
+                )
             ],
             this,
         )
@@ -169,10 +131,10 @@ export class MosaicEditDialogTs extends Vue {
     initForm() {
         this.formItems = cloneData(formDataConfig.mosaicEditForm)
     }
-
-    @Watch('formItems', {deep: true})
-    onFormItemChange() {
-        const {delta, password} = this.formItems
-        this.isCompleteForm = parseInt(delta.toString()) >= 0 && password !== ''
+    
+    @Watch('newSupply')
+    onSelectedMosaicHexChange() {
+        /** Makes newSupply validation reactive */
+        this.$validator.validate('newSupply', this.newSupply)
     }
 }
