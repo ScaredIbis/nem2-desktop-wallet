@@ -56,7 +56,6 @@ const confirmLockValidator = (context): Promise<ValidationObject> => {
         CUSTOM_VALIDATORS_NAMES.confirmLock,
         (password, [otherField]) => new Promise((resolve) => {
             const passwordCipher = getOtherFieldValue(otherField, context)
-            console.log("TCL: passwordCipher", passwordCipher)
             if (AppAccounts().decryptString(passwordCipher, password) !== password) resolve({valid: false})
             resolve({valid: true})
         }),

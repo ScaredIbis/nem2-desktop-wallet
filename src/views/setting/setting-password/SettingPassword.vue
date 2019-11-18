@@ -46,9 +46,7 @@
             placeholder="PLACEHOLDER_cipher_hint"
           />
         </li>
-        <!-- <FormInput style="display:none" fieldName="cipher" :formModel="formItems" /> -->
-
-        <FormInput fieldName="cipher" :formModel="formItems" />
+        <FormInput style="display:none" fieldName="cipher" :formModel="formItems" />
       </ul>
       <span
         :class="`submit-button${submitDisabled ? ' submit-button-disabled' : ''}`"
