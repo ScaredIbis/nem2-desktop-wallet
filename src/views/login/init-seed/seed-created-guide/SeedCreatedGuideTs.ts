@@ -24,20 +24,13 @@ export class SeedCreatedGuideTs extends Vue {
     mosaics = []
     storeWallet = {}
     showCover = true
-    mnemonicRandomArr = []
     confirmedMnemonicList = []
-    formItem = {
-        networkType: '',
-        walletName: '',
-        password: '',
-        checkPW: '',
-    }
 
     @Prop({default: {}})
     createForm: any
 
     get mnemonic() {
-        return this.createForm.seed.split(' ')
+        return this.formInfo.seed.split(' ')
     }
 
     get formInfo() {
@@ -56,23 +49,12 @@ export class SeedCreatedGuideTs extends Vue {
         this.showCover = false
     }
 
-    sureWord(index) {
-        const word = this.mnemonicRandomArr[index]
-        const flagIndex = this.confirmedMnemonicList.findIndex(item => word == item)
-        if (flagIndex === -1) {
-            this.confirmedMnemonicList.push(word)
-            return
-        }
-        this.removeConfirmedWord(flagIndex)
-    }
-
     changeTabs(index) {
         switch (index) {
             case 0:
                 this.tags = index
                 break
             case 1:
-                this.mnemonicRandomArr = randomizeMnemonicWordArray(this.mnemonic)
                 this.tags = index
                 break
         }
@@ -92,7 +74,7 @@ export class SeedCreatedGuideTs extends Vue {
         const {accountName} = this
         const {seed, password} = this.formInfo
         const {networkType} = JSON.parse(localRead('accountMap'))[accountName]
-        
+
         try {
             new AppWallet().createFromMnemonic(
                 'seedWallet',
@@ -108,10 +90,6 @@ export class SeedCreatedGuideTs extends Vue {
 
     removeConfirmedWord(index) {
         this.confirmedMnemonicList.splice(index, 1)
-    }
-
-    toWalletPage() {
-        this.$router.push('dashBoard')
     }
 
     toBack() {

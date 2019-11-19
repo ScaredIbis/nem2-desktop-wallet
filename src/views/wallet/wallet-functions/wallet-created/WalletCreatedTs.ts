@@ -91,7 +91,7 @@ export class WalletCreatedTs extends Vue {
                 this.tags = index
                 break
             case 1:
-                this.mnemonicRandomArr = randomizeMnemonicWordArray(this.mnemonic)
+                this.mnemonicRandomArr = randomizeMnemonicWordArray([...this.mnemonic])
                 this.tags = index
                 break
             case 2:
