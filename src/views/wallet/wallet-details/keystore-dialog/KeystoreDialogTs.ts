@@ -4,7 +4,6 @@ import {Message} from "@/config/index.ts"
 import {copyTxt} from "@/core/utils"
 import {validation} from '@/core/validation'
 import {AppWallet, StoreAccount} from "@/core/model"
-import ErrorTooltip from '@/components/other/forms/errorTooltip/ErrorTooltip.vue'
 
 @Component({
     computed: {
@@ -12,7 +11,6 @@ import ErrorTooltip from '@/components/other/forms/errorTooltip/ErrorTooltip.vue
             activeAccount: 'account',
         })
     },
-    components: {ErrorTooltip}
 })
 export class KeystoreDialogTs extends Vue {
     @Provide() validator: any = this.$validator
