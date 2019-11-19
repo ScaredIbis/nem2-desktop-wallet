@@ -35,6 +35,7 @@
       :visible="navList[0].active"
       :returnPassword="true"
       @passwordValidated="passwordValidated"
+      @cancelled="goToPage(1)"
     />
   </div>
 </template>

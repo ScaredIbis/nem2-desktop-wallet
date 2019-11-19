@@ -25,24 +25,14 @@ export class InitSeedTs extends Vue {
     activeAccount: StoreAccount
     pageIndex = 0
     createForm = {}
-    walletCreated = false
     navList = walletFnNavConfig
 
     get accountName() {
         return this.activeAccount.currentAccount.name
     }
 
-    isCreated() {
-        this.walletCreated = true
-        this.updatePageIndex(-1)
-    }
-
     updatePageIndex(index) {
         this.pageIndex = index
-    }
-
-    closeCreated() {
-        this.walletCreated = false
     }
 
     toWalletDetails() {
@@ -59,7 +49,7 @@ export class InitSeedTs extends Vue {
 
     passwordValidated(password) {
         if (!password) {
-            this.goToPage(1)
+            this.pageIndex = 1
             return
         } 
 
@@ -73,13 +63,13 @@ export class InitSeedTs extends Vue {
         this.navList[0].active = false
     }
 
-    created() {
+    mounted() {
         if (this.$route.params.seed) {
             this.createForm = {
                 seed: this.$route.params.seed,
                 password: this.$route.params.password
             }
-            this.isCreated()
+            this.updatePageIndex(-1)
             return
         }
         const initType = Number(this.$route.params.initType) || 0

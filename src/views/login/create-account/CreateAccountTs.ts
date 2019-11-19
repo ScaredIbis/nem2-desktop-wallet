@@ -5,9 +5,7 @@ import {cloneData} from "@/core/utils"
 import {validation} from '@/core/validation'
 import ErrorTooltip from '@/components/other/forms/errorTooltip/ErrorTooltip.vue'
 
-@Component({
-    components: {ErrorTooltip}
-})
+@Component({ components: {ErrorTooltip} })
 export class CreateAccountTs extends Vue {
     @Provide() validator: any = this.$validator
     validation = validation
@@ -24,7 +22,7 @@ export class CreateAccountTs extends Vue {
 
         const currentAccount: CurrentAccount = {
             name: accountName,
-            password,
+            password: encryptedPassword,
             networkType,
         }
 

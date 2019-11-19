@@ -88,25 +88,16 @@
 
             <li>
               {{$t('hint')}}
-              <ErrorTooltip fieldName="hint">
-                <div class="gray_content">
-                  <input
-                    :data-vv-as="$t('hint')"
-                    data-vv-name="hint"
-                    v-model="formItem.hint"
-                    type="text"
-                    :placeholder="$t('please_set_your_wallet_password')"
-                  />
-                </div>
-              </ErrorTooltip>
+              <div class="gray_content">
+                <input
+                  v-model="formItem.hint"
+                  type="text"
+                  :placeholder="$t('hint')"
+                />
+              </div>
             </li>
           </ul>
           <div class="button-section">
-            <button
-              class="prev"
-              type="default"
-              @click="$router.push('login')"
-            >{{$t('back_to_home_page')}}</button>
             <button class="right" type="success" @click="submit">{{$t('next')}}</button>
           </div>
         </form>

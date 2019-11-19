@@ -5,7 +5,7 @@
       class-name="vertical-center-modal"
       :footer-hide="true"
       :transfer="false"
-      @on-cancel="$emit('close')"
+      @on-cancel="$emit('close'); $emit('cancelled')"
     >
       <div slot="header" class="checkPWDialogHeader">
         <span class="title">{{$t('confirm_information')}}</span>
@@ -19,7 +19,7 @@
                 v-model="password"
                 type="password"
                 v-validate="validation.accountPassword"
-                :data-vv-name="password"
+                data-vv-name="password"
                 :data-vv-as="$t('password')"
                 :placeholder="$t('please_enter_your_wallet_password')"
               />

@@ -32,7 +32,7 @@ export class CheckPasswordDialogTs extends Vue {
     }
 
     get accountPassword() {
-        return this.activeAccount.currentAccount.name
+        return this.activeAccount.currentAccount.password
     }
 
     submit() {

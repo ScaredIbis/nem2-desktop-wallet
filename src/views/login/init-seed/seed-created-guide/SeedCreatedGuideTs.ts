@@ -116,6 +116,6 @@ export class SeedCreatedGuideTs extends Vue {
 
     toBack() {
         this.confirmedMnemonicList = []
-        this.$router.back()
+        this.$router.push('initSeed')
     }
 }

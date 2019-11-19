@@ -135,7 +135,7 @@ const mutations: MutationTree<StoreAccount> = {
         newStateTransactions.unshift(newTx)
         state.transactionList = newStateTransactions
     },
-    SET_ACCOUNT_DATA(state: StoreAccount, currentAccount) {
+    SET_ACCOUNT_DATA(state: StoreAccount, currentAccount : CurrentAccount) {
         state.currentAccount = currentAccount
     },
     SET_MULTISIG_ACCOUNT_INFO(state: StoreAccount, addressAndMultisigInfo: AddressAndMultisigInfo) {
