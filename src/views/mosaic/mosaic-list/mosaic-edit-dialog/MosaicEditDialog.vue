@@ -25,28 +25,28 @@
           >
             <div class="input_content">
               <div class="title">{{ $t('mosaic_ID') }}</div>
-              <div class="input_area">
+              <div class="input_area no-border">
                 <p>{{ itemMosaic.hex.toString().toUpperCase() }}</p>
               </div>
             </div>
 
             <div class="input_content">
               <div class="title">{{ $t('alias') }}</div>
-              <div class="input_area">
+              <div class="input_area no-border">
                 <p>{{ itemMosaic.name ? itemMosaic.name : 'no data' }}</p>
               </div>
             </div>
 
             <div class="input_content">
               <div class="title">{{ $t('existing_supply') }}</div>
-              <div class="input_area">
+              <div class="input_area no-border">
                 <p>{{ formatNumber(supply) }}</p>
               </div>
             </div>
 
             <div class="input_content">
               <div class="title">{{ $t('New_supply') }}</div>
-              <div class="input_area">
+              <div class="input_area no-border">
                 <ErrorTooltip fieldName="newSupply" placementOverride="top">
                   <input
                     data-vv-name="newSupply"

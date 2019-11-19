@@ -17,13 +17,12 @@ import ErrorTooltip from '@/components/other/forms/errorTooltip/ErrorTooltip.vue
 export class KeystoreDialogTs extends Vue {
     @Provide() validator: any = this.$validator
     activeAccount: StoreAccount
+    errors: any
     validation = validation
     stepIndex = 0
     QRCode = ''
     keystoreText = ''
-    wallet = {
-        password: ''
-    }
+    password = ''
 
     @Prop()
     showKeystoreDialog: boolean
@@ -38,7 +37,7 @@ export class KeystoreDialogTs extends Vue {
         }
     }
 
-    get getWallet() {
+    get wallet() {
         return this.activeAccount.wallet
     }
 
@@ -46,7 +45,13 @@ export class KeystoreDialogTs extends Vue {
         this.$validator
             .validate()
             .then((valid) => {
-                if (valid) this.stepIndex = 1
+                if (!valid) {
+                    this.$Notice.destroy()
+                    this.$Notice.error({title: `${this.$t(this.errors.items[0].msg)}`})
+                    return
+                }
+
+                this.stepIndex = 1
             })
     }
 
@@ -65,7 +70,7 @@ export class KeystoreDialogTs extends Vue {
     }
 
     async generateKeystore() {
-        this.keystoreText = new AppWallet(this.getWallet).getKeystore()
+        this.keystoreText = new AppWallet(this.wallet).getKeystore()
         this.stepIndex = 2
     }
 

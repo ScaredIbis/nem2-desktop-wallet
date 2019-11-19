@@ -22,23 +22,20 @@
 
         <div class="stepItem1" v-if="stepIndex == 0">
           <form action="submit" onsubmit="event.preventDefault()" @keyup.enter="exportKeystore">
-            <FormItem>
-              <Input
-                v-focus
-                v-model="wallet.password"
-                type="password"
-                            v-validate="validation.walletPassword"
-            data-vv-name="password"
-            :data-vv-as="$t('password')"
-                :placeholder="$t('please_enter_your_wallet_password')"
-              />
-            </FormItem>
-            <FormItem>
-              <Button type="success" class="button_arrow" @click="exportKeystore">
-                {{$t('next')}}
-                <Icon type="ios-arrow-forward" />
-              </Button>
-            </FormItem>
+            <Input
+              v-focus
+              v-model="password"
+              type="password"
+              v-validate="validation.walletPassword"
+              data-vv-name="password"
+              :data-vv-as="$t('password')"
+              :placeholder="$t('please_enter_your_wallet_password')"
+            />
+            <input v-show="false" v-model="wallet" v-validate disabled data-vv-name="wallet" />
+            <Button type="success" class="button_arrow" @click="exportKeystore">
+              {{$t('next')}}
+              <Icon type="ios-arrow-forward" />
+            </Button>
           </form>
         </div>
 
@@ -106,9 +103,6 @@
               >{{$t('copy')}} Keystore</Button>
             </Col>
           </Row>
-          <!--            <Col span="8">-->
-          <!--              <Button type="success" @click="exportKeystore">{{$t('Display_Keystore_QR_code')}}</Button>-->
-          <!--            </Col>-->
         </div>
 
         <div class="stepItem4" v-if="stepIndex == 3">
