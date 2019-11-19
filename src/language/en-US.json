@@ -792,5 +792,7 @@
     "Network_type": "Network type",
     "mosaic_not_set": "please select a mosaic",
     "empty_mosaic_list": "there should be at least one mosaic in the list",
-    "New_supply": "New supply"
+    "New_supply": "New supply",
+    "Expires_in": "Expires in",
+    "New_duration": "New duration"
 }

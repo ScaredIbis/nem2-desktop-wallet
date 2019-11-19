@@ -96,7 +96,7 @@ export const formDataConfig = {
     },
     namespaceEditForm: {
         name: '',
-        duration: 0,
+        duration: 1000,
         feeSpeed: FEE_SPEEDS.NORMAL,
         password: ''
     },

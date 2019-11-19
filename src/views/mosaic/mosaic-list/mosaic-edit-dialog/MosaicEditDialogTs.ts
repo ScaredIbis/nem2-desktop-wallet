@@ -48,7 +48,6 @@ export class MosaicEditDialogTs extends Vue {
         if (!delta) return supply
         const _delta = parseInt(delta, 10)
         if (isNaN(_delta)) return supply
-        console.log("TCL: MosaicEditDialogTs -> supply - delta", supply, delta, _delta)
 
         const newSupply = this.formItems.supplyType === MosaicSupplyChangeAction.Increase
             ? supply + _delta : supply - _delta

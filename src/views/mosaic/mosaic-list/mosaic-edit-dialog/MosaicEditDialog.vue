@@ -7,19 +7,21 @@
       :footer-hide="true"
       :width="1000"
       :transfer="false"
-      @on-cancel="mosaicEditDialogCancel"
+      @on-cancel="show=false"
     >
       <DisabledForms />
+    
       <div slot="header" class="mosaicEditDialogHeader">
         <span class="title">{{$t('modify_supply')}}</span>
       </div>
+
       <div class="mosaicEditDialogBody">
         <div class="stepItem1">
           <form
             action="submit"
             onsubmit="event.preventDefault()"
             @keyup.enter="submit"
-            class="form-style scroll"
+            class="form-style"
           >
             <div class="input_content">
               <div class="title">{{ $t('mosaic_ID') }}</div>

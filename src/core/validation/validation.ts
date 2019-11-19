@@ -1,6 +1,6 @@
 import {NETWORK_PARAMS, APP_PARAMS} from './constants'
 import {CUSTOM_VALIDATORS_NAMES} from './customValidators'
-import {networkConfig} from '@/config/constants'
+import {networkConfig, NETWORK_CONSTANTS} from '@/config/constants'
 const {maxMosaicAtomicUnits} = networkConfig
 
 const {
@@ -10,12 +10,14 @@ const {
     GENERATION_HASH_LENGTH,
     MAX_MESSAGE_LENGTH,
     MIN_NAMESPACE_DURATION,
-    MAX_NAMESPACE_DURATION,
     PRIVATE_KEY_LENGTH,
     NAMESPACE_MAX_LENGTH,
 } = NETWORK_PARAMS
 
-const { MIN_PASSWORD_LENGTH, MAX_PASSWORD_LENGTH} = APP_PARAMS
+const {
+    MAX_NAMESPACE_DURATION,
+} = NETWORK_CONSTANTS
+const {MIN_PASSWORD_LENGTH, MAX_PASSWORD_LENGTH} = APP_PARAMS
 
 export const validation = {
     address: 'required|address|addressNetworkType:currentAccount',

@@ -18,5 +18,7 @@ export const customMessages = {
 }
 
 export const customFieldMessages = {
- mosaicListLength: {min_value: () => Message.EMPTY_MOSAIC_LIST}
+ mosaicListLength: {min_value: () => Message.EMPTY_MOSAIC_LIST},
+ newDuration: {max_value: () => Message.NAMESPACE_MAX_DURATION},
+ namespaceDuration: {max_value: () => Message.NAMESPACE_MAX_DURATION},
 }
