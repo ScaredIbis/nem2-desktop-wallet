@@ -37,18 +37,6 @@
             />
           </ErrorTooltip>
         </span>
-
-        <!-- <span class="pointer" @click.stop="isShowSubAlias =!isShowSubAlias">@</span>
-        <div v-if="isShowSubAlias" class="selections ">
-          <div class="selection_container scroll">
-            <div @click="formModel.recipient = key " class="overflow_ellipsis selection_item"
-                  v-for="(value,key) in addressAliasMap">{{value.label}}({{key}})
-            </div>
-          </div>
-          <div v-if="isAddressMapNull" class="no_data">
-            {{$t('no_data')}}
-          </div>
-        </div>-->
       </div>
 
       <div class="asset flex_center">
@@ -148,23 +136,6 @@
           </ErrorTooltip>
         </span>
       </div>
-
-      <!-- <div>
-        <span class="title">{{$t('remark_type')}}</span>
-        <span>
-          <span class="encryption_container">{{$t('encryption')}}</span>
-          <span
-                  @click="formItems.isEncrypted = false"
-                  :class="['encryption_item',formItems.isEncrypted?'encryption':'not_encryption']"
-          />
-          <span class="not_encryption_container">{{$t('Not_encrypted')}}</span>
-          <span
-                  @click="formItems.isEncrypted = true"
-                  :class="['encryption_item',formItems.isEncrypted?'not_encryption':'encryption']"
-          />
-        </span>
-      </div>-->
-
       <div class="fee flex_center">
         <span class="title">{{$t('fee')}}</span>
         <span class="type value radius flex_center">

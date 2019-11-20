@@ -230,6 +230,11 @@ export class TransactionFormTs extends Vue {
 
     }
 
+    get lockParams(): LockParams {
+        const {announceInLock, feeAmount, feeDivider} = this
+        return new LockParams(announceInLock, feeAmount / feeDivider)
+    }
+
     initForm() {
         this.selectedMosaicHex = null
         this.currentAmount = 0
@@ -292,11 +297,6 @@ export class TransactionFormTs extends Vue {
                 if (!valid) return
                 this.confirmViaTransactionConfirmation()
             })
-    }
-
-    get lockParams(): LockParams {
-        const {announceInLock, feeAmount, feeDivider} = this
-        return new LockParams(announceInLock, feeAmount / feeDivider)
     }
 
     async confirmViaTransactionConfirmation() {
