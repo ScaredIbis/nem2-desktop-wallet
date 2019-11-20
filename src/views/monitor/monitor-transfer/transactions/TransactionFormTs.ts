@@ -272,7 +272,7 @@ export class TransactionFormTs extends Vue {
 
     clearAssetData() {
         this.selectedMosaicHex = null
-        this.currentAmount = 0
+        this.currentAmount = null
     }
 
     sortMosaics() {

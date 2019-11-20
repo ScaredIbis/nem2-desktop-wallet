@@ -56,7 +56,7 @@
       v-if="showCheckPWDialog"
       :visible="showCheckPWDialog"
       :returnPassword="true"
-      @close="this.showCheckPWDialog = false"
+      @close="showCheckPWDialog = false"
       @passwordValidated="passwordValidated"
     />
   </div>

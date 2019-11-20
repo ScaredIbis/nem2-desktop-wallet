@@ -34,9 +34,9 @@ import ErrorTooltip from '@/components/other/forms/errorTooltip/ErrorTooltip.vue
 })
 export class MosaicTransactionTs extends Vue {
     @Provide() validator: any = this.$validator
+    signTransaction = signTransaction
     validation = validation
     activeAccount: StoreAccount
-    duration = 0
     transactionDetail = {}
     transactionList = []
     formItems = cloneData(formDataConfig.mosaicTransactionForm)
@@ -165,7 +165,7 @@ export class MosaicTransactionTs extends Vue {
                 success,
                 signedTransaction,
                 signedLock,
-            } = await signTransaction({
+            } = await this.signTransaction({
                 transaction: this.transactionList[0],
                 store: this.$store,
             })
@@ -272,7 +272,7 @@ export class MosaicTransactionTs extends Vue {
         this.$validator
         .validate()
         .then((valid) => {
-          if (!valid) return
+        if (!valid) return
           this.confirmViaTransactionConfirmation()
         })
     }
