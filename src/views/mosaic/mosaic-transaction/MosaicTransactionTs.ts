@@ -17,9 +17,9 @@ import {
 import {
     formatSeconds, formatAddress, getAbsoluteMosaicAmount, cloneData,
 } from '@/core/utils'
-import {formDataConfig, Message, DEFAULT_FEES, FEE_GROUPS} from '@/config'
+import {formDataConfig, Message, DEFAULT_FEES, FEE_GROUPS, networkConfig} from '@/config'
 import {StoreAccount, AppWallet, DefaultFee, LockParams} from "@/core/model"
-import {NETWORK_PARAMS, validation} from '@/core/validation'
+import {validation} from '@/core/validation'
 import {createBondedMultisigTransaction, createCompleteMultisigTransaction, signTransaction} from '@/core/services'
 import DisabledForms from '@/components/disabled-forms/DisabledForms.vue'
 import ErrorTooltip from '@/components/other/forms/errorTooltip/ErrorTooltip.vue'
@@ -136,7 +136,7 @@ export class MosaicTransactionTs extends Vue {
     }
 
     addDivisibilityAmount() {
-        this.formItems.divisibility = this.formItems.divisibility >= NETWORK_PARAMS.MAX_MOSAIC_DIVISIBILITY
+        this.formItems.divisibility = this.formItems.divisibility >= networkConfig.maxMosaicDivisibility
             ? Number(this.formItems.divisibility) : Number(this.formItems.divisibility) + 1
     }
 
@@ -145,7 +145,7 @@ export class MosaicTransactionTs extends Vue {
     }
 
     addSupplyAmount() {
-        this.formItems.supply = this.formItems.supply >= NETWORK_PARAMS.MAX_MOSAIC_ATOMIC_UNITS
+        this.formItems.supply = this.formItems.supply >= networkConfig.maxMosaicAtomicUnits
             ? Number(this.formItems.supply) : Number(this.formItems.supply) + 1
     }
 

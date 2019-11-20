@@ -1,23 +1,18 @@
-import {NETWORK_PARAMS, APP_PARAMS} from './constants'
 import {CUSTOM_VALIDATORS_NAMES} from './customValidators'
-import {networkConfig, NETWORK_CONSTANTS} from '@/config/constants'
-const {maxMosaicAtomicUnits} = networkConfig
+import {networkConfig, NETWORK_CONSTANTS, APP_PARAMS} from '@/config/constants'
+const {maxMosaicAtomicUnits, maxMosaicDivisibility, NAMESPACE_MAX_LENGTH} = networkConfig
+
+const {MIN_PASSWORD_LENGTH, MAX_PASSWORD_LENGTH} = APP_PARAMS
 
 const {
-    MAX_MOSAIC_ATOMIC_UNITS,
-    MAX_MOSAIC_DIVISIBILITY,
-    MAX_MOSAIC_DURATION,
     GENERATION_HASH_LENGTH,
     MAX_MESSAGE_LENGTH,
+    MAX_MOSAIC_DURATION,
+    MAX_NAMESPACE_DURATION,
     MIN_NAMESPACE_DURATION,
     PRIVATE_KEY_LENGTH,
-    NAMESPACE_MAX_LENGTH,
-} = NETWORK_PARAMS
-
-const {
-    MAX_NAMESPACE_DURATION,
 } = NETWORK_CONSTANTS
-const {MIN_PASSWORD_LENGTH, MAX_PASSWORD_LENGTH} = APP_PARAMS
+
 
 export const validation = {
     address: 'required|address|addressNetworkType:currentAccount',
@@ -25,7 +20,7 @@ export const validation = {
     addressOrAlias: `required|${CUSTOM_VALIDATORS_NAMES.addressOrAlias}|addressOrAliasNetworkType:currentAccount`,
     amount: 'decimal:6|min_value:0|otherField:selectedMosaic|amountDecimals:selectedMosaic|mosaicMaxAmount:selectedMosaic',
     confirmPassword: 'required|confirmPassword:newPassword',
-    divisibility: `required|min_value:1|max_value:${MAX_MOSAIC_DIVISIBILITY}|integer`,
+    divisibility: `required|min_value:1|max_value:${maxMosaicDivisibility}|integer`,
     duration: `required|min_value:0|max_value:${MAX_MOSAIC_DURATION}`,
     generationHash: `required|min:${GENERATION_HASH_LENGTH}|max:${GENERATION_HASH_LENGTH}`,
     invoiceAmount: `decimal:6|min_value:0|max_value:${maxMosaicAtomicUnits}`,
@@ -42,7 +37,7 @@ export const validation = {
     previousPassword: 'required|confirmLock:cipher',
     privateKey: `min:${PRIVATE_KEY_LENGTH}|max:${PRIVATE_KEY_LENGTH}|privateKey`,
     recipientPublicKey: 'required|publicKey',
-    supply: `required|integer|min_value: 1|max_value:${MAX_MOSAIC_ATOMIC_UNITS}`,
+    supply: `required|integer|min_value: 1|max_value:${maxMosaicAtomicUnits}`,
     walletPassword: 'required|confirmWalletPassword:wallet',
     subNamespaceName: {
         required: true,

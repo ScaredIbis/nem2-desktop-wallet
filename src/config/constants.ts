@@ -120,7 +120,7 @@ export const networkConfig = {
     maxProofSize: 1000,
     maxValueSize: 1024,
     maxMosaicsPerAccount: 10000,
-    maxMosaicDuration: "3650d",
+    maxMosaicDuration: 3650,
     maxMosaicDivisibility: 6,
     mosaicRentalFeeSinkPublicKey: "53E140B5947F104CABC2D6FE8BAEDBC30EF9A0609C717D9613DE593EC2A266D3",
     mosaicRentalFee: 500,
@@ -149,7 +149,18 @@ export const networkConfig = {
 }
 
 export const NETWORK_CONSTANTS = {
-    MAX_NAMESPACE_DURATION: networkConfig.maxNamespaceDuration * 24 * 60 * 60 / networkConfig.targetBlockTime
+    GENERATION_HASH_LENGTH: 64,
+    MAX_MESSAGE_LENGTH: networkConfig.maxMessageSize - 1,
+    MAX_MOSAIC_DURATION: networkConfig.maxMosaicDuration * 24 * 60 * 60 / networkConfig.targetBlockTime,
+    MAX_NAMESPACE_DURATION: networkConfig.maxNamespaceDuration * 24 * 60 * 60 / networkConfig.targetBlockTime,
+    MIN_NAMESPACE_DURATION: 4,
+    PRIVATE_KEY_LENGTH: 64,
+    NEMESIS_BLOCK_TIMESTAMP: 1459468800,
+}
+
+export const APP_PARAMS = {
+    MIN_PASSWORD_LENGTH: 8,
+    MAX_PASSWORD_LENGTH: 64,
 }
 
 export const Message = {
