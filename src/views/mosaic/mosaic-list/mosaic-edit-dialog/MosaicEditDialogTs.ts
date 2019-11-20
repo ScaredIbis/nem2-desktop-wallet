@@ -17,6 +17,7 @@ import ErrorTooltip from '@/components/other/forms/errorTooltip/ErrorTooltip.vue
 })
 export class MosaicEditDialogTs extends Vue {
     @Provide() validator: any = this.$validator
+    signTransaction = signTransaction
     activeAccount: StoreAccount
     formatNumber = formatNumber
     validation = validation
@@ -108,7 +109,7 @@ export class MosaicEditDialogTs extends Vue {
                 success,
                 signedTransaction,
                 signedLock,
-            } = await signTransaction({
+            } = await this.signTransaction({
                 transaction: this.transaction,
                 store: this.$store,
             })
@@ -117,7 +118,7 @@ export class MosaicEditDialogTs extends Vue {
                 new AppWallet(this.wallet).announceTransaction(signedTransaction, this.activeAccount.node, this.$root, signedLock)
             }
         } catch (error) {
-            console.error("AliasTs -> confirmViaTransactionConfirmation -> error", error)
+            console.error("MosaicEditDialogTs -> confirmViaTransactionConfirmation -> error", error)
         }
     }
 

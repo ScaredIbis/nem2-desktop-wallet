@@ -30,12 +30,12 @@
         <div v-if="bind && fromNamespace && !restrictedBindType" class="input_content">
           <div class="title">{{ $t('Alias_type') }}</div>
           <RadioGroup v-model="bindType" class="input_radio">
-            <Radio :label="bindTypes.address" />
-            <Radio :label="bindTypes.mosaic" />
+            <Radio :label="BindTypes.ADDRESS" />
+            <Radio :label="BindTypes.MOSAIC" />
           </RadioGroup>
         </div>
 
-        <div v-if="bind && fromNamespace && bindType === bindTypes.address" class="input_content">
+        <div v-if="bind && fromNamespace && bindType === BindTypes.ADDRESS" class="input_content">
           <div class="title">{{ $t('address') }}</div>
           <div class="input_area">
             <ErrorTooltip fieldName="address" class="flex-8" placementOverride="top">
@@ -50,7 +50,7 @@
           </div>
         </div>
 
-        <div v-if="bind && fromNamespace && bindType === bindTypes.mosaic" class="input_content">
+        <div v-if="bind && fromNamespace && bindType === BindTypes.MOSAIC" class="input_content">
           <div class="title">{{ $t('mosaic') }}</div>
           <ErrorTooltip fieldName="mosaicId" class="flex-8" placementOverride="top">
             <Select
@@ -126,7 +126,7 @@
 </template>
 
 <script lang="ts">
-import { AliasTs } from "./AliasTs";
+import { AliasTs } from '@/components/forms/alias/AliasTs.ts';
 export default class Alias extends AliasTs {}
 </script>
 <style lang="less">

@@ -36,6 +36,7 @@ export interface RemoteAccount {
     publicKey: string,
 }
 
+
 export interface StoreAccount {
     node: string
     wallet: AppWallet
@@ -141,6 +142,11 @@ export enum RECIPIENT_TYPES {
     ADDRESS = 'ADDRESS',
     ALIAS = 'ALIAS',
     PUBLIC_KEY = 'PUBLIC_KEY',
+}
+
+export enum BindTypes {
+    ADDRESS = 'ADDRESS',
+    MOSAIC = 'MOSAIC,'
 }
 
 export interface ValidationObject {

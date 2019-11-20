@@ -14,7 +14,7 @@ import {
 } from "nem2-sdk"
 import {mapState} from "vuex"
 import {cloneData, getAbsoluteMosaicAmount} from "@/core/utils"
-import {StoreAccount, AppInfo, AppWallet, AppNamespace, DefaultFee, MosaicNamespaceStatusType} from "@/core/model"
+import {StoreAccount, AppInfo, AppWallet, AppNamespace, DefaultFee, MosaicNamespaceStatusType, BindTypes} from "@/core/model"
 import {AppMosaics, signTransaction} from '@/core/services'
 import {validation} from '@/core/validation'
 import DisabledForms from '@/components/disabled-forms/DisabledForms.vue'
@@ -32,14 +32,12 @@ import ErrorTooltip from '@/components/other/forms/errorTooltip/ErrorTooltip.vue
 
 export class AliasTs extends Vue {
     @Provide() validator: any = this.$validator
+    BindTypes = BindTypes
+    signTransaction = signTransaction
     activeAccount: StoreAccount
     app: AppInfo
     validation = validation
     formItems = cloneData(formDataConfig.alias)
-    bindTypes: Record<string, string> = {
-        address: 'address',
-        mosaic: 'mosaic',
-    }
     bindType: string = this.getBindType
 
     /**
@@ -111,10 +109,10 @@ export class AliasTs extends Vue {
     }
 
     get getBindType(): string {
-        const {fromNamespace, bind, address, mosaic, bindTypes} = this
-        if (fromNamespace && bind) return bindTypes.address
-        if (mosaic) return bindTypes.mosaic
-        if (address) return bindTypes.address
+        const {fromNamespace, bind, address, mosaic} = this
+        if (fromNamespace && bind) return BindTypes.ADDRESS
+        if (mosaic) return BindTypes.MOSAIC
+        if (address) return BindTypes.ADDRESS
     }
 
     set getBindType(val: string) {
@@ -183,10 +181,10 @@ export class AliasTs extends Vue {
     }
 
     transaction(): Transaction {
-        const {alias, feeAmount, bindType, bindTypes, aliasAction, target} = this
+        const {alias, feeAmount, bindType, aliasAction, target} = this
         const {networkType} = this.wallet
 
-        return bindType === bindTypes.address
+        return bindType === BindTypes.ADDRESS
             ? AddressAliasTransaction.create(
                 Deadline.create(),
                 aliasAction,
@@ -207,14 +205,15 @@ export class AliasTs extends Vue {
 
     async confirmViaTransactionConfirmation() {
         try {
+            const transaction = this.transaction()
             this.show = false;
 
             const {
                 success,
                 signedTransaction,
                 signedLock,
-            } = await signTransaction({
-                transaction: this.transaction(),
+            } = await this.signTransaction({
+                transaction,
                 store: this.$store,
             })
 

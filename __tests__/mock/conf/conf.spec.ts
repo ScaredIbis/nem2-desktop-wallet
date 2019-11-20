@@ -1,4 +1,5 @@
-import {Account, NetworkType, Password, SimpleWallet} from 'nem2-sdk'
+import {Account, NetworkType, Password, SimpleWallet, MosaicInfo, MosaicId, UInt64, PublicAccount, MosaicFlags} from 'nem2-sdk'
+import {MosaicProperties} from '@/core/model'
 
 // cosigner
 export const CosignAccount = Account.createFromPrivateKey(
@@ -22,20 +23,31 @@ export const Multisig2Account = Account.createFromPrivateKey(
 
 export const mosaics = {
     "308F144790CD7BC4": {
-        balance: 7496.299725,
-        expirationHeight: "Forever",
-        hex: "308F144790CD7BC4",
-        mosaicInfo: Object,
-        name: "nem.xem",
-        namespaceHex: "D525AD41D95FCF29",
-        properties: {
-            divisibility: 6,
-            duration: 0,
-            restrictable: false,
-            supplyMutable: false,
-            transferable: true
-
-        },
+        "hex": "308F144790CD7BC4",
+        "properties": new MosaicProperties(
+            false,
+            true,
+            6,
+            0,
+            false,
+        ),
+        "name": "nem.xem",
+        "mosaicInfo": new MosaicInfo(
+            new MosaicId([2429385668, 814683207]),
+            new UInt64([4130794368, 2095242]),
+            new UInt64([1, 0]),
+            PublicAccount.createFromPublicKey(
+                '30CA0A8179477777AB3407611405EAAE6C4BA12156035E4DF8A73BD7651D6D9C',
+                NetworkType.MIJIN_TEST,
+            ),
+            1,
+            MosaicFlags.create(false, true, false),
+            6,
+            new UInt64([0, 0])
+        ),
+        "balance": 17989.078442,
+        "expirationHeight": "Forever",
+        "hide": false
     },
     "4EB2D6C822D8A9F7": {
         balance: 0.066666,
@@ -56,6 +68,7 @@ export const mosaics = {
 }
 
 export const mosaicsLoading = false
+
 
 export const CosignWallet = {
     active: true,

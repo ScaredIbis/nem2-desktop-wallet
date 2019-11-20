@@ -1,6 +1,6 @@
 import {Component, Vue, Provide, Watch} from 'vue-property-decorator'
 import {Message, formDataConfig} from "@/config"
-import {localRead, cloneData} from '@/core/utils'
+import {cloneData} from '@/core/utils'
 import FormInput from '@/components/other/forms/input/FormInput.vue'
 import {mapState} from "vuex"
 import {AppAccounts, StoreAccount} from "@/core/model"
@@ -20,6 +20,7 @@ const formItems = formDataConfig.settingPassword
 )
 export class SettingPasswordTs extends Vue {
     @Provide() validator: any = this.$validator
+    AppAccounts = AppAccounts
     activeAccount: StoreAccount
     validation = validation
     errors: any
@@ -37,14 +38,13 @@ export class SettingPasswordTs extends Vue {
     }
 
     get mnemonic() {
-        const {accountName} = this
-        return JSON.parse(localRead('accountMap'))[accountName].seed
+        return this.activeAccount.currentAccount.password
     }
 
     resetFields() {
         this.formItems = {
             ...cloneData(formItems),
-            cipher: AppAccounts().getCipherPassword(this.accountName),
+            cipher: this.activeAccount.currentAccount.password,
         }
     }
 
@@ -55,7 +55,7 @@ export class SettingPasswordTs extends Vue {
             .validate()
             .then((valid) => {
                 if (!valid) return
-                AppAccounts().saveNewPassword(previousPassword, newPassword, mnemonic, accountName, this.$store)
+                this.AppAccounts().saveNewPassword(previousPassword, newPassword, mnemonic, accountName, this.$store)
                 this.resetFields()
                 this.$Notice.success({
                     title: this.$t(Message.SUCCESS) + ''

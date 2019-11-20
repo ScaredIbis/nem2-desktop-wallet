@@ -25,6 +25,7 @@ export class NamespaceEditDialogTs extends Vue {
     @Provide() validator: any = this.$validator
     activeAccount: StoreAccount
     app: AppInfo
+    signTransaction = signTransaction
     namespaceGracePeriodDuration = namespaceGracePeriodDuration
     formatNumber = formatNumber
     validation = validation
@@ -109,7 +110,7 @@ export class NamespaceEditDialogTs extends Vue {
                 success,
                 signedTransaction,
                 signedLock,
-            } = await signTransaction({
+            } = await this.signTransaction({
                 transaction: this.transaction,
                 store: this.$store,
             })
@@ -118,7 +119,7 @@ export class NamespaceEditDialogTs extends Vue {
                 new AppWallet(this.wallet).announceTransaction(signedTransaction, this.activeAccount.node, this.$root, signedLock)
             }
         } catch (error) {
-            console.error("AliasTs -> confirmViaTransactionConfirmation -> error", error)
+            console.error("NamespaceEditDialogTs -> confirmViaTransactionConfirmation -> error", error)
         }
     }
 

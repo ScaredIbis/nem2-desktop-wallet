@@ -256,13 +256,12 @@ describe('MonitorDashBoard', () => {
                 mosaicTransferList: [new Mosaic(new MosaicId('4EB2D6C822D8A9F7'), UInt64.fromUint(0))],
                 isEncrypted: false
             },
-            currentMosaic: '308F144790CD7BC4',
             currentAmount: 0
         })
 
+        wrapper.vm.addMosaic()
         wrapper.vm.submit()
         await flushPromises()
-        wrapper.vm.addMosaic()
 
         const transferTransaction = wrapper.vm.transactionList[0]
         expect(transferTransaction.mosaics[0].id.toHex()).toBe('308F144790CD7BC4')
@@ -327,7 +326,7 @@ describe('MonitorDashBoard', () => {
         expect(transferTransaction).toBeUndefined()
     })
 
-    it('should not pass while  network types are different ', async () => {
+    it('should not pass while network types are different ', async () => {
         wrapper.setData({
             selectedMosaicHex: '308F144790CD7BC4',
             formItems: {

@@ -1,4 +1,4 @@
-import {NetworkType} from "nem2-sdk"
+import {NetworkType, MosaicSupplyChangeAction} from "nem2-sdk"
 import {defaultNetworkConfig, FEE_SPEEDS} from '../constants'
 
 export const formDataConfig = {
@@ -7,7 +7,6 @@ export const formDataConfig = {
         newPassword: '',
         confirmPassword: '',
         cipher: '',
-        hint: 'PLACEHOLDER_cipher_hint',
     },
     offsetLineForm: {
         generationHash: '',
@@ -47,14 +46,9 @@ export const formDataConfig = {
         password: ''
     },
     mosaicEditForm: {
-        id: '',
-        aliasName: '',
         delta: 1,
-        supplyType: 1,
-        changeDelta: 0,
-        duration: '',
+        supplyType: MosaicSupplyChangeAction.Increase,
         feeSpeed: FEE_SPEEDS.NORMAL,
-        password: ''
     },
     mosaicUnAliasForm: {
         feeSpeed: FEE_SPEEDS.NORMAL,
@@ -98,7 +92,6 @@ export const formDataConfig = {
         name: '',
         duration: 1000,
         feeSpeed: FEE_SPEEDS.NORMAL,
-        password: ''
     },
     rootNamespaceForm: {
         duration: 1000,
