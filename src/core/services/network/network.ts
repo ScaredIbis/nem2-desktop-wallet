@@ -24,6 +24,7 @@ export const getNetworkGenerationHash = async (that: any): Promise<void> => {
         that.$Notice.success({
             title: that.$t(Message.NODE_CONNECTION_SUCCEEDED) + ''
         })
+        console.log("TCL: block.generationHash", block.generationHash)
         that.$store.commit('SET_GENERATION_HASH', block.generationHash)
     } catch (error) {
         console.error(error)
@@ -43,8 +44,9 @@ export const setCurrentNetworkMosaic = async (store: Store<AppState>) => {
         const {node} = store.state.account
 
         const genesisBlockInfoList = await new BlockHttp(node)
-            .getBlockTransactions(1, new QueryParams(100))
+            .getBlockTransactions(2, new QueryParams(100))
             .toPromise()
+        console.log("TCL: setCurrentNetworkMosaic -> genesisBlockInfoList", genesisBlockInfoList)
 
         const mosaicDefinitionTx: any[] = genesisBlockInfoList
             .filter(({type}) => type === TransactionType.MOSAIC_DEFINITION)
@@ -64,6 +66,7 @@ export const setCurrentNetworkMosaic = async (store: Store<AppState>) => {
         const [networkMosaicDefinitionTx]: any = mosaicDefinitionTx
         const networkMosaicNamespace = await new NamespaceService(new NamespaceHttp(node))
             .namespace(networkCurrencyAliasTx.namespaceId).toPromise()
+        console.log("TCL: setCurrentNetworkMosaic -> networkMosaicNamespace", networkMosaicNamespace)
 
         store.commit('SET_NETWORK_CURRENCY', {
             hex: networkMosaicDefinitionTx.mosaicId.toHex(),
@@ -86,10 +89,12 @@ export const setCurrentNetworkMosaic = async (store: Store<AppState>) => {
         if (harvestCurrencyAliasTx && harvestMosaicNamespace) appMosaics.push(
             AppMosaic.fromGetCurrentNetworkMosaic(harvestMosaicDefinitionTx, harvestMosaicNamespace)
         )
+        console.log("TCL: setCurrentNetworkMosaic -> appMosaics", appMosaics)
 
         store.commit('UPDATE_MOSAICS', appMosaics)
         store.commit('SET_NETWORK_MOSAICS', appMosaics)
     } catch (error) {
+        console.log("TCL: setCurrentNetworkMosaic -> error", error)
         store.commit('SET_IS_NODE_HEALTHY', false)
     }
 }
@@ -99,8 +104,10 @@ export const getCurrentBlockHeight = async (store: Store<AppState>) => {
         const {node} = store.state.account
         const heightUint = await new ChainHttp(node).getBlockchainHeight().toPromise()
         const height = heightUint.compact()
+        console.log("TCL: getCurrentBlockHeight -> height", height)
         store.commit('SET_CHAIN_HEIGHT', height)
         const blockInfo = await new BlockHttp(node).getBlockByHeight(height).toPromise()
+        console.log("TCL: getCurrentBlockHeight -> blockInfo", blockInfo)
         store.commit('SET_CHAIN_STATUS', new ChainStatus(blockInfo))
     } catch (error) {
         store.commit('SET_CHAIN_HEIGHT', 0)
