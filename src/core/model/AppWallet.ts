@@ -260,7 +260,6 @@ export class AppWallet {
         that.$Notice.success({
             title: that['$t']('Delete_wallet_successfully') + '',
         })
-        // this.$emit('hasWallet')
     }
 
 
@@ -479,25 +478,6 @@ export class AppWallet {
             new Log('announceBonded -> error', { signedTransaction, signedLock }).create(that.$store)
             console.error('announceBonded -> error', error)
         })
-    }
-
-    // @TODO: review
-    // Remove if CheckPasswordDialog is made redundant
-    signAndAnnounceBonded = (password: Password,
-                             lockFee: number,
-                             transactions: AggregateTransaction[],
-                             store: Store<AppState>,
-                             that,) => {
-        const {node} = store.state.account
-
-        const {signedTransaction, signedLock} = this.getSignedLockAndAggregateTransaction(
-            transactions[0],
-            lockFee,
-            password.value,
-            store,
-        )
-
-        this.announceBonded(signedTransaction, signedLock, node, that)
     }
 
     getSignedLockAndAggregateTransaction(

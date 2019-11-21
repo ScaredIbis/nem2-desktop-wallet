@@ -77,8 +77,6 @@ export const CosignWallet = {
     name: "wallet-privateKey",
     networkType: CosignAccount.address.toDTO().networkType,
     publicKey: CosignAccount.publicKey,
-    signAndAnnounceBonded: function () {
-    },
     sourceType: "Pk",
     simpleWallet: SimpleWallet.createFromPrivateKey(
         'wallet-privateKey',
@@ -95,8 +93,6 @@ export const MultisigWallet = {
     name: "wallet-privateKey",
     networkType: CosignAccount.address.toDTO().networkType,
     publicKey: CosignAccount.publicKey,
-    signAndAnnounceBonded: function () {
-    },
     sourceType: "Pk",
     simpleWallet: SimpleWallet.createFromPrivateKey(
         'wallet-privateKey',
