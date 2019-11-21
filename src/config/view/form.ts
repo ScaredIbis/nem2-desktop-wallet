@@ -75,14 +75,12 @@ export const formDataConfig = {
         multisigPublicKey: ''
     },
     multisigConversionForm: {
-        modificationList: [],
         minApproval: 1,
         minRemoval: 1,
         feeSpeed: FEE_SPEEDS.NORMAL,
         multisigPublicKey: '',
     },
     multisigModificationForm: {
-        modificationList: [],
         minApproval: 0,
         minRemoval: 0,
         feeSpeed: FEE_SPEEDS.NORMAL,

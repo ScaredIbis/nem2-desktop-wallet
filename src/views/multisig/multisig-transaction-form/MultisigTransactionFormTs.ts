@@ -1,7 +1,5 @@
 import {
-    MultisigCosignatoryModification,
     MultisigAccountModificationTransaction,
-    CosignatoryModificationAction,
     PublicAccount,
     Deadline,
     UInt64,
@@ -10,13 +8,16 @@ import {
     AccountHttp,
     AggregateTransaction,
 } from 'nem2-sdk'
-import { mapState } from "vuex"
-import { Component, Vue, Watch, Prop, Provide } from 'vue-property-decorator'
-import { timeout, finalize } from 'rxjs/operators'
-import { Message, DEFAULT_FEES, FEE_GROUPS, formDataConfig, networkConfig } from "@/config/index.ts"
-import { StoreAccount, DefaultFee, AppWallet, ANNOUNCE_TYPES, MULTISIG_FORM_MODES, LockParams } from "@/core/model"
-import { getAbsoluteMosaicAmount, formatAddress, cloneData } from "@/core/utils"
-import { createBondedMultisigTransaction, createCompleteMultisigTransaction, signTransaction } from '@/core/services'
+import {mapState} from "vuex"
+import {Component, Vue, Watch, Prop, Provide} from 'vue-property-decorator'
+import {timeout, finalize} from 'rxjs/operators'
+import {Message, DEFAULT_FEES, FEE_GROUPS, formDataConfig, networkConfig} from "@/config/index.ts"
+import {
+    StoreAccount, DefaultFee, AppWallet, ANNOUNCE_TYPES, MULTISIG_FORM_MODES,
+    LockParams, AddOrRemove, CosignatoryModifications,
+} from "@/core/model"
+import {getAbsoluteMosaicAmount, formatAddress, cloneData} from "@/core/utils"
+import {createBondedMultisigTransaction, createCompleteMultisigTransaction, signTransaction} from '@/core/services'
 import DisabledForms from '@/components/disabled-forms/DisabledForms.vue'
 import MultisigTree from '@/views/multisig/multisig-tree/MultisigTree.vue'
 import ErrorTooltip from '@/components/other/forms/errorTooltip/ErrorTooltip.vue'
@@ -37,10 +38,11 @@ export class MultisigTransactionFormTs extends Vue {
     activeAccount: StoreAccount
     MULTISIG_FORM_MODES = MULTISIG_FORM_MODES
     signTransaction = signTransaction
-    CosignatoryModificationAction = CosignatoryModificationAction
+    AddOrRemove = AddOrRemove
     Address = Address
-    formItems = { ...this.defaultFormItems }
+    formItems = {...this.defaultFormItems}
     cosignerToAdd = ''
+    cosignatoryModifications = new CosignatoryModifications([])
 
     @Prop() mode: string
 
@@ -56,7 +58,7 @@ export class MultisigTransactionFormTs extends Vue {
     }
 
     get currentAccountMultisigInfo(): MultisigAccountInfo {
-        const { address } = this.wallet
+        const {address} = this.wallet
         return this.activeAccount.multisigAccountInfo[address]
     }
 
@@ -69,9 +71,9 @@ export class MultisigTransactionFormTs extends Vue {
         return this.currentAccountMultisigInfo.multisigAccounts.length > 0
     }
 
-    get multisigPublicKeyList(): { publicKey: string, address: string }[] {
+    get multisigPublicKeyList(): {publicKey: string, address: string}[] {
         if (!this.hasMultisigAccounts) return null
-        const { publicKey, address } = this.wallet
+        const {publicKey, address} = this.wallet
 
         const selfPublicKeyItem = {
             publicKey,
@@ -79,23 +81,23 @@ export class MultisigTransactionFormTs extends Vue {
         }
 
         const list = this.currentAccountMultisigInfo.multisigAccounts
-            .map(({ publicKey }) => ({
+            .map(({publicKey}) => ({
                 publicKey,
                 address: formatAddress(Address.createFromPublicKey(publicKey, this.networkType).plain())
             }))
 
         return this.hasCosignatories ? [selfPublicKeyItem, ...list] : list
     }
-
-    get addedCosigners(): boolean {
-        return this.formItems.modificationList
-            .find(({ type }) => type === CosignatoryModificationAction.Add) !== undefined
-    }
-
+    
     get announceType(): string {
-        const { hasCosignatories, addedCosigners, formItems } = this
+        const {hasCosignatories, cosignatoryModifications, formItems} = this
         if (!hasCosignatories) return ANNOUNCE_TYPES.AGGREGATE_BONDED
-        if (hasCosignatories && formItems.minApproval === 1 && !addedCosigners) return ANNOUNCE_TYPES.AGGREGATE_BONDED
+
+        if (hasCosignatories && formItems.minApproval === 1
+            && !cosignatoryModifications.publicKeysAdditions.length) {
+            return ANNOUNCE_TYPES.AGGREGATE_BONDED
+        }
+
         return ANNOUNCE_TYPES.AGGREGATE_COMPLETE
     }
 
@@ -135,20 +137,20 @@ export class MultisigTransactionFormTs extends Vue {
     }
 
     get feeAmount(): number {
-        const { feeSpeed } = this.formItems
-        const feeAmount = this.defaultFees.find(({ speed }) => feeSpeed === speed).value
+        const {feeSpeed} = this.formItems
+        const feeAmount = this.defaultFees.find(({speed}) => feeSpeed === speed).value
         return getAbsoluteMosaicAmount(feeAmount, this.networkCurrency.divisibility)
     }
 
     get displayForm(): boolean {
-        const { mode, hasMultisigAccounts, hasCosignatories } = this
+        const {mode, hasMultisigAccounts, hasCosignatories} = this
         if (hasCosignatories) return false
         if (mode === MULTISIG_FORM_MODES.MODIFICATION && !hasMultisigAccounts) return false
         return true
     }
 
     get formHeadline(): string {
-        const { mode, hasMultisigAccounts, hasCosignatories } = this
+        const {mode, hasMultisigAccounts, hasCosignatories} = this
         if (hasCosignatories) return 'this_account_is_already_converted'
         if (mode === MULTISIG_FORM_MODES.MODIFICATION && !hasMultisigAccounts) return 'this_account_is_not_a_cosignatory'
         if (mode === MULTISIG_FORM_MODES.CONVERSION) return 'Convert_to_multi_sign_account'
@@ -157,14 +159,14 @@ export class MultisigTransactionFormTs extends Vue {
 
     get initialPublicKey(): string {
         if (this.mode === MULTISIG_FORM_MODES.CONVERSION) return ''
-        const { activeMultisigAccount } = this.activeAccount
+        const {activeMultisigAccount} = this.activeAccount
         return activeMultisigAccount
             ? activeMultisigAccount
             : this.multisigPublicKeyList && this.multisigPublicKeyList[0].publicKey || ''
     }
 
     get lockParams(): LockParams {
-        const { announceInLock, feeAmount, feeDivider } = this
+        const {announceInLock, feeAmount, feeDivider} = this
         return new LockParams(announceInLock, feeAmount / feeDivider)
     }
 
@@ -173,8 +175,8 @@ export class MultisigTransactionFormTs extends Vue {
         minApproval: string
         minRemoval: string
     } {
-        const { mode } = this
-        const { maxCosignatoriesPerAccount } = networkConfig
+        const {mode} = this
+        const {maxCosignatoriesPerAccount} = networkConfig
 
         const cosigners = mode === MULTISIG_FORM_MODES.CONVERSION
             ? `required|min_value:1|max_value:${maxCosignatoriesPerAccount}`
@@ -196,30 +198,29 @@ export class MultisigTransactionFormTs extends Vue {
     }
 
     initForm() {
-        this.formItems = { ...this.defaultFormItems }
+        this.formItems = {...this.defaultFormItems}
         this.formItems.multisigPublicKey = this.initialPublicKey
     }
 
-    addModification(publicAccount: PublicAccount, modificationAction: number): void {
-        if (this.formItems.modificationList
-            .findIndex(({ cosignatoryPublicAccount }) => cosignatoryPublicAccount
-                .publicKey === publicAccount.publicKey) > -1) {
-            this.cosignerToAdd = ''
+    addModification(publicAccount: PublicAccount, addOrRemove: AddOrRemove): void {
+        this.cosignatoryModifications.add({cosignatory: publicAccount, addOrRemove})
+        this.cosignerToAdd = ''
+    }
+
+    addCosigner(addOrRemove: AddOrRemove) {
+        if (this.$validator.errors.has('cosigner')) return
+        const {cosignerToAdd, networkType} = this
+
+        if (this.cosignerToAdd.length === networkConfig.PUBLIC_KEY_LENGTH) {
+            const publicAccount = PublicAccount.createFromPublicKey(cosignerToAdd, networkType)
+            this.addModification(publicAccount, addOrRemove)
             return
         }
 
-        try {
-            const modificationToAdd = new MultisigCosignatoryModification(
-                modificationAction,
-                publicAccount,
-            )
-            this.formItems.modificationList.push(modificationToAdd)
-        } catch (error) {
-            console.error("addModification: error", error)
-        }
+        this.addCosignerFromAddress(addOrRemove)
     }
 
-    async addCosignerFromAddress(modificationAction: number) {
+    async addCosignerFromAddress(addOrRemove: AddOrRemove) {
         try {
             const address = Address.createFromRawAddress(this.cosignerToAdd)
             this.$store.commit('SET_LOADING_OVERLAY', {
@@ -241,7 +242,7 @@ export class MultisigTransactionFormTs extends Vue {
                     }))
                 .subscribe(
                     (accountInfo) => {
-                        this.addModification(accountInfo.publicAccount, modificationAction)
+                        this.addModification(accountInfo.publicAccount, addOrRemove)
                     },
                     (error) => {
                         this.showErrorMessage(`${this.$t(Message.ADDRESS_UNKNOWN)}`)
@@ -252,28 +253,12 @@ export class MultisigTransactionFormTs extends Vue {
             console.error("getAddressPublicKey -> error", error)
             // @ts-ignore
             this.$Spin.hide()
-            this.$store.commit('SET_LOADING_OVERLAY', { show: false, message: '' })
+            this.$store.commit('SET_LOADING_OVERLAY', {show: false, message: ''})
         }
-    }
-
-    addCosigner(modificationAction: number) {
-        if (this.$validator.errors.has('cosigner')) return
-        const { cosignerToAdd, networkType } = this
-
-        if (this.cosignerToAdd.length === networkConfig.PUBLIC_KEY_LENGTH) {
-            this.addModification(
-                PublicAccount.createFromPublicKey(cosignerToAdd, networkType),
-                modificationAction,
-            )
-            this.cosignerToAdd = ''
-            return
-        }
-
-        this.addCosignerFromAddress(modificationAction)
     }
 
     removeCosigner(index) {
-        this.formItems.modificationList.splice(index, 1)
+        this.cosignatoryModifications.modifications.splice(index, 1)
     }
 
     submit() {
@@ -312,21 +297,26 @@ export class MultisigTransactionFormTs extends Vue {
         })
     }
 
-    createMultisigConversionTransaction(): AggregateTransaction {
-        const { minApproval, minRemoval, modificationList } = this.formItems
-        const { feeAmount, feeDivider, networkType, publicKey } = this
+    get modifyMultisigAccountTransaction(): MultisigAccountModificationTransaction {
+        const {feeAmount, feeDivider, networkType, cosignatoryModifications} = this
+        const {minApproval, minRemoval} = this.formItems
 
-        const modifyMultisigAccountTransaction = MultisigAccountModificationTransaction.create(
+        return MultisigAccountModificationTransaction.create(
             Deadline.create(),
-            minApproval,
-            minRemoval,
-            modificationList,
+            parseInt(minApproval, 10),
+            parseInt(minRemoval, 10),
+            cosignatoryModifications.publicKeysAdditions,
+            cosignatoryModifications.publicKeysDeletions,
             networkType,
             UInt64.fromUint(feeAmount / feeDivider)
         )
+    }
+
+    createMultisigConversionTransaction(): AggregateTransaction {
+        const {feeAmount, feeDivider, publicKey, networkType} = this
 
         return createBondedMultisigTransaction(
-            [modifyMultisigAccountTransaction],
+            [this.modifyMultisigAccountTransaction],
             publicKey,
             networkType,
             feeAmount / feeDivider,
@@ -339,25 +329,11 @@ export class MultisigTransactionFormTs extends Vue {
             : this.getCompleteModifyTransaction()
     }
 
-    getMultisigAccountModificationTransaction() {
-        const { networkType, feeAmount, feeDivider } = this
-        const { minApproval, minRemoval, modificationList } = this.formItems
-
-        return MultisigAccountModificationTransaction.create(
-            Deadline.create(),
-            Number(minApproval),
-            Number(minRemoval),
-            modificationList,
-            networkType,
-            UInt64.fromUint(feeAmount / feeDivider)
-        )
-    }
-
     getBondedModifyTransaction(): AggregateTransaction {
-        const { networkType, publicKey, feeAmount, feeDivider } = this
+        const {networkType, publicKey, feeAmount, feeDivider} = this
 
         return createBondedMultisigTransaction(
-            [this.getMultisigAccountModificationTransaction()],
+            [this.modifyMultisigAccountTransaction],
             publicKey,
             networkType,
             feeAmount / feeDivider
@@ -365,17 +341,17 @@ export class MultisigTransactionFormTs extends Vue {
     }
 
     getCompleteModifyTransaction() {
-        const { networkType, feeAmount, feeDivider, publicKey } = this
+        const {networkType, feeAmount, feeDivider, publicKey} = this
 
         return createCompleteMultisigTransaction(
-            [this.getMultisigAccountModificationTransaction()],
+            [this.modifyMultisigAccountTransaction],
             publicKey,
             networkType,
             feeAmount / feeDivider,
         )
     }
 
-    @Watch('formItems.multisigPublicKey', { immediate: true, deep: true })
+    @Watch('formItems.multisigPublicKey', {immediate: true, deep: true})
     onFormItemChange(newVal, oldVal) {
         if (this.mode === MULTISIG_FORM_MODES.MODIFICATION) {
             if (newVal === oldVal) return
