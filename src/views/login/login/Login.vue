@@ -1,6 +1,6 @@
 <template>
   <div class="relogin_container radius scroll">
-    <video muted="muted" src="@/common/img/login/cloudsVideo.mp4" loop="loop" autoplay="true"></video>
+    <!-- <video muted="muted" src="@/common/img/login/cloudsVideo.mp4" loop="loop" autoplay="true"></video> -->
 
     <div class="switch_language">
       <i-select v-model="language">
