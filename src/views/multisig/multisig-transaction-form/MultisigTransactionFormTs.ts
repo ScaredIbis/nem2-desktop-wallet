@@ -46,7 +46,6 @@ export class MultisigTransactionFormTs extends Vue {
 
     @Prop() mode: string
 
-
     get wallet(): AppWallet {
         return this.activeAccount.wallet
     }
@@ -88,7 +87,7 @@ export class MultisigTransactionFormTs extends Vue {
 
         return this.hasCosignatories ? [selfPublicKeyItem, ...list] : list
     }
-    
+
     get announceType(): string {
         const {hasCosignatories, cosignatoryModifications, formItems} = this
         if (!hasCosignatories) return ANNOUNCE_TYPES.AGGREGATE_BONDED

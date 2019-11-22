@@ -102,7 +102,7 @@
                 style="width: 720px; text-align:center"
               >
                 <input
-                  v-model="modificationList.length"
+                  v-model="cosignatoryModifications.modifications.length"
                   data-vv-name="cosigners"
                   v-validate="validations.cosigners"
                   :data-vv-as="$t('cosigners')"
@@ -118,7 +118,7 @@
                 <div class="list_body scroll">
                   <div
                     class="please_add_address"
-                    v-if="modificationList.length == 0"
+                    v-if="cosignatoryModifications.modifications == 0"
                   >{{$t('The_action_list_is_empty')}}</div>
 
                   <div

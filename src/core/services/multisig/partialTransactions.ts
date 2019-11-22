@@ -8,7 +8,7 @@ import {take, map} from 'rxjs/operators'
 export const fetchPartialTransactions = async (address: Address, store: Store<AppState>): Promise<void> => {
     try {
         const {node} = store.state.account
-        const txList = await new AccountHttp(node).aggregateBondedTransactions(address).toPromise()
+        const txList = await new AccountHttp(node).getAccountPartialTransactions(address).toPromise()
         txList.forEach(tx => formatAndSave(tx, store, true, TRANSACTIONS_CATEGORIES.TO_COSIGN))
     } catch (error) {
         console.error("MultisigCosignTs -> getCosignTransactions -> error", error)

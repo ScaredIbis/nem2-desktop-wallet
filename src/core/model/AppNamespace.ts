@@ -19,7 +19,6 @@ export class AppNamespace {
 
   static fromNamespaceInfo( namespaceInfo: NamespaceInfo,
                             namespaceNames: NamespaceName[]): AppNamespace {
-                              console.log("TCL: AppNamespace -> namespaceInfo", namespaceInfo)
 
    const name = AppNamespace.extractFullNamespace(namespaceInfo, namespaceNames)
    return new AppNamespace(

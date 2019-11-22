@@ -18,6 +18,7 @@ import {
     UInt64,
     EncryptedPrivateKey,
     PersistentDelegationRequestTransaction,
+    MultisigHttp,
 } from 'nem2-sdk'
 import CryptoJS from 'crypto-js'
 import {filter, mergeMap} from 'rxjs/operators'
@@ -370,7 +371,7 @@ export class AppWallet {
 
     async setMultisigStatus(node: string, store: Store<AppState>): Promise<void> {
         try {
-            const multisigAccountInfo = await new AccountHttp(node)
+            const multisigAccountInfo = await new MultisigHttp(node)
                 .getMultisigAccountInfo(Address.createFromRawAddress(this.address)).toPromise()
             store.commit('SET_MULTISIG_ACCOUNT_INFO', {address: this.address, multisigAccountInfo})
             store.commit('SET_MULTISIG_LOADING', false)
