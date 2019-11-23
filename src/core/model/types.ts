@@ -1,8 +1,8 @@
-import {Transaction, MultisigAccountInfo, SignedTransaction, CosignatureSignedTransaction, SimpleWallet} from 'nem2-sdk'
+import {Transaction, MultisigAccountInfo, SignedTransaction, CosignatureSignedTransaction, SimpleWallet, PublicAccount} from 'nem2-sdk'
 import {AppNamespace} from './AppNamespace'
 import {AppMosaic} from './AppMosaic'
 import {FormattedTransaction} from './FormattedTransaction'
-import {ChainStatus, AppWallet, LockParams, Log} from '.'
+import {ChainStatus, AppWallet, LockParams, Log, CurrentAccount} from '.'
 
 export interface AddressAndTransaction {
     address: string
@@ -36,32 +36,38 @@ export interface RemoteAccount {
     publicKey: string,
 }
 
+
 export interface StoreAccount {
-    node: string,
-    wallet: AppWallet,
-    mosaics: Record<string, AppMosaic>,
-    namespaces: AppNamespace[],
-    errorTx: Array<any>,
+    node: string
+    wallet: AppWallet
+    mosaics: Record<string, AppMosaic>
+    namespaces: AppNamespace[]
+    errorTx: Array<any>
     addressAliasMap: any,
-    generationHash: string,
-    transactionList: FormattedTransaction[],
-    transactionsToCosign: Record<string, FormattedTransaction[]>,
-    accountName: string
-    activeMultisigAccount: string,
-    multisigAccountsMosaics: Record<string, Record<string, AppMosaic>>,
-    multisigAccountsNamespaces: Record<string, AppNamespace[]>,
-    multisigAccountsTransactions: Record<string, Transaction[]>,
-    multisigAccountInfo: Record<string, MultisigAccountInfo>,
+    generationHash: string
+    transactionList: FormattedTransaction[]
+    transactionsToCosign: Record<string, FormattedTransaction[]>
+    currentAccount: CurrentAccount
+    activeMultisigAccount: string
+    multisigAccountsMosaics: Record<string, Record<string, AppMosaic>>
+    multisigAccountsNamespaces: Record<string, AppNamespace[]>
+    multisigAccountsTransactions: Record<string, Transaction[]>
+    multisigAccountInfo: Record<string, MultisigAccountInfo>
     activeWalletAddress: string
     /**
      *  The network currency, to be used for fees management,
      *  formatting, defaulting...
      */
-    networkCurrency: NetworkCurrency,
+    networkCurrency: NetworkCurrency
     /**
      * This property is ONLY for mosaic list initialization purposes
      */
-    networkMosaics: Record<string, AppMosaic>,
+    networkMosaics: Record<string, AppMosaic>
+}
+
+export interface LoadingOverlayObject {
+    show: boolean,
+    message: string,
 }
 
 export interface AppInfo {
@@ -82,6 +88,7 @@ export interface AppInfo {
     stagedTransaction: StagedTransaction,
     nodeNetworkType: string,
     logs: Log[],
+    loadingOverlay: LoadingOverlayObject,
 }
 
 export interface StagedTransaction {
@@ -129,6 +136,26 @@ export enum TRANSACTIONS_CATEGORIES {
     NORMAL = 'NORMAL',
     MULTISIG = 'MULTISIG',
     TO_COSIGN = 'TO_COSIGN',
+}
+
+export enum RECIPIENT_TYPES {
+    ADDRESS = 'ADDRESS',
+    ALIAS = 'ALIAS',
+    PUBLIC_KEY = 'PUBLIC_KEY',
+}
+
+export enum BindTypes {
+    ADDRESS = 'ADDRESS',
+    MOSAIC = 'MOSAIC,'
+}
+
+export enum AddOrRemove {
+    ADD = 'ADD',
+    REMOVE = 'REMOVE',
+}
+
+export interface ValidationObject {
+    valid: false | string
 }
 
 /**

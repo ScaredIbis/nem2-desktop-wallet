@@ -3,6 +3,7 @@
     <router-view/>
     <DisabledUiOverlay/>
     <TransactionConfirmation/>
+    <LoadingOverlay v-if="showLoadingOverlay"/>
   </div>
 </template>
 
@@ -21,9 +22,10 @@
         getMarketOpenPrice, setTransactionList, setNamespaces, getNamespacesFromAddress,
         setWalletsBalances, ChainListeners, getMultisigAccountMultisigAccountInfo, getNodeInfo,
     } from '@/core/services'
-    import {AppMosaic, AppWallet, AppInfo, StoreAccount} from '@/core/model'
+    import {AppMosaic, AppWallet, AppInfo, StoreAccount, AppAccount} from '@/core/model'
     import DisabledUiOverlay from '@/components/disabled-ui-overlay/DisabledUiOverlay.vue'
     import TransactionConfirmation from '@/components/transaction-confirmation/TransactionConfirmation.vue'
+    import LoadingOverlay from '@/components/loading-overlay/LoadingOverlay.vue'
 
     @Component({
         computed: {
@@ -31,7 +33,8 @@
         },
         components: {
             DisabledUiOverlay,
-            TransactionConfirmation
+            TransactionConfirmation,
+            LoadingOverlay,
         }
     })
     export default class App extends Vue {
@@ -39,6 +42,10 @@
         activeAccount: StoreAccount
         app: AppInfo
         chainListeners: ChainListeners = null
+
+        get showLoadingOverlay() {
+            return this.app.loadingOverlay && this.app.loadingOverlay.show || false
+        }
 
         get node() {
             return this.activeAccount.node
@@ -70,32 +77,7 @@
         }
 
         get accountName(): string {
-            return this.activeAccount.accountName
-        }
-
-        get accountMap() {
-            return localRead('accountMap') ? JSON.parse(localRead('accountMap')) : null
-        }
-
-        // @TODO: move out from there
-        async setWalletsList() {
-            try {
-                // @TODO: quick fix, to review when refactoring wallets
-                const {accountName, accountMap} = this
-                if (!accountMap) return
-                const currentAccountName = accountName && accountName !== ''
-                    ? accountName : getTopValueInObject(accountMap)['accountName']
-
-                if (!currentAccountName || currentAccountName === '') return
-                await this.$store.commit('SET_ACCOUNT_NAME', currentAccountName)
-                // get active wallet
-                const wallets = getTopValueInObject(accountMap)['wallets']
-                this.$store.commit('SET_WALLET_LIST', wallets)
-                const activeWalletAddress = JSON.parse(localRead('accountMap'))[currentAccountName].activeWalletAddress
-                AppWallet.updateActiveWalletAddress(activeWalletAddress, this.$store)
-            } catch (error) {
-                console.error(error)
-            }
+            return this.activeAccount.currentAccount.name
         }
 
         async onWalletChange(newWallet) {
@@ -129,7 +111,7 @@
                             setTransactionList(newWallet.address, this.$store)
                             appWallet.setMultisigStatus(this.node, this.$store)
                         } catch (error) {
-                            console.error("TCL: App -> onWalletChange -> setTimeout -> error", error)
+                            console.error("App -> onWalletChange -> setTimeout -> error", error)
                         }
                     }, 1000)
                 getNodeInfo(this.$store)
@@ -202,7 +184,6 @@
                  */
                 setTimeout(async () => {
                     try {
-                        await this.setWalletsList()
                         setWalletsBalances(this.$store)
                     } catch (error) {
                         console.error("App -> mounted -> setTimeout -> error", error)

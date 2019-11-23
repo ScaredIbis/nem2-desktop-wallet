@@ -1,4 +1,5 @@
-import {Account, NetworkType, Password, SimpleWallet} from 'nem2-sdk'
+import {Account, NetworkType, Password, SimpleWallet, MosaicInfo, MosaicId, UInt64, PublicAccount, MosaicFlags} from 'nem2-sdk'
+import {MosaicProperties} from '@/core/model'
 
 // cosigner
 export const CosignAccount = Account.createFromPrivateKey(
@@ -22,20 +23,31 @@ export const Multisig2Account = Account.createFromPrivateKey(
 
 export const mosaics = {
     "308F144790CD7BC4": {
-        balance: 7496.299725,
-        expirationHeight: "Forever",
-        hex: "308F144790CD7BC4",
-        mosaicInfo: Object,
-        name: "nem.xem",
-        namespaceHex: "D525AD41D95FCF29",
-        properties: {
-            divisibility: 6,
-            duration: 0,
-            restrictable: false,
-            supplyMutable: false,
-            transferable: true
-
-        },
+        "hex": "308F144790CD7BC4",
+        "properties": new MosaicProperties(
+            false,
+            true,
+            6,
+            0,
+            false,
+        ),
+        "name": "nem.xem",
+        "mosaicInfo": new MosaicInfo(
+            new MosaicId([2429385668, 814683207]),
+            new UInt64([4130794368, 2095242]),
+            new UInt64([1, 0]),
+            PublicAccount.createFromPublicKey(
+                '30CA0A8179477777AB3407611405EAAE6C4BA12156035E4DF8A73BD7651D6D9C',
+                NetworkType.MIJIN_TEST,
+            ),
+            1,
+            MosaicFlags.create(false, true, false),
+            6,
+            new UInt64([0, 0])
+        ),
+        "balance": 17989.078442,
+        "expirationHeight": "Forever",
+        "hide": false
     },
     "4EB2D6C822D8A9F7": {
         balance: 0.066666,
@@ -57,6 +69,7 @@ export const mosaics = {
 
 export const mosaicsLoading = false
 
+
 export const CosignWallet = {
     active: true,
     address: CosignAccount.address.toDTO().address,
@@ -64,8 +77,6 @@ export const CosignWallet = {
     name: "wallet-privateKey",
     networkType: CosignAccount.address.toDTO().networkType,
     publicKey: CosignAccount.publicKey,
-    signAndAnnounceBonded: function () {
-    },
     sourceType: "Pk",
     simpleWallet: SimpleWallet.createFromPrivateKey(
         'wallet-privateKey',
@@ -82,8 +93,6 @@ export const MultisigWallet = {
     name: "wallet-privateKey",
     networkType: CosignAccount.address.toDTO().networkType,
     publicKey: CosignAccount.publicKey,
-    signAndAnnounceBonded: function () {
-    },
     sourceType: "Pk",
     simpleWallet: SimpleWallet.createFromPrivateKey(
         'wallet-privateKey',
@@ -157,40 +166,46 @@ export const networkCurrency = {
 export const hdAccountData = {
     password: 'password',
     mnemonic: 'exhibit skin wink broom issue truly unit toy copy foam cheese number vicious forum crater afford snow chef toss broccoli second jeans good reject'
-} 
+}
 
 export const hdAccount = {
     "accountName": "testWallet",
     "wallets": [
-      {
-        "simpleWallet": {
-          "name": "seedWallet",
-          "network": 144,
-          "address": {
+        {
+            "simpleWallet": {
+                "name": "seedWallet",
+                "network": 144,
+                "address": {
+                    "address": "SBOENUE4JRGPMBV4HAOA2MIJGIY4AAHLI2YSKHRF",
+                    "networkType": 144
+                },
+                "creationDate": "2019-11-08T00:02:54.019",
+                "schema": "simple_v1",
+                "encryptedPrivateKey": {
+                    "encryptedKey": "c55858eb85ce02c2d32fe55756f6bf6029036f99dc01d9304c8f64a12b62183f5bf75dc4b53ae7998b5e8d9fb10ab58f",
+                    "iv": "97F814C4FA53DE749222C3584E7F23E8"
+                }
+            },
+            "name": "seedWallet",
             "address": "SBOENUE4JRGPMBV4HAOA2MIJGIY4AAHLI2YSKHRF",
-            "networkType": 144
-          },
-          "creationDate": "2019-11-08T00:02:54.019",
-          "schema": "simple_v1",
-          "encryptedPrivateKey": {
-            "encryptedKey": "c55858eb85ce02c2d32fe55756f6bf6029036f99dc01d9304c8f64a12b62183f5bf75dc4b53ae7998b5e8d9fb10ab58f",
-            "iv": "97F814C4FA53DE749222C3584E7F23E8"
-          }
-        },
-        "name": "seedWallet",
-        "address": "SBOENUE4JRGPMBV4HAOA2MIJGIY4AAHLI2YSKHRF",
-        "publicKey": "5A06ED717B3FFC46CFA387FB664E3FA2CF55D304943F0495DC4C402ED66DF8CF",
-        "networkType": 144,
-        "active": true,
-        "path": "m/44'/43'/0'/0'/0'",
-        "sourceType": "Seed",
-        "encryptedMnemonic": "U2FsdGVkX19Eh+ZbVrg88WN+wI7YErErtsGmGtDnjO/CN9aP4LOe/OHrMGkMQzCYmBcEXZ6Vi7W64lQq4he/iIMxGYoEXD0to4vwpWZDrOWPekjkCRvgNC4xVNY+CHyS19AGhM088il2EHSrbM/rXcff7dN+CfQYQfcqmheVaspaJIyDxmr6bJidl2nj/L7NR4XD29cqPFhnkBK71Tzvr47trNPdahXkbaCg77Aaj/uLlvs6zq1jFNYo5k+j5kr7CFX6tA/D9LtxvU9prJaIU14dLV23KBQOPYVSh5/pnlpWfX91UtXCmWrLSEVnZaQmAjuIqjlcsiISlTuowGF+jsO6FXp8zqtPgvS/33BJw/h2UdrIidc2sXci+qek6OUdQMwiC1yRIZnoaUkGE08u0AN5DGmrIZn9h5wgy45ZhQw=",
-        "balance": 0
-      }
+            "publicKey": "5A06ED717B3FFC46CFA387FB664E3FA2CF55D304943F0495DC4C402ED66DF8CF",
+            "networkType": 144,
+            "active": true,
+            "path": "m/44'/43'/0'/0'/0'",
+            "sourceType": "Seed",
+            "encryptedMnemonic": "U2FsdGVkX19Eh+ZbVrg88WN+wI7YErErtsGmGtDnjO/CN9aP4LOe/OHrMGkMQzCYmBcEXZ6Vi7W64lQq4he/iIMxGYoEXD0to4vwpWZDrOWPekjkCRvgNC4xVNY+CHyS19AGhM088il2EHSrbM/rXcff7dN+CfQYQfcqmheVaspaJIyDxmr6bJidl2nj/L7NR4XD29cqPFhnkBK71Tzvr47trNPdahXkbaCg77Aaj/uLlvs6zq1jFNYo5k+j5kr7CFX6tA/D9LtxvU9prJaIU14dLV23KBQOPYVSh5/pnlpWfX91UtXCmWrLSEVnZaQmAjuIqjlcsiISlTuowGF+jsO6FXp8zqtPgvS/33BJw/h2UdrIidc2sXci+qek6OUdQMwiC1yRIZnoaUkGE08u0AN5DGmrIZn9h5wgy45ZhQw=",
+            "balance": 0
+        }
     ],
     "password": "U2FsdGVkX19BmVzvm8prhK/Wy30gQvowdN4rR2UTSAJwk8NSeo4NSXT3huLlyTZd",
     "hint": "password is password",
-    "currentNetType": 144,
+    "networkType": 144,
     "seed": "U2FsdGVkX19Eh+ZbVrg88WN+wI7YErErtsGmGtDnjO/CN9aP4LOe/OHrMGkMQzCYmBcEXZ6Vi7W64lQq4he/iIMxGYoEXD0to4vwpWZDrOWPekjkCRvgNC4xVNY+CHyS19AGhM088il2EHSrbM/rXcff7dN+CfQYQfcqmheVaspaJIyDxmr6bJidl2nj/L7NR4XD29cqPFhnkBK71Tzvr47trNPdahXkbaCg77Aaj/uLlvs6zq1jFNYo5k+j5kr7CFX6tA/D9LtxvU9prJaIU14dLV23KBQOPYVSh5/pnlpWfX91UtXCmWrLSEVnZaQmAjuIqjlcsiISlTuowGF+jsO6FXp8zqtPgvS/33BJw/h2UdrIidc2sXci+qek6OUdQMwiC1yRIZnoaUkGE08u0AN5DGmrIZn9h5wgy45ZhQw=",
     "activeWalletAddress": "SBOENUE4JRGPMBV4HAOA2MIJGIY4AAHLI2YSKHRF"
+}
+
+export const current1Account = {
+    name: 'account',
+    password: '123123123',
+    networkType: NetworkType.MIJIN_TEST,
 }

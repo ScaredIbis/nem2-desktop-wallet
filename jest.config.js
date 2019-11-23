@@ -42,18 +42,16 @@ module.exports = {
   ],
   globals: {
     'ts-jest': {
-      babelConfig: true
+      babelConfig: true,
     },
   },
   coverageDirectory: "coverage",
   collectCoverageFrom: [
-    "**/components/**/*.{ts}",
-    "**/core/**/*.{js}",
-    "**/store/**/*.{js}",
-    "**/views/**/*.{ts}",
+    "**/*.{ts}",
     "**/*.{vue}",
     "!**/node_modules/**",
     "!**/*.{png}",
     "!**/*.{d.ts}",
+    "!**/*.{less}",
   ],
 }

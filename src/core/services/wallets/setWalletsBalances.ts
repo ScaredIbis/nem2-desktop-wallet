@@ -25,7 +25,7 @@ const getBalanceFromAccountInfo = ( accountInfo: AccountInfo,
 // @TODO: Could set more things such as multisig status
 export const setWalletsBalances = async (store: Store<AppState>): Promise<void> => {
     try {
-        const {wallet, accountName, node, networkCurrency} = store.state.account
+        const {wallet, currentAccount, node, networkCurrency} = store.state.account
         const {walletList} = store.state.app
         if (!walletList.length) return
         const addresses = walletList.map(({address}) => Address.createFromRawAddress(address))
@@ -51,8 +51,8 @@ export const setWalletsBalances = async (store: Store<AppState>): Promise<void> 
         // @WALLETS: make a standard method
         const localList = localRead('accountMap')
         const listToUpdate = localList === '' ? {} : JSON.parse(localList)
-        if (!listToUpdate[accountName]) throw new Error
-        listToUpdate[accountName].wallets = appWalletsWithBalance
+        if (!listToUpdate[currentAccount.name]) throw new Error
+        listToUpdate[currentAccount.name].wallets = appWalletsWithBalance
         localSave('accountMap', JSON.stringify(listToUpdate))
     } catch (error) {
         console.error('setWalletsBalances: error', error)

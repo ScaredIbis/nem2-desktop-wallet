@@ -2,7 +2,6 @@ import {Message, formDataConfig} from "@/config/index.ts"
 import {mapState} from 'vuex'
 import {NetworkType, Password} from "nem2-sdk"
 import {Component, Vue} from 'vue-property-decorator'
-import {networkTypeConfig} from '@/config/view/setting'
 import {cloneData, localRead} from "@/core/utils"
 import {AppInfo, StoreAccount, AppWallet, AppAccounts} from "@/core/model"
 import CheckPasswordDialog from '@/components/check-password-dialog/CheckPasswordDialog.vue'
@@ -26,11 +25,13 @@ export class AccountImportMnemonicTs extends Vue {
     NetworkType = NetworkType
 
     get accountNetworkType() {
-        return JSON.parse(localRead('accountMap'))[this.accountName].currentNetType
+        this.accountName
+        return 144 
+        // return JSON.parse(localRead('accountMap'))[this.accountName].networkType
     }
 
     get accountName() {
-        return this.activeAccount.accountName
+        return this.activeAccount.currentAccount.name
     }
 
     submit() {
@@ -38,7 +39,7 @@ export class AccountImportMnemonicTs extends Vue {
         this.showCheckPWDialog = true
     }
 
-    checkEnd(password) {
+    passwordValidated(password) {
         if (!password) return
         const {mnemonic} = this.form
         const seed = AppAccounts().encryptString(mnemonic, password)
@@ -46,12 +47,11 @@ export class AccountImportMnemonicTs extends Vue {
         this.importWallet(password)
     }
 
-    closeCheckPWDialog() {
+    close() {
         this.showCheckPWDialog = false
     }
 
     checkImport() {
-        const {accountNetworkType} = this
         const {walletName,mnemonic} = this.form
 
         if (!walletName ||walletName == '') {

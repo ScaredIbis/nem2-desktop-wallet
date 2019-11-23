@@ -5,7 +5,7 @@ import CheckPasswordDialog from '@/components/check-password-dialog/CheckPasswor
 import {AppWallet, StoreAccount} from '@/core/model'
 import {mapState} from "vuex"
 import {createMnemonic, createSubWalletByPathNumber, localRead} from "@/core/utils"
-import {networkConfig} from '@/config/index.ts'
+
 @Component({
     components: {
         CheckPasswordDialog
@@ -23,18 +23,18 @@ export class WalletCreateTs extends Vue {
     NetworkType = NetworkType
 
     get accountNetworkType (){
-        return JSON.parse(localRead('accountMap'))[this.accountName].currentNetType
+        return JSON.parse(localRead('accountMap'))[this.accountName].networkType
     }
 
     get accountName() {
-        return this.activeAccount.accountName
+        return this.activeAccount.currentAccount.name
     }
 
     closeCheckPWDialog() {
         this.showCheckPWDialog = false
     }
 
-    checkEnd(password) {
+    passwordValidated(password) {
         if (!password) return
         const {accountNetworkType} = this
         const {walletName, path} = this.formItem

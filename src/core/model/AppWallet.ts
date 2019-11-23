@@ -1,11 +1,9 @@
 import {Store} from 'vuex'
 import {
     Account,
-    Crypto,
     NetworkType,
     SimpleWallet,
     Password,
-    WalletAlgorithm,
     Listener,
     AccountHttp,
     Address,
@@ -20,6 +18,7 @@ import {
     UInt64,
     EncryptedPrivateKey,
     PersistentDelegationRequestTransaction,
+    MultisigHttp,
 } from 'nem2-sdk'
 import CryptoJS from 'crypto-js'
 import {filter, mergeMap} from 'rxjs/operators'
@@ -53,10 +52,6 @@ export class AppWallet {
     linkedAccountKey: string
     remoteAccount: RemoteAccount | null
 
-    generateWalletTitle(createType: string, coinType: string, netType: string) {
-        return `${createType}-${coinType}-${netType}`
-    }
-
     createFromPrivateKey(name: string,
                          password: Password,
                          privateKey: string,
@@ -84,8 +79,8 @@ export class AppWallet {
         networkType: NetworkType,
         store: Store<AppState>): AppWallet {
         try {
-            const accountName = store.state.account.accountName
-            let accountMap = localRead('accountMap') === '' ? {} : JSON.parse(localRead('accountMap'))
+            const accountName = store.state.account.currentAccount.name
+            const accountMap = localRead('accountMap') === '' ? {} : JSON.parse(localRead('accountMap'))
             const mnemonic = AppAccounts().decryptString(accountMap[accountName].seed, password.value)
             const account = createSubWalletByPathNumber(mnemonic, pathNumber)
             this.simpleWallet = SimpleWallet.createFromPrivateKey(name, password, account.privateKey, networkType)
@@ -105,7 +100,6 @@ export class AppWallet {
         }
     }
 
-    // TODO USE ACCOUNT NETWORK TYPE
     createFromMnemonic(
         name: string,
         password: Password,
@@ -113,7 +107,7 @@ export class AppWallet {
         networkType: NetworkType,
         store: Store<AppState>): AppWallet {
         try {
-            const accountName = store.state.account.accountName
+            const accountName = store.state.account.currentAccount.name
             const accountMap = localRead('accountMap') === '' ? {} : JSON.parse(localRead('accountMap'))
             const account = createSubWalletByPathNumber(mnemonic, 0)
             this.simpleWallet = SimpleWallet.createFromPrivateKey(name, password, account.privateKey, networkType)
@@ -197,15 +191,6 @@ export class AppWallet {
         }
     }
 
-    getMnemonic(password: Password): string {
-        if (this.encryptedMnemonic === undefined) throw new Error('This wallet has no encrypted mnemonic')
-        try {
-            return AppAccounts().decryptString(this.encryptedMnemonic, password.value)
-        } catch (error) {
-            throw new Error('Could not decrypt the mnemonic')
-        }
-    }
-
     getKeystore(): string {
         const parsed = CryptoJS.enc.Utf8.parse(JSON.stringify(this.simpleWallet))
         return CryptoJS.enc.Base64.stringify(parsed)
@@ -230,7 +215,7 @@ export class AppWallet {
     }
 
     addNewWalletToList(store: Store<AppState>): void {
-        const accountName = store.state.account.accountName
+        const accountName = store.state.account.currentAccount.name
         const accountMap = localRead('accountMap') === ''
             ? {} : JSON.parse(localRead('accountMap'))
         const newActiveWalletAddress = this.address
@@ -253,7 +238,7 @@ export class AppWallet {
 
     delete(store: Store<AppState>, that: any) {
         const list = [...store.state.app.walletList]
-        const accountName = store.state.account.accountName
+        const accountName = store.state.account.currentAccount.name
         const accountMap = localRead('accountMap') === ''
             ? {} : JSON.parse(localRead('accountMap'))
 
@@ -276,13 +261,12 @@ export class AppWallet {
         that.$Notice.success({
             title: that['$t']('Delete_wallet_successfully') + '',
         })
-        // this.$emit('hasWallet')
     }
 
 
     static updateActiveWalletAddress(newActiveWalletAddress: string, store: Store<AppState>) {
         const walletList = store.state.app.walletList
-        const accountName = store.state.account.accountName
+        const accountName = store.state.account.currentAccount.name
         const accountMap = localRead('accountMap') === ''
             ? {} : JSON.parse(localRead('accountMap'))
 
@@ -369,7 +353,7 @@ export class AppWallet {
 
 
     updateWallet(store: Store<AppState>) {
-        const accountName = store.state.account.accountName
+        const accountName = store.state.account.currentAccount.name
         const accountMap = localRead('accountMap') === '' ? {} : JSON.parse(localRead('accountMap'))
         const localData: any[] = accountMap[accountName].wallets
         if (!localData.length) throw new Error('error at update wallet, no wallets in storage')
@@ -387,7 +371,7 @@ export class AppWallet {
 
     async setMultisigStatus(node: string, store: Store<AppState>): Promise<void> {
         try {
-            const multisigAccountInfo = await new AccountHttp(node)
+            const multisigAccountInfo = await new MultisigHttp(node)
                 .getMultisigAccountInfo(Address.createFromRawAddress(this.address)).toPromise()
             store.commit('SET_MULTISIG_ACCOUNT_INFO', {address: this.address, multisigAccountInfo})
             store.commit('SET_MULTISIG_LOADING', false)
@@ -495,25 +479,6 @@ export class AppWallet {
             new Log('announceBonded -> error', { signedTransaction, signedLock }).create(that.$store)
             console.error('announceBonded -> error', error)
         })
-    }
-
-    // @TODO: review
-    // Remove if CheckPasswordDialog is made redundant
-    signAndAnnounceBonded = (password: Password,
-                             lockFee: number,
-                             transactions: AggregateTransaction[],
-                             store: Store<AppState>,
-                             that,) => {
-        const {node} = store.state.account
-
-        const {signedTransaction, signedLock} = this.getSignedLockAndAggregateTransaction(
-            transactions[0],
-            lockFee,
-            password.value,
-            store,
-        )
-
-        this.announceBonded(signedTransaction, signedLock, node, that)
     }
 
     getSignedLockAndAggregateTransaction(

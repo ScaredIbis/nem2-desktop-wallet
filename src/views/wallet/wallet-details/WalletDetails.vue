@@ -37,8 +37,8 @@
                       src="@/common/img/wallet/copyIcon.png"></i>
             </p>
             <p class="link_text">
-              <span class="tit">{{$t('alias')}}</span>
-              <span class="  alias_add pointer" @click="bindNamespace()"/>
+              <span class="tit">{{$t('Aliases')}}</span>
+              <span class="  alias_add pointer" @click="bindNamespace()" />
               <span class="walletPublicKey">
                 <span v-if='!selfAliases.length'>-</span>
                 <div v-if='selfAliases.length'>
@@ -107,7 +107,6 @@
       </div>
       <!--      <AddressBook v-if="functionShowList[0]"></AddressBook>-->
       <WalletHarvesting v-if="functionShowList[1]"></WalletHarvesting>
-      <!--      <WalletFilter v-if="functionShowList[1]"></WalletFilter>-->
     </div>
     <MnemonicDialog v-if="showMnemonicDialog"
                     :showMnemonicDialog="showMnemonicDialog"

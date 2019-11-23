@@ -19,7 +19,7 @@ export class FormattedModifyMultisigAccount extends FormattedTransaction {
             'hash': this.txHeader.hash,
             'minApprovalDelta': tx.minApprovalDelta,
             'maxRemovalDelta': tx.minRemovalDelta,
-            'cosignatories': tx.modifications,
+            'cosignatories': {...tx.publicKeyAdditions, ...tx.publicKeyDeletions},
           }
     }
 }
