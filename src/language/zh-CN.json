@@ -642,7 +642,6 @@
   "confirmations_height": "已确认块/高度",
   "hash_date": "hash/日期",
   "transaction_record": "交易记录",
-  "import_mnemonic": "导入助记词",
   "namespace_filter": "筛选",
   "namespace_expired": "已过期",
   "namespace_Not_expired": "未过期",

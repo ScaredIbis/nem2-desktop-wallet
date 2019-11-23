@@ -22,7 +22,7 @@
           </div>
           <div class="gray_content">
             <div class=" un_click account-network-type">
-              {{NetworkType[accountNetworkType]}}
+              {{NetworkType[currentAccount.networkType]}}
             </div>
           </div>
         </li>

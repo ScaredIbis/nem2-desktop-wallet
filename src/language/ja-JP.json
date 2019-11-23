@@ -636,7 +636,6 @@
     "confirmations_height": "ブロック高を確認しました",
     "hash_deadline": "ハッシュ/期限",
     "transaction_record": "取引記録",
-    "import_mnemonic": "ニーモニックのインポート",
     "namespace_filter": "ネームスペースフィルタ",
     "namespace_expired": "期限切れネームスペース",
     "namespace_Not_expired": "期限切れではないネームスペース",
