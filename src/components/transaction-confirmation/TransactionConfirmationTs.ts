@@ -71,10 +71,13 @@ export class TransactionConfirmationTs extends Vue {
     }
 
     async confirmTransactionViaTrezor() {
-        const transactionResult = await trezor.nemSignTransaction({
+        console.log("CONFIRMING VIA TREZOR", this.stagedTransaction.transactionToSign)
+        const transactionResult = await trezor.nem2SignTransaction({
             path: this.wallet.path,
-            transaction: this.stagedTransaction
+            transaction: this.stagedTransaction.transactionToSign
         })
+
+        console.log("SIGNTX RESULT", transactionResult)
 
         if(transactionResult.success) {
             // get signedTransaction via TrezorConnect.nemSignTransaction

@@ -31,7 +31,7 @@
     "node-uuid": "^1.4.8",
     "request": "^2.88.0",
     "rxjs": "^6.5.2",
-    "trezor-connect": "^7.0.5",
+    "trezor-connect": "file:../connect/npm/",
     "typescript": "^3.7.2",
     "utf-8-validate": "^5.0.2",
     "vee-validate": "^2.2.15",
