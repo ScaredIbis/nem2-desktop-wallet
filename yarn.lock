@@ -2534,7 +2534,7 @@ bip39@^3.0.0, bip39@^3.0.2:
     pbkdf2 "^3.0.9"
     randombytes "^2.0.1"
 
-bip44-constants@^8.0.1, bip44-constants@^8.0.4:
+bip44-constants@^8.0.1, bip44-constants@^8.0.5:
   version "8.0.5"
   resolved "https://registry.yarnpkg.com/bip44-constants/-/bip44-constants-8.0.5.tgz#0684b3a026c19e919f1439d6e5fc49f8176d4066"
   integrity sha512-Oz9neu5N8RzR+7CboveI4rsf1ETYJDivjlLqOqkI2D7oRSJKa34+MJw7nx3gJ+JnD6Pm8cSONbPTtiqIhF/pWg==
@@ -7269,20 +7269,20 @@ nem2-hd-wallets@0.4.1:
     nem2-sdk "^0.13.0"
     rxjs "^6.2.1"
 
-nem2-hd-wallets@^0.4.2:
-  version "0.4.2"
-  resolved "https://registry.yarnpkg.com/nem2-hd-wallets/-/nem2-hd-wallets-0.4.2.tgz#421b0942f22c4a0dec96d356d2a5bc8ccb3cbc99"
-  integrity sha512-ErD7gYa21hd+0TQ4mPnkma45XDYffX3O0K4aD1GuXGFgkw61QKew9SQ1pAlDkzLLTcI0n9pdF/C6HX4g2Z5rhg==
+nem2-hd-wallets@^0.6.0:
+  version "0.6.0"
+  resolved "https://registry.yarnpkg.com/nem2-hd-wallets/-/nem2-hd-wallets-0.6.0.tgz#933f37fb038a7eb3f0d4356d1f25dc60a3104443"
+  integrity sha512-V2QliKtyHI7RArQGiCWpB8ccYWhRXmaSsF0bt93mpIOUjPFeY7RzkUKjnZKpfCHm84NeSikfWQ/HfdB9I55oPA==
   dependencies:
     "@types/bip32" "^1.0.2"
     bip32 "^1.0.4"
     bip39 "^3.0.2"
-    bip44-constants "^8.0.4"
+    bip44-constants "^8.0.5"
     bs58check "^2.1.2"
     create-hash "^1.2.0"
     create-hmac "^1.1.7"
     js-sha3 "^0.8.0"
-    nem2-sdk "^0.14.3"
+    nem2-sdk "^0.15.0"
     rxjs "^6.5.3"
 
 nem2-qr-library@^0.5.2:
@@ -7319,7 +7319,7 @@ nem2-sdk@^0.13.0:
     utf8 "^2.1.2"
     ws "^5.2.0"
 
-nem2-sdk@^0.14.3, nem2-sdk@^0.14.4:
+nem2-sdk@^0.14.4:
   version "0.14.4"
   resolved "https://registry.yarnpkg.com/nem2-sdk/-/nem2-sdk-0.14.4.tgz#a0a01aae81be8707f0c042676fc44f2471776c5a"
   integrity sha512-/kc8hI+GxtpkYigAKLutcbK6I8BfSj6H3P4V3/J2f7Yo8Url2XX0Xhen4KmhukwmETjRslmBC2kmtacoK2I0yw==
@@ -10307,7 +10307,7 @@ treeify@^1.1.0:
   resolved "https://registry.yarnpkg.com/treeify/-/treeify-1.1.0.tgz#4e31c6a463accd0943879f30667c4fdaff411bb8"
   integrity sha512-1m4RA7xVAJrSGrrXGs0L3YTwyvBs2S8PbRHaLZAkFw7JR8oIFwYtysxlBZhYIa7xSyiYJKZ3iGrrk55cGA3i9A==
 
-"trezor-connect@file:../connect/npm/":
+"trezor-connect@file:../connect/npm":
   version "8.0.9"
   dependencies:
     "@babel/runtime" "^7.5.5"
@@ -10721,22 +10721,6 @@ vue-i18n@^8.11.2:
   version "8.15.0"
   resolved "https://registry.yarnpkg.com/vue-i18n/-/vue-i18n-8.15.0.tgz#9b11ef8e7a124f67cdf788c8c90a81f3606240ed"
   integrity sha512-juJ/avAP39bOMycC+qQDLJ8U9z9LtLF/9PsRoJLBSfsYZo9bqYntyyX5QPicwlb1emJKjgxhZ3YofHiQcXBu0Q==
-
-vue-jest@^2.6.0:
-  version "2.6.0"
-  resolved "https://registry.yarnpkg.com/vue-jest/-/vue-jest-2.6.0.tgz#23dc99a4dce0bb59fea3946e1317b234968cf12a"
-  integrity sha512-kVgKGcycJ1ce3tUc48JKFSSXsbRNy5QOCAcK9k1aYDRD0m6tTbbFm8Q8yGkfsXLyFeUsvO1OEgsCYxZeD5GL2g==
-  dependencies:
-    babel-plugin-transform-es2015-modules-commonjs "^6.26.0"
-    chalk "^2.1.0"
-    extract-from-css "^0.4.4"
-    find-babel-config "^1.1.0"
-    js-beautify "^1.6.14"
-    node-cache "^4.1.1"
-    object-assign "^4.1.1"
-    source-map "^0.5.6"
-    tsconfig "^7.0.0"
-    vue-template-es2015-compiler "^1.6.0"
 
 vue-jest@^3.0.5:
   version "3.0.5"

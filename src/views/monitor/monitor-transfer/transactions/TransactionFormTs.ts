@@ -182,7 +182,35 @@ export class TransactionFormTs extends Vue {
 
     get mosaics() {
         const {mosaicsLoading} = this
-        return mosaicsLoading ? [] : this.activeAccount.mosaics
+        // TODO: don't mock this when the nodes are running
+        // return mosaicsLoading ? [] : this.activeAccount.mosaics
+        return {
+            [this.activeAccount.networkCurrency.hex]: new AppMosaic({
+                hex: this.activeAccount.networkCurrency.hex,
+                balance: 1000,
+                name: "xem",
+                expirationHeight: MosaicNamespaceStatusType.FOREVER,
+                properties: {
+                    divisibility: 6,
+                    supplyMutable: false,
+                    transferable: true,
+                    duration: 1000,
+                    restrictable: false
+                }
+            })
+        }
+        // return [new AppMosaic({
+        //     hex: "308F144790CD7BC4",
+        //     balance: 1000,
+        //     expirationHeight: MosaicNamespaceStatusType.FOREVER,
+        //     properties: {
+        //         divisibility: 6,
+        //         supplyMutable: false,
+        //         transferable: true,
+        //         duration: 1000,
+        //         restrictable: false
+        //     }
+        // })]
     }
 
     get currentHeight() {
@@ -227,7 +255,6 @@ export class TransactionFormTs extends Vue {
     get currentMosaicAbsoluteAmount() {
         const {mosaics, selectedMosaicHex, currentAmount} = this
         return mosaics[selectedMosaicHex] ? getAbsoluteMosaicAmount(currentAmount, mosaics[selectedMosaicHex].properties.divisibility) : 0
-
     }
 
     get lockParams(): LockParams {
@@ -245,7 +272,8 @@ export class TransactionFormTs extends Vue {
 
     addMosaic() {
         const {selectedMosaicHex, mosaics, currentAmount} = this
-        if (this.$validator.errors.has('currentAmount') || !selectedMosaicHex) return
+        // TODO: turn this validator back on when the f2 nodes are running
+        // if (this.$validator.errors.has('currentAmount') || !selectedMosaicHex) return
         this.maxMosaicAbsoluteAmount = 0
         const {divisibility} = mosaics[selectedMosaicHex].properties
 

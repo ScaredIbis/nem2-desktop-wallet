@@ -1,5 +1,13 @@
 import {mapState} from 'vuex'
-import {Password, AggregateTransaction, CosignatureTransaction} from "nem2-sdk"
+import {
+    Password,
+    AggregateTransaction,
+    CosignatureTransaction,
+    SignedTransaction,
+    Transaction,
+    UInt64,
+    Convert
+} from "nem2-sdk"
 import {Component, Vue} from 'vue-property-decorator'
 import {transactionFormatter} from '@/core/services/transactions'
 import {Message} from "@/config"
@@ -71,19 +79,35 @@ export class TransactionConfirmationTs extends Vue {
     }
 
     async confirmTransactionViaTrezor() {
-        console.log("CONFIRMING VIA TREZOR", this.stagedTransaction.transactionToSign)
+        const transactionToSignJSON = this.stagedTransaction.transactionToSign.toJSON().transaction
         const transactionResult = await trezor.nem2SignTransaction({
             path: this.wallet.path,
-            transaction: this.stagedTransaction.transactionToSign
+            generationHash: this.account.generationHash,
+            transaction: transactionToSignJSON
         })
 
         console.log("SIGNTX RESULT", transactionResult)
 
         if(transactionResult.success) {
             // get signedTransaction via TrezorConnect.nemSignTransaction
+            const { payload } = transactionResult.payload;
+
+            // TODO: use the hash provided by trezor instead of constructing it here
+            const hash = Transaction.createTransactionHash(
+                payload,
+                Array.from(Convert.hexToUint8(this.account.generationHash)),
+                transactionToSignJSON.network
+            )
+
             const result: SignTransaction = {
                 success: true,
-                signedTransaction: transactionResult.payload.signature,
+                signedTransaction: new SignedTransaction(
+                    payload,
+                    hash,
+                    this.accountPublicKey,
+                    transactionToSignJSON.type,
+                    transactionToSignJSON.network
+                ),
                 error: null
             }
 
