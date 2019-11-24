@@ -2,7 +2,7 @@ import {Message, formDataConfig} from "@/config/index.ts"
 import {mapState} from 'vuex'
 import {NetworkType, Password} from "nem2-sdk"
 import {Component, Vue} from 'vue-property-decorator'
-import {cloneData, localRead} from "@/core/utils"
+import {cloneData} from "@/core/utils"
 import {AppInfo, StoreAccount, AppWallet, AppAccounts} from "@/core/model"
 import CheckPasswordDialog from '@/components/check-password-dialog/CheckPasswordDialog.vue'
 
@@ -24,14 +24,8 @@ export class AccountImportMnemonicTs extends Vue {
     showCheckPWDialog = false
     NetworkType = NetworkType
 
-    get accountNetworkType() {
-        this.accountName
-        return 144 
-        // return JSON.parse(localRead('accountMap'))[this.accountName].networkType
-    }
-
-    get accountName() {
-        return this.activeAccount.currentAccount.name
+    get currentAccount() {
+        return this.activeAccount.currentAccount
     }
 
     submit() {
@@ -52,9 +46,9 @@ export class AccountImportMnemonicTs extends Vue {
     }
 
     checkImport() {
-        const {walletName,mnemonic} = this.form
+        const {walletName, mnemonic} = this.form
 
-        if (!walletName ||walletName == '') {
+        if (!walletName || walletName == '') {
             this.$Notice.error({
                 title: this.$t(Message.WALLET_NAME_INPUT_ERROR) + ''
             })
@@ -69,19 +63,18 @@ export class AccountImportMnemonicTs extends Vue {
         return true
     }
 
-    // TODO USE ACCOUNT NETWORK TYPE
     importWallet(password) {
-        const {accountNetworkType} = this
+        const {currentAccount} = this
         const {walletName, mnemonic} = this.form
         try {
             new AppWallet().createFromMnemonic(
                 walletName,
                 new Password(password),
                 mnemonic,
-                accountNetworkType,
+                currentAccount.networkType,
                 this.$store
             )
-            // TODO import 10 wallets or only used wallet
+
             this.toWalletDetails()
         } catch (error) {
             console.error(error)

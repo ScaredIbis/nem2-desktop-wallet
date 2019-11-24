@@ -23,7 +23,7 @@ import {
 import CryptoJS from 'crypto-js'
 import {filter, mergeMap} from 'rxjs/operators'
 import {Message, networkConfig, defaultNetworkConfig} from "@/config"
-import {localRead, localSave, createSubWalletByPathNumber, getPath} from "@/core/utils"
+import {localRead, localSave, getAccountFromPathNumber, getPath} from "@/core/utils"
 import {AppAccounts, CreateWalletType} from "@/core/model"
 import {AppState, RemoteAccount} from './types'
 import {Log} from './Log'
@@ -82,7 +82,7 @@ export class AppWallet {
             const accountName = store.state.account.currentAccount.name
             const accountMap = localRead('accountMap') === '' ? {} : JSON.parse(localRead('accountMap'))
             const mnemonic = AppAccounts().decryptString(accountMap[accountName].seed, password.value)
-            const account = createSubWalletByPathNumber(mnemonic, pathNumber)
+            const account = getAccountFromPathNumber(mnemonic, pathNumber, networkType)
             this.simpleWallet = SimpleWallet.createFromPrivateKey(name, password, account.privateKey, networkType)
             this.name = name
             this.address = this.simpleWallet.address.plain()
@@ -109,7 +109,7 @@ export class AppWallet {
         try {
             const accountName = store.state.account.currentAccount.name
             const accountMap = localRead('accountMap') === '' ? {} : JSON.parse(localRead('accountMap'))
-            const account = createSubWalletByPathNumber(mnemonic, 0)
+            const account = getAccountFromPathNumber(mnemonic, 0, networkType)
             this.simpleWallet = SimpleWallet.createFromPrivateKey(name, password, account.privateKey, networkType)
             this.name = name
             this.address = this.simpleWallet.address.plain()
