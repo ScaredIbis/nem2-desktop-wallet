@@ -1,5 +1,10 @@
 import {mapState} from 'vuex'
-import {Password, AggregateTransaction, CosignatureTransaction} from "nem2-sdk"
+import {
+    Password,
+    AggregateTransaction,
+    CosignatureTransaction,
+    SignedTransaction
+} from "nem2-sdk"
 import {Component, Vue} from 'vue-property-decorator'
 import {transactionFormatter, transactionConfirmationObservable} from '@/core/services'
 import {Message} from "@/config"
@@ -56,16 +61,31 @@ export class TransactionConfirmationTs extends Vue {
     }
 
     async confirmTransactionViaTrezor() {
-        const transactionResult = await trezor.nemSignTransaction({
+
+        console.log("SENDING THIS", this.stagedTransaction.transactionToSign.toJSON().transaction)
+
+        const transactionJSON = this.stagedTransaction.transactionToSign.toJSON().transaction
+        const transactionResult = await trezor.nem2SignTransaction({
             path: this.wallet.path,
-            transaction: this.stagedTransaction
+            transaction: transactionJSON,
+            generationHash: this.activeAccount.generationHash
         })
 
         if (transactionResult.success) {
             // get signedTransaction via TrezorConnect.nemSignTransaction
+            const signedTransaction = new SignedTransaction(
+                transactionResult.payload.payload,
+                transactionResult.payload.hash,
+                this.wallet.publicKey,
+                transactionJSON.type,
+                this.wallet.networkType
+            );
+
+            console.log("SIGNED TX", signedTransaction)
+
             const result: SignTransaction = {
                 success: true,
-                signedTransaction: transactionResult.payload.signature,
+                signedTransaction,
                 error: null
             }
 

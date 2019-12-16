@@ -25,7 +25,7 @@ export const importInfoList = [
         image: trezorImg,
         title: "Access_Trezor",
         description: "Access_your_trezor_wallet_to_make_trezor_account",
-        link: null,
+        link: "importAccount",
     },
     {
         image: ledgerImg,

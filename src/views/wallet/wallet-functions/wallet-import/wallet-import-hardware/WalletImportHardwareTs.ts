@@ -65,6 +65,7 @@ export class WalletImportHardwareTs extends Vue {
     }
 
     async importAccountFromTrezor() {
+        console.log("GOT TO HERE")
         const { accountIndex, networkType, walletName } = this.trezorForm
 
         this.$store.commit('SET_UI_DISABLED', {
@@ -72,6 +73,7 @@ export class WalletImportHardwareTs extends Vue {
             message: "trezor_awaiting_interaction"
         });
 
+        console.log("AND HERE")
         try {
             const publicKeyResult = await trezor.getPublicKey({
                 path: `m/44'/43'/${accountIndex}'`,
@@ -101,6 +103,7 @@ export class WalletImportHardwareTs extends Vue {
             });
             this.toWalletDetails();
         } catch (e) {
+            console.log("CAUGHT ERROR", e)
             this.$store.commit('SET_UI_DISABLED', {
                 isDisabled: false,
                 message: ""

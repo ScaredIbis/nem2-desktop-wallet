@@ -53,9 +53,10 @@ export const signAndAnnounce = async({ transaction, store, lockParams }:{
                     })
                 }
 
+                console.log("IT WAS A SUCCESS", signedTransaction)
                 new AppWallet(store.state.account.wallet)
                     .announceTransaction(signedTransaction, store, signedLock)
-                
+
                 if (lockParams && lockParams.announceInLock) {
                     return resolve({
                         success,
