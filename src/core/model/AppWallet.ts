@@ -471,6 +471,25 @@ export class AppWallet {
         })
     }
 
+    getLockTransaction(
+        signedAggregateTransaction: SignedTransaction,
+        fee: number,
+        store: Store<AppState>
+    ): HashLockTransaction {
+        const {networkCurrency} = store.state.account;
+
+        const hashLockTransaction = HashLockTransaction
+            .create(
+                Deadline.create(),
+                new Mosaic(new MosaicId(networkCurrency.hex), UInt64.fromUint(DEFAULT_LOCK_AMOUNT)),
+                UInt64.fromUint(480),
+                signedAggregateTransaction,
+                this.networkType,
+                UInt64.fromUint(fee)
+            )
+        return hashLockTransaction;
+    }
+
     getSignedLockAndAggregateTransaction(
         aggregateTransaction: AggregateTransaction,
         fee: number,

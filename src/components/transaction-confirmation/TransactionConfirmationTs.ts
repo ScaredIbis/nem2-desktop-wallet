@@ -3,7 +3,8 @@ import {
     Password,
     AggregateTransaction,
     CosignatureTransaction,
-    SignedTransaction
+    SignedTransaction,
+    CosignatureSignedTransaction
 } from "nem2-sdk"
 import {Component, Vue} from 'vue-property-decorator'
 import {transactionFormatter, transactionConfirmationObservable} from '@/core/services'
@@ -62,9 +63,97 @@ export class TransactionConfirmationTs extends Vue {
 
     async confirmTransactionViaTrezor() {
 
-        console.log("SENDING THIS", this.stagedTransaction.transactionToSign.toJSON().transaction)
+        const {wallet} = this
+        const {transactionToSign, lockParams} = this.stagedTransaction;
+        const transactionJSON = this.stagedTransaction.transactionToSign.toJSON().transaction;
 
-        const transactionJSON = this.stagedTransaction.transactionToSign.toJSON().transaction
+        /**
+         * AGGREGATE BONDED
+         */
+        if (transactionToSign instanceof AggregateTransaction && lockParams.announceInLock) {
+
+            const transactionResult = await trezor.nem2SignTransaction({
+                path: this.wallet.path,
+                transaction: transactionJSON,
+                generationHash: this.activeAccount.generationHash
+            })
+
+            if (transactionResult.success) {
+                const signedTransaction = new SignedTransaction(
+                    transactionResult.payload.payload,
+                    transactionResult.payload.hash,
+                    this.wallet.publicKey,
+                    transactionJSON.type,
+                    this.wallet.networkType
+                );
+
+                const hashLockTransaction = wallet.getLockTransaction(
+                    signedTransaction,
+                    lockParams.transactionFee,
+                    this.$store,
+                )
+
+                const hashLockTransactionJSON = hashLockTransaction.toJSON().transaction;
+
+                const hashLockTransactionResult = await trezor.nem2SignTransaction({
+                    path: this.wallet.path,
+                    transaction: hashLockTransactionJSON,
+                    generationHash: this.activeAccount.generationHash
+                });
+
+                const signedLock = new SignedTransaction(
+                    hashLockTransactionResult.payload.payload,
+                    hashLockTransactionResult.payload.hash,
+                    this.wallet.publicKey,
+                    hashLockTransactionJSON.type,
+                    this.wallet.networkType
+                );
+
+                const result: SignTransaction = {
+                    success: true,
+                    signedTransaction,
+                    signedLock,
+                    error: null,
+                };
+    
+                transactionConfirmationObservable.next(result);
+                return;
+            }
+        }
+
+        /**
+         * COSIGNATURE
+         */
+        if (transactionToSign instanceof AggregateTransaction && transactionToSign.signer) {
+            const cosignatureTransaction = CosignatureTransaction.create(transactionToSign)
+
+            const cosignatureTransactionResult = await trezor.nem2SignTransaction({
+                path: this.wallet.path,
+                transaction: {
+                    cosigning: cosignatureTransaction.transactionToCosign.transactionInfo.hash
+                },
+            });
+
+            const signedTransaction = new CosignatureSignedTransaction(
+                cosignatureTransactionResult.payload.parent_hash,
+                cosignatureTransactionResult.payload.signature,
+                this.wallet.publicKey
+            );
+
+            const result: SignTransaction = {
+                success: true,
+                signedTransaction,
+                error: null,
+            };
+
+            transactionConfirmationObservable.next(result);
+            return;
+        }
+
+        /**
+         * DEFAULT SIGNATURE
+         */
+
         const transactionResult = await trezor.nem2SignTransaction({
             path: this.wallet.path,
             transaction: transactionJSON,
@@ -72,7 +161,6 @@ export class TransactionConfirmationTs extends Vue {
         })
 
         if (transactionResult.success) {
-            // get signedTransaction via TrezorConnect.nemSignTransaction
             const signedTransaction = new SignedTransaction(
                 transactionResult.payload.payload,
                 transactionResult.payload.hash,
@@ -80,8 +168,6 @@ export class TransactionConfirmationTs extends Vue {
                 transactionJSON.type,
                 this.wallet.networkType
             );
-
-            console.log("SIGNED TX", signedTransaction)
 
             const result: SignTransaction = {
                 success: true,

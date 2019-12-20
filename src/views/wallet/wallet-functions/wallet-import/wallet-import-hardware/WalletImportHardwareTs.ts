@@ -65,7 +65,6 @@ export class WalletImportHardwareTs extends Vue {
     }
 
     async importAccountFromTrezor() {
-        console.log("GOT TO HERE")
         const { accountIndex, networkType, walletName } = this.trezorForm
 
         this.$store.commit('SET_UI_DISABLED', {
@@ -73,18 +72,15 @@ export class WalletImportHardwareTs extends Vue {
             message: "trezor_awaiting_interaction"
         });
 
-        console.log("AND HERE")
         try {
-            const publicKeyResult = await trezor.getPublicKey({
-                path: `m/44'/43'/${accountIndex}'`,
-                coin: "NEM"
+            
+            const publicKeyResult = await trezor.nem2GetPublicKey({
+                path: `m/44'/43'/${accountIndex}'/0'/0'`
             })
 
             if(publicKeyResult.success) {
-                const { xpub, serializedPath } = publicKeyResult.payload;
+                const { publicKey, xpub, serializedPath } = publicKeyResult.payload;
 
-                const extendedPublicKey = ExtendedKey.createFromBase58(xpub);
-                const publicKey = extendedPublicKey.getPublicKey(KeyEncoding.ENC_HEX).toString().toUpperCase();
                 const address = Address.createFromPublicKey(publicKey, networkType);
 
                 new AppWallet().createFromTrezor(
