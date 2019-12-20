@@ -555,6 +555,7 @@
   "clear_cache": "Clear cache",
   "We_will_clear_your_cache_reset_account_password_please_make_sure_your_wallet_is_safely_backed_up": "We will clear your cache reset account password, please make sure your wallet is safely backed up",
   "confirm_information": "Please input your password",
+  "confirm_information_trezor": "Please confirm this transaction via Trezor",
   "please_input_new_account_name": "Please input new account name",
   "Locking_passwords_as_a_form_of_program_protection": "Locking passwords as a form of program protection verification.Once forgotten, there will be no recovery. Please remember your Lock password.",
   "delete_wallet_tip": "Be careful! You're about to delete %{walletName}. Make sure you have a back-up, otherwise, you will not be able to retrieve your wallet. Please enter your password if you want to continue.",

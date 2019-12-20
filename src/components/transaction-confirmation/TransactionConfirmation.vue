@@ -9,7 +9,7 @@
             :transfer="false" >
 
       <div slot="header" class="transactionConfirmationHeader">
-        <span class="title">{{$t('confirm_information')}}</span>
+        <span class="title">{{$t('confirm_information_trezor')}}</span>
       </div>
       <div class="transactionConfirmationBody">
         <div class="stepItem1">
