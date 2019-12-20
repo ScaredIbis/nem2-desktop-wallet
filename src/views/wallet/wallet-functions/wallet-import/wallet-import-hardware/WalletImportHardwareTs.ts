@@ -87,7 +87,7 @@ export class WalletImportHardwareTs extends Vue {
                     walletName,
                     networkType,
                     serializedPath,
-                    publicKey,
+                    publicKey.toUpperCase(),
                     address.plain(),
                     this.$store
                 );
