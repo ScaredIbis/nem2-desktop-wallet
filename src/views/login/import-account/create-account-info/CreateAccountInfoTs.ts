@@ -20,6 +20,12 @@ export class CreateAccountInfoTs extends Vue {
     formItem = cloneData(formDataConfig.createAccountForm)
     currentNetworkType = getDefaultAccountNetworkType()
     networkTypeList = networkTypeConfig
+    isTrezor = false
+
+    created() {
+        const {isTrezor} = this.$route.meta
+        this.isTrezor = isTrezor
+    }
 
     get accountName() {
         return this.activeAccount.currentAccount.name
@@ -69,6 +75,6 @@ export class CreateAccountInfoTs extends Vue {
         }
         this.$store.commit('SET_ACCOUNT_DATA', currentAccount)
         this.$store.commit('SET_TEMPORARY_PASSWORD', password)
-        this.$router.push('importMnemonic')
+        this.$router.push(!this.isTrezor ? 'importMnemonic' : 'importTrezor')
     }
 }

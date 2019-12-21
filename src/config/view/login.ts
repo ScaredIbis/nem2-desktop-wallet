@@ -1,6 +1,11 @@
+import {localRead} from "@/core/utils"
+
 import seedImg from "@/common/img/login/seed.png"
 import trezorImg from "@/common/img/login/trezor.png"
 import ledgerImg from "@/common/img/login/ledger.png"
+
+import importTrezorStepImage1 from '@/common/img/login/1_2.png'
+import importTrezorStepImage2 from '@/common/img/login/2_2.png'
 
 import importStepImage1 from '@/common/img/login/1_4.png'
 import importStepImage2 from '@/common/img/login/2_4.png'
@@ -13,7 +18,6 @@ import createStepImage3 from '@/common/img/login/3_5.png'
 import createStepImage4 from '@/common/img/login/4_5.png'
 import createStepImage5 from '@/common/img/login/5_5.png'
 
-
 export const importInfoList = [
     {
         image: seedImg,
@@ -25,7 +29,7 @@ export const importInfoList = [
         image: trezorImg,
         title: "Access_Trezor",
         description: "Access_your_trezor_wallet_to_make_trezor_account",
-        link: "importAccount",
+        link: localRead && localRead("_ENABLE_TREZOR_") === "true" ? "importTrezorAccount" : null,
     },
     {
         image: ledgerImg,
@@ -50,6 +54,11 @@ export const importStepBarTitleList = [
     'Finished'
 ]
 
+export const importTrezorStepBarTitleList = [
+    'Create Account',
+    'Import Trezor Account'
+]
+
 export const importStepImage = {
     importStepImage1,
     importStepImage2,
@@ -63,4 +72,9 @@ export const createStepImage = {
     createStepImage3,
     createStepImage4,
     createStepImage5,
+}
+
+export const importTrezorStepImage = {
+    importTrezorStepImage1,      
+    importTrezorStepImage2,
 }

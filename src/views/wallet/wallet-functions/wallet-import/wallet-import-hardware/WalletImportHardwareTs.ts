@@ -79,7 +79,7 @@ export class WalletImportHardwareTs extends Vue {
             })
 
             if(publicKeyResult.success) {
-                const { publicKey, xpub, serializedPath } = publicKeyResult.payload;
+                const { publicKey, serializedPath } = publicKeyResult.payload;
 
                 const address = Address.createFromPublicKey(publicKey, networkType);
 
@@ -91,13 +91,15 @@ export class WalletImportHardwareTs extends Vue {
                     address.plain(),
                     this.$store
                 );
+                
+                this.toWalletDetails();
             }
 
             this.$store.commit('SET_UI_DISABLED', {
                 isDisabled: false,
                 message: ""
             });
-            this.toWalletDetails();
+            
         } catch (e) {
             console.log("CAUGHT ERROR", e)
             this.$store.commit('SET_UI_DISABLED', {

@@ -29,7 +29,7 @@
         </div>
         <div class="button-container">
           <button @click="$router.push('login')" class="info-button">{{$t('Back_to_home')}}</button>
-          <button @click="submit">{{$t('Restore_Mnemonic')}}</button>
+          <button @click="submit">{{$t('next')}}</button>
         </div>
 
       </div>

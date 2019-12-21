@@ -1,5 +1,5 @@
 import {leftBarIcons} from '@/common/img/window'
-import {createStepImage,importStepImage} from '@/config/view/login'
+import {createStepImage,importStepImage, importTrezorStepImage} from '@/config/view/login'
 
 const routers = [
     {
@@ -292,23 +292,40 @@ const routers = [
                         children: [{
                             path: '/inputAccountInfo',
                             name: 'inputAccountInfo',
-                            meta: {icon: importStepImage.importStepImage1},
+                            meta: {index: 1, icon: importStepImage.importStepImage1},
                             component: () => import('@/views/login/import-account/create-account-info/CreateAccountInfo.vue'),
                         }, {
                             path: '/importMnemonic',
                             name: 'importMnemonic',
-                            meta: {icon: importStepImage.importStepImage2},
+                            meta: {index: 2, icon: importStepImage.importStepImage2},
                             component: () => import('@/views/login/import-account/import-mnemonic/ImportMnemonic.vue'),
                         }, {
                             path: '/walletChoose',
                             name: 'walletChoose',
-                            meta: {icon: importStepImage.importStepImage3},
+                            meta: {index: 3, icon: importStepImage.importStepImage3},
                             component: () => import('@/views/login/import-account/wallet-choose/WalletChoose.vue'),
                         }, {
                             path: '/finishImport',
                             name: 'finishImport',
-                            meta: {icon: importStepImage.importStepImage4},
+                            meta: {index: 4, icon: importStepImage.importStepImage4},
                             component: () => import('@/views/login/import-account/finish-import/FinishImport.vue'),
+                        }],
+                    },
+                    {
+                        path: '/importTrezorAccount',
+                        name: 'importTrezorAccount',
+                        redirect: '/inputTrezorAccountInfo',
+                        component: () => import('@/views/login/import-account/ImportAccount.vue'),                        
+                        children: [{
+                            path: '/inputTrezorAccountInfo',
+                            name: 'inputTrezorAccountInfo',
+                            meta: {index: 1, isTrezor: true, icon: importTrezorStepImage.importTrezorStepImage1},
+                            component: () => import('@/views/login/import-account/create-account-info/CreateAccountInfo.vue'),
+                        }, {
+                            path: '/importTrezor',
+                            name: 'importTrezor',
+                            meta: {index: 2, isTrezor: true, icon: importTrezorStepImage.importTrezorStepImage2},
+                            component: () => import('@/views/wallet/wallet-functions/wallet-import/wallet-import-hardware/WalletImportHardware.vue'),
                         }],
                     },
                 ]
