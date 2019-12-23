@@ -75,7 +75,7 @@ export class TransactionConfirmationTs extends Vue {
             const transactionResult = await trezor.nem2SignTransaction({
                 path: this.wallet.path,
                 transaction: transactionJSON,
-                generationHash: this.activeAccount.generationHash
+                generationHash: this.app.NetworkProperties.generationHash
             })
 
             if (transactionResult.success) {
@@ -98,7 +98,7 @@ export class TransactionConfirmationTs extends Vue {
                 const hashLockTransactionResult = await trezor.nem2SignTransaction({
                     path: this.wallet.path,
                     transaction: hashLockTransactionJSON,
-                    generationHash: this.activeAccount.generationHash
+                    generationHash: this.app.NetworkProperties.generationHash
                 });
 
                 const signedLock = new SignedTransaction(
@@ -115,7 +115,7 @@ export class TransactionConfirmationTs extends Vue {
                     signedLock,
                     error: null,
                 };
-    
+
                 transactionConfirmationObservable.next(result);
                 return;
             }
@@ -157,7 +157,7 @@ export class TransactionConfirmationTs extends Vue {
         const transactionResult = await trezor.nem2SignTransaction({
             path: this.wallet.path,
             transaction: transactionJSON,
-            generationHash: this.activeAccount.generationHash
+            generationHash: this.app.NetworkProperties.generationHash
         })
 
         if (transactionResult.success) {
