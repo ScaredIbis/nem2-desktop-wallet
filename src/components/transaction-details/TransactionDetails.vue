@@ -4,10 +4,7 @@
       <div v-if="transaction.txHeader.hash" class="transaction-hash top-transaction-item">
         <span class="transaction-info-title">{{$t('hash')}}：</span>
         <span class="bolder">
-          <a
-            target="_blank"
-            :href="formatExplorerUrl(transaction.txHeader.hash)"
-          >{{transaction.txHeader.hash}}</a>
+          <a class="url_text" target="_blank" :href="openExplorer(transaction.txHeader.hash)" >{{transaction.txHeader.hash}}</a>
         </span>
       </div>
 
@@ -22,8 +19,13 @@
           <span class="bolder">{{$t(transaction.txHeader.tag)}}</span>
         </span>
         <span class="transaction-fee">
-          <span class="transaction-info-title">{{$t('fee')}}：</span>
-          <span class="bolder">{{transaction.txHeader.fee}}XEM</span>
+          <span class="transaction-info-title">
+            {{$t(transaction.rawTx.signer ? 'fee' : 'MaxFee' )}}:
+          </span>
+          <span class="bolder">
+             <NumberFormatting :numberOfFormatting="transaction.dialogDetailMap.fee"></NumberFormatting>
+            {{networkCurrency.ticker}}
+          </span>
         </span>
       </div>
       <div class="top-transaction-item">

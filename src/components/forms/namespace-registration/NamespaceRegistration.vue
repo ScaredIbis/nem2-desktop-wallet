@@ -40,7 +40,8 @@
                       ? expirationInfo.remainingBeforeExpiration.time.substring(2)
                       : expirationInfo.remainingBeforeExpiration.time
                   }}
-                  ({{ 'block' }} {{ formatNumber(currentNamespace.endHeight - namespaceGracePeriodDuration) }})
+                  ({{ 'block' }}{{ expirationInfo.remainingBeforeExpiration.blocks }}
+                  <NumberFormatting :numberOfFormatting="formatNumber(currentNamespace.endHeight - namespaceGracePeriodDuration)"></NumberFormatting>
                 </p>
               </div>
             </div>
@@ -58,7 +59,8 @@
                   />
                   <p :class="[newExpirationBlock < currentHeight ? 'red' : '']">
                     {{ newExpiresIn }}
-                    ({{ 'block' }} {{ formatNumber(newExpirationBlock) }})
+                    ({{ 'block' }}
+                    <NumberFormatting :numberOfFormatting=" formatNumber(newExpirationBlock)"></NumberFormatting>
                   </p>
                 </ErrorTooltip>
               </div>

@@ -70,11 +70,8 @@
         <span class="mosaic_name overflow_ellipsis">{{$t('mosaic')}}</span>
         <span class="mosaic_amount overflow_ellipsis">{{$t('amount')}}</span>
         <div class="scroll">
-          <div
-            class="no_data"
-            v-if="formItems.mosaicTransferList.length <1"
-          >{{$t('please_input_mosaic_and_amount')}}</div>
-          <div class="mosaic_list_item_container scroll">
+          <div class="no_data" v-if="formItems.mosaicTransferList.length <1" >{{$t('please_input_mosaic_and_amount')}}</div>
+          <div v-else class="mosaic_list_item_container scroll">
             <div
               v-for="(m,index) in formItems.mosaicTransferList"
               :key="index"
@@ -86,10 +83,13 @@
                 ? mosaics[m.id.id.toHex()].name : m.id.id.toHex()}}
               </span>
               <span class="mosaic_amount overflow_ellipsis">
-                {{getRelativeMosaicAmount(
-                m.amount.compact(), mosaics[m.id.id.toHex()]
-                ? mosaics[m.id.id.toHex()].properties.divisibility : 1)
-                }}
+              <NumberFormatting
+                :numberOfFormatting="getRelativeMosaicAmount(
+                  m.amount.compact(),
+                  mosaics[m.id.id.toHex()]
+                    ? mosaics[m.id.id.toHex()].properties.divisibility : 1
+                )"
+              />
               </span>
               <span class="icon_delete" @click="removeMosaic(index)"></span>
             </div>

@@ -34,8 +34,16 @@
             </div>
             <div>
               <span class="title">{{$t('amount')}}</span>
-              {{a.amount}}
+              <NumberFormatting :numberOfFormatting="a.amount"></NumberFormatting>
             </div>
+          </div>
+          <div v-if="t.message">
+            <span>{{$t('message')}}:</span>
+            {{t.message}}
+          </div>
+          <div v-else>
+            <span>{{$t('message')}}:</span>
+            -
           </div>
         </div>
 
@@ -62,11 +70,11 @@
         </div>
 
         <span v-for="(value, key) in t" :key="key">
-          <span class="other-info" v-if="!unusedAttributesList.find(item => item === key) && value !== ''">
+          <span v-if="value && !unusedAttributesList.find(item => item === key) && value !== ''" class="other-info">
             <span>{{$t(key)}}:&nbsp;</span>
             <span>{{value}}</span>
           </span>
-          <span class="other-info" v-if="key === 'namespace'">
+          <span v-if="key === 'namespace' || key === 'root_namespace'" class="other-info">
             <span>{{$t(key)}}:&nbsp;</span>
             <span>{{getNamespaceNameFromNamespaceId(value, $store)}}</span>
           </span>
@@ -87,7 +95,7 @@
 </template>
 
 <script lang="ts">
-import {TransactionInfoTemplateTs} from '@/components/transaction-details/transaction-info-template/TransactionInfoTemplateTs.ts';
+import { TransactionInfoTemplateTs } from "@/components/transaction-details/transaction-info-template/TransactionInfoTemplateTs.ts";
 import "./TransactionInfoTemplate.less";
 export default class TransactionInfoTemplate extends TransactionInfoTemplateTs {}
 </script>

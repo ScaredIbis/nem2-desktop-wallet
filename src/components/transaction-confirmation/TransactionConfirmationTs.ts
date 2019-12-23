@@ -192,6 +192,7 @@ export class TransactionConfirmationTs extends Vue {
 
         if (!wallet.checkPassword(password)) {
             Notice.trigger(Message.WRONG_PASSWORD_ERROR, NoticeType.error, this.$store)
+            this.password = ''
             return;
         }
 
@@ -217,6 +218,7 @@ export class TransactionConfirmationTs extends Vue {
             }
 
             transactionConfirmationObservable.next(result);
+            this.password = ''
             return
         }
 
@@ -234,6 +236,7 @@ export class TransactionConfirmationTs extends Vue {
             }
 
             transactionConfirmationObservable.next(result);
+            this.password = ''
             return
         }
 
@@ -243,10 +246,11 @@ export class TransactionConfirmationTs extends Vue {
          */
         const result: SignTransaction = {
             success: true,
-            signedTransaction: account.sign(transactionToSign, this.activeAccount.generationHash),
+            signedTransaction: account.sign(transactionToSign, this.app.NetworkProperties.generationHash),
             error: null,
         }
 
+        this.password = ''
         transactionConfirmationObservable.next(result);
     }
 }

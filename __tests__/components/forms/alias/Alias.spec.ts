@@ -22,9 +22,8 @@ import {
     mosaics,
     hdAccountData,
     hdAccount,
-    // @ts-ignore
-} from "@@/mock/conf/conf.spec"
-import {AppWallet, AppNamespace, BindTypes, CurrentAccount,} from "@/core/model"
+} from "@MOCKS/index"
+import {AppWallet, AppNamespace, BindTypes, CurrentAccount, NetworkProperties} from "@/core/model"
 import Vue from 'vue'
 
 // @ts-ignore
@@ -54,6 +53,7 @@ describe('Alias from namespace', () => {
                             state: Object.assign(accountState.state, {
                                 mosaics,
                                 multisigAccountInfo,
+                                // @ts-ignore
                                 wallet: new AppWallet(hdAccount.wallets[0]),
                                 currentAccount: new CurrentAccount(null, hdAccount.password, hdAccount.networkType)
                             }),
@@ -66,6 +66,10 @@ describe('Alias from namespace', () => {
                     }
                 }
             )
+
+            store.state.app.NetworkProperties = NetworkProperties.create(store)
+            store.state.app.NetworkProperties.height = 666
+
             wrapper = shallowMount(Alias, {
                 sync: false,
                 mocks: {

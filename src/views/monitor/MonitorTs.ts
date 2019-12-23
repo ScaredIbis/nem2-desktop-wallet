@@ -7,10 +7,12 @@ import {mapState} from "vuex"
 import {AppInfo, MosaicNamespaceStatusType, StoreAccount} from "@/core/model"
 import routes from '@/router/routers'
 import numberGrow from '@/components/number-grow/NumberGrow.vue'
+import NumberFormatting from '@/components/number-formatting/NumberFormatting.vue'
 
 @Component({
     components: {
         numberGrow,
+        NumberFormatting
     },
     computed: {
         ...mapState({
@@ -46,10 +48,6 @@ export class MonitorTs extends Vue {
         return this.activeAccount.networkCurrency.ticker
     }
 
-    get chainStatus() {
-        return this.app.chainStatus
-    }
-
     get mosaicsLoading() {
         return this.app.mosaicsLoading
     }
@@ -79,11 +77,15 @@ export class MonitorTs extends Vue {
     }
 
     get currentHeight() {
-        return this.app.chainStatus.currentHeight
+        return this.app.NetworkProperties.height
     }
 
     get accountName() {
         return this.activeAccount.currentAccount.name
+    }
+
+    get NetworkProperties() {
+        return this.app.NetworkProperties
     }
 
     get routes() {

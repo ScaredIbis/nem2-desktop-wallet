@@ -9,8 +9,8 @@ import moment from 'vue-moment'
 import {
     mosaics,
     CosignWallet,
-    // @ts-ignore
-} from "@@/mock/conf/conf.spec"
+} from "@MOCKS/index"
+import {appState} from "@/store/app"
 // @ts-ignore
 const localVue = createLocalVue()
 const router = new VueRouter()
@@ -57,15 +57,18 @@ describe('TransactionDetails', () => {
 
     beforeEach(() => {
         store = store = new Vuex.Store({
-            modules: {
-                account: {
-                    state: Object.assign(accountState.state, {
-                        wallet: CosignWallet,
-                        mosaics,
-                    }),
-                },
+                modules: {
+                    account: {
+                        state: Object.assign(accountState.state, {
+                            wallet: CosignWallet,
+                            mosaics,
+                        }),
+                    },
+                    app: {
+                        state: appState.state,
+                    }
+                }
             }
-        }
         )
         wrapper = shallowMount(TransactionDetails, {
             sync: false,

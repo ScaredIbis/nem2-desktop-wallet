@@ -83,7 +83,7 @@
                 <!-- FIFTH COLUMN -->
                 <div class="col5">
                   <span class="item">
-                    <a target="_blank" :href="formatExplorerUrl(c.txHeader.hash)"> {{ miniHash(c.txHeader.hash) }} </a>
+                    <a class="url_text" target="_blank" :href="openExplorer(c.txHeader.hash)">{{ miniHash(c.txHeader.hash) }} </a>
                   </span>
                   <span class="item bottom">{{c.txHeader.time}}</span>
                 </div>
@@ -113,7 +113,7 @@
       </div>
 
       <div class="split_page">
-        <span>{{$t('total')}}：{{transactionList.length}} {{$t('data')}}</span>
+        <span>{{$t('total_transactions')}}：{{transactionList.length}}</span>
         <Page @on-change="changePage" :total="transactionList.length" class="page_content"/>
       </div>
     </div>

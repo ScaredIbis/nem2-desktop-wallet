@@ -9,17 +9,18 @@ import {signAndAnnounce} from '@/core/services'
 import {validation} from '@/core/validation'
 import DisabledForms from "@/components/disabled-forms/DisabledForms.vue"
 import ErrorTooltip from '@/components/other/forms/errorTooltip/ErrorTooltip.vue'
+import NumberFormatting from '@/components/number-formatting/NumberFormatting.vue'
 
 const {namespaceGracePeriodDuration} = networkConfig
 
 @Component({
     computed: {
-        ...mapState({ 
+        ...mapState({
             activeAccount: 'account',
             app: 'app',
         })
     },
-    components: {DisabledForms, ErrorTooltip}
+    components: {DisabledForms, NumberFormatting,ErrorTooltip}
 })
 export class NamespaceRegistrationTs extends Vue {
     @Provide() validator: any = this.$validator
@@ -80,7 +81,7 @@ export class NamespaceRegistrationTs extends Vue {
     }
 
     get currentHeight(): number {
-        return this.app.chainStatus.currentHeight
+        return this.app.NetworkProperties.height
     }
 
     get expirationInfo(): NamespaceExpirationInfo {

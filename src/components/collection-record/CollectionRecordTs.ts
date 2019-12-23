@@ -8,10 +8,11 @@ import {
 import TransactionModal from '@/components/transaction-modal/TransactionModal.vue'
 import {TransferType} from "@/core/model/TransferType"
 import {StoreAccount, AppInfo, FormattedTransaction} from "@/core/model"
+import NumberFormatting from '@/components/number-formatting/NumberFormatting.vue'
 
 @Component({
     computed: {...mapState({activeAccount: 'account', app: 'app'})},
-    components: {TransactionModal},
+    components: {TransactionModal,NumberFormatting},
 })
 export class CollectionRecordTs extends Vue {
     activeAccount: StoreAccount
@@ -71,7 +72,7 @@ export class CollectionRecordTs extends Vue {
     }
 
     get currentHeight() {
-        return this.app.chainStatus.currentHeight
+        return this.app.NetworkProperties.height
     }
 
     get unConfirmedTransactionList() {

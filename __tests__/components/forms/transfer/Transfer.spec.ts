@@ -3,6 +3,7 @@ import VueRouter from 'vue-router'
 import iView from 'view-design'
 import Vuex from 'vuex'
 import VeeValidate from 'vee-validate'
+import {NetworkProperties} from '@/core/model'
 // @ts-ignore
 import Transfer from '@/components/forms/transfer/Transfer.vue'
 import {accountMutations, accountState} from '@/store/account/index.ts'
@@ -32,8 +33,8 @@ import {
     Multisig2Account,
     MultisigAccount,
     multisigAccountInfo
-    //@ts-ignore
-} from "@@/mock/conf/conf.spec"
+} from "@MOCKS/index"
+
 // @ts-ignore
 const localVue = createLocalVue()
 const router = new VueRouter()
@@ -73,6 +74,10 @@ describe('Transfer', () => {
                     }
                 }
             )
+
+            store.state.app.NetworkProperties = NetworkProperties.create(store)
+            store.state.app.NetworkProperties.height = 666
+
             wrapper = shallowMount(Transfer, {
                 sync: false,
                 mocks: {

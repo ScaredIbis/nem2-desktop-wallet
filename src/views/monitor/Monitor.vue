@@ -7,17 +7,16 @@
           <span class="address">
             {{address}}
           </span>
-          <img class="pointer" @click="copyAddress"
-               src="@/common/img/monitor/monitorCopyAddress.png" alt="">
+          <img class="pointer" @click="copyAddress" src="@/common/img/monitor/monitorCopyAddress.png">
         </div>
 
         <div class="split"></div>
         <div class="XEM_amount overflow_ellipsis">
           <div>{{ticker}}</div>
-          <div class="amount">{{formatNumber(balance)}}</div>
+          <div class="amount"><NumberFormatting :numberOfFormatting="formatNumber(balance)"></NumberFormatting></div>
         </div>
         <div class="exchange">
-          {{ xemUsdPrice > 0 ? `$${formatNumber(balance*xemUsdPrice)}` : '' }}
+          <NumberFormatting :numberOfFormatting="xemUsdPrice > 0 ? `$${formatNumber(balance*xemUsdPrice)}` : ''"></NumberFormatting>
         </div>
       </div>
       <div class="bottom_account_info radius" ref="bottomAccountInfo">
@@ -40,14 +39,13 @@
                   </span>
                   <span class="mosaic_name">{{mosaic.name || mosaic.hex}}</span>
                   <span class="mosaic_value">
-                    <div>{{formatNumber(mosaic.balance || 0)}}</div>
+                     <NumberFormatting :numberOfFormatting="formatNumber(mosaic.balance || 0)"></NumberFormatting>
                   </span>
                 </div>
               </div>
             </TabPane>
           </Tabs>
 
-          <!--        sevral      -->
           <div v-if="isShowManageMosaicIcon" class="searchMosaic secondary_page_animate">
             <img src="@/common/img/monitor/monitorLeftArrow.png" class="asset_setting_tit pointer"
                  @click="showMosaicMap" alt="">
@@ -84,7 +82,7 @@
                 </span>
                 <span class="mosaic_name text_select">{{mosaic.name || mosaic.hex}}</span>
                 <span class="mosaic_value">
-                  <div>{{formatNumber(mosaic.balance || 0)}}</div>
+                   <NumberFormatting :numberOfFormatting="formatNumber(mosaic.balance || '0')"></NumberFormatting>
                 </span>
               </div>
               <div class="complete_container">
@@ -104,7 +102,7 @@
               <span class="title_txt">{{$t('nodes')}}</span>
             </div>
             <img src="@/common/img/monitor/network.png"/>
-            <span class="txt_info"><numberGrow :value="chainStatus.nodeNumber"></numberGrow></span>
+            <span class="txt_info"><numberGrow :value="NetworkProperties.nodeNumber"></numberGrow></span>
           </div>
           <div class="block_height radius">
             <div class="title">
@@ -121,16 +119,16 @@
             </div>
             <img src="@/common/img/windowDashboardActive.png"/>
             <span class="txt_info">
-            <numberGrow :value="chainStatus.numTransactions"></numberGrow>
+            <numberGrow :value="NetworkProperties.numTransactions"></numberGrow>
           </span>
           </div>
           <div class="block_time radius">
             <div class="title">
-              <span class="title_txt">{{$t('time')}} <span  class="title_txt">{{chainStatus.getTimeFromBlockNumber(chainStatus.currentHeight)}}</span></span>
+              <span class="title_txt">{{$t('time')}} <span  class="title_txt">{{NetworkProperties.getTimeFromBlockNumber(NetworkProperties.height)}}</span></span>
             </div>
             <img src="@/common/img/monitor/amount.png"/>
             <span class="txt_info">
-            <numberGrow :value="chainStatus.targetBlockTime"></numberGrow>
+            <numberGrow :value="NetworkProperties.targetBlockTime"></numberGrow>
           </span>
           </div>
         </div>

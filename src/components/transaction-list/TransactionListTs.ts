@@ -1,7 +1,7 @@
 import {TransactionType, NamespaceId, Address} from 'nem2-sdk'
 import {mapState} from "vuex"
 import {Component, Vue, Prop} from 'vue-property-decorator'
-import {formatNumber, renderMosaics, formatExplorerUrl} from '@/core/utils'
+import {formatNumber, renderMosaics} from '@/core/utils'
 import {
     FormattedTransaction,
     AppInfo,
@@ -10,13 +10,14 @@ import {
     AppWallet,
     FormattedAggregateBonded
 } from '@/core/model'
-import {defaultNetworkConfig} from '@/config'
 import {signAndAnnounce} from '@/core/services'
 import TransactionModal from '@/components/transaction-modal/TransactionModal.vue'
+import {defaultNetworkConfig} from "@/config"
+import NumberFormatting from '@/components/number-formatting/NumberFormatting.vue'
 
 @Component({
     computed: {...mapState({activeAccount: 'account', app: 'app'})},
-    components: {TransactionModal},
+    components: {TransactionModal,NumberFormatting},
 })
 export class TransactionListTs extends Vue {
     app: AppInfo
@@ -32,7 +33,6 @@ export class TransactionListTs extends Vue {
     showDialog: boolean = false
     activeTransaction: FormattedTransaction = null
     NamespaceId = NamespaceId
-    formatExplorerUrl = formatExplorerUrl
     @Prop({default: null})
     mode: string
 
@@ -63,7 +63,7 @@ export class TransactionListTs extends Vue {
     }
 
     get currentHeight() {
-        return this.app.chainStatus.currentHeight
+        return this.app.NetworkProperties.height
     }
 
     get namespaces() {
@@ -75,6 +75,10 @@ export class TransactionListTs extends Vue {
         return this.mode === TRANSACTIONS_CATEGORIES.TO_COSIGN
             ? 'Transactions_to_cosign'
             : 'transaction_record'
+    }
+
+    get explorerBasePath() {
+        return this.app.explorerBasePath
     }
 
     getName(namespaceId: NamespaceId) {
@@ -139,7 +143,11 @@ export class TransactionListTs extends Vue {
             }
             return this.confirmViaTransactionConfirmation()
         }
-
         this.showDialog = true
+    }
+
+    openExplorer(transactionHash) {
+        const {explorerBasePath} = this
+        return explorerBasePath + transactionHash
     }
 }

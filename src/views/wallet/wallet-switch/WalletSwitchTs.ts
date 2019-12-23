@@ -9,12 +9,14 @@ import {Message, networkConfig} from "@/config"
 import CheckPasswordDialog from '@/components/check-password-dialog/CheckPasswordDialog.vue'
 import TheWalletDelete from '@/views/wallet/wallet-switch/the-wallet-delete/TheWalletDelete.vue'
 import MnemonicDialog from '@/views/wallet/wallet-details/mnemonic-dialog/MnemonicDialog.vue'
+import NumberFormatting from '@/components/number-formatting/NumberFormatting.vue'
 
 @Component({
     components: {
         TheWalletDelete,
         MnemonicDialog,
-        CheckPasswordDialog
+        CheckPasswordDialog,
+        NumberFormatting
     },
     computed: {
         ...mapState({
@@ -28,14 +30,13 @@ export class WalletSwitchTs extends Vue {
     activeAccount: StoreAccount
     showDeleteDialog = false
     showCheckPWDialog = false
-    deleteIndex = -1
     walletToDelete: AppWallet | boolean = false
-    thirdTimestamp = 0
     walletStyleSheetType = walletStyleSheetType
     pathToCreate = 0
     scroll: any
     formatNumber = formatNumber
-    showMnemonicDialog = false
+    isShowMnemonicDialog = false
+
     get walletList() {
         return this.app.walletList
     }
@@ -141,12 +142,29 @@ export class WalletSwitchTs extends Vue {
         this.$refs.walletScroll["scrollTop"] = this.$refs.walletsDiv[currentWalletIndex]['offsetTop'] - 180
     }
 
-    mounted() {
-        this.scrollToActiveWallet()
+
+    deleteWallet(walletToDelete) {
+        this.walletToDelete = walletToDelete
+        this.showDeleteDialog = true
+    }
+
+    // @WALLETS refactor
+    changeMnemonicDialog() {
+        if (!this.wallet.encryptedMnemonic) {
+            this.$Notice.warning({
+                title: this.$t('no_mnemonic') + ''
+            })
+            return
+        }
+        this.isShowMnemonicDialog = true
     }
 
     @Watch('activeAddress')
     onWalletChange() {
         this.scrollToActiveWallet()
     }
+    mounted() {
+      this.scrollToActiveWallet()
+    }
+
 }

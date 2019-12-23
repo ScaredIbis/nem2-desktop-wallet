@@ -13,9 +13,7 @@ import {
     mosaics,
     networkCurrency,
     hdAccount,
-    // @ts-ignore
-} from "@@/mock/conf/conf.spec"
-
+} from "@MOCKS/index"
 
 // @ts-ignore
 const localVue = createLocalVue()
@@ -86,4 +84,6 @@ describe('WalletSwitch', () => {
       const seedPathList4 = ['0', '1', '3']
       expect(wrapper.vm.getPathNumber(seedPathList4)).toBe(2)
     })
+
+  
 })
