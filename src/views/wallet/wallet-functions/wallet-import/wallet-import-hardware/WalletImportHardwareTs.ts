@@ -73,7 +73,7 @@ export class WalletImportHardwareTs extends Vue {
         });
 
         try {
-            
+
             const publicKeyResult = await trezor.nem2GetPublicKey({
                 path: `m/44'/43'/${accountIndex}'/0'/0'`
             })
@@ -91,7 +91,7 @@ export class WalletImportHardwareTs extends Vue {
                     address.plain(),
                     this.$store
                 );
-                
+
                 this.toWalletDetails();
             }
 
@@ -99,9 +99,8 @@ export class WalletImportHardwareTs extends Vue {
                 isDisabled: false,
                 message: ""
             });
-            
+
         } catch (e) {
-            console.log("CAUGHT ERROR", e)
             this.$store.commit('SET_UI_DISABLED', {
                 isDisabled: false,
                 message: ""
