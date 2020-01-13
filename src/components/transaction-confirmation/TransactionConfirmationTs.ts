@@ -11,7 +11,7 @@ import {transactionFormatter, transactionConfirmationObservable} from '@/core/se
 import {Message} from "@/config"
 import {
     CreateWalletType, AppWallet, StagedTransaction, SignTransaction,
-    AppInfo, StoreAccount, Notice, NoticeType,
+    AppInfo, StoreAccount, Notice, NoticeType, TrezorWallet
 } from '@/core/model'
 import trezor from '@/core/utils/trezor'
 import TransactionDetails from '@/components/transaction-details/TransactionDetails.vue'
@@ -63,61 +63,37 @@ export class TransactionConfirmationTs extends Vue {
 
     async confirmTransactionViaTrezor() {
 
-        const {wallet} = this
+        const trezorWallet = new TrezorWallet(this.wallet, this.app.NetworkProperties.generationHash);
+
         const {transactionToSign, lockParams} = this.stagedTransaction;
-        const transactionJSON = this.stagedTransaction.transactionToSign.toJSON().transaction;
 
         /**
          * AGGREGATE BONDED
          */
         if (transactionToSign instanceof AggregateTransaction && lockParams.announceInLock) {
 
-            const transactionResult = await trezor.nem2SignTransaction({
-                path: this.wallet.path,
-                transaction: transactionJSON,
-                generationHash: this.app.NetworkProperties.generationHash
-            })
+            try {
+                const {
+                    signedLock,
+                    signedTransaction
+                } = await trezorWallet.signPartialWithLock(transactionToSign, lockParams.transactionFee, this.$store);
 
-            if (transactionResult.success) {
-                const signedTransaction = new SignedTransaction(
-                    transactionResult.payload.payload,
-                    transactionResult.payload.hash,
-                    this.wallet.publicKey,
-                    transactionJSON.type,
-                    this.wallet.networkType
-                );
-
-                const hashLockTransaction = wallet.getLockTransaction(
-                    signedTransaction,
-                    lockParams.transactionFee,
-                    this.$store,
-                )
-
-                const hashLockTransactionJSON = hashLockTransaction.toJSON().transaction;
-
-                const hashLockTransactionResult = await trezor.nem2SignTransaction({
-                    path: this.wallet.path,
-                    transaction: hashLockTransactionJSON,
-                    generationHash: this.app.NetworkProperties.generationHash
-                });
-
-                const signedLock = new SignedTransaction(
-                    hashLockTransactionResult.payload.payload,
-                    hashLockTransactionResult.payload.hash,
-                    this.wallet.publicKey,
-                    hashLockTransactionJSON.type,
-                    this.wallet.networkType
-                );
-
-                const result: SignTransaction = {
+                const result = {
                     success: true,
                     signedTransaction,
                     signedLock,
-                    error: null,
+                    error: null
+                }
+
+                transactionConfirmationObservable.next(result);
+            } catch (error) {
+                const result = {
+                    success: false,
+                    signedTransaction: null,
+                    error: error.message
                 };
 
                 transactionConfirmationObservable.next(result);
-                return;
             }
         }
 
@@ -125,49 +101,34 @@ export class TransactionConfirmationTs extends Vue {
          * COSIGNATURE
          */
         if (transactionToSign instanceof AggregateTransaction && transactionToSign.signer) {
-            const cosignatureTransaction = CosignatureTransaction.create(transactionToSign)
 
-            const cosignatureTransactionResult = await trezor.nem2SignTransaction({
-                path: this.wallet.path,
-                transaction: {
-                    cosigning: cosignatureTransaction.transactionToCosign.transactionInfo.hash
-                },
-            });
+            try {
+                const signedTransaction = await trezorWallet.cosignPartial(transactionToSign)
 
-            const signedTransaction = new CosignatureSignedTransaction(
-                cosignatureTransactionResult.payload.parent_hash,
-                cosignatureTransactionResult.payload.signature,
-                this.wallet.publicKey
-            );
+                const result: SignTransaction = {
+                    success: true,
+                    signedTransaction,
+                    error: null
+                }
 
-            const result: SignTransaction = {
-                success: true,
-                signedTransaction,
-                error: null,
-            };
+                transactionConfirmationObservable.next(result);
+            } catch (error) {
+                const result: SignTransaction = {
+                    success: false,
+                    signedTransaction: null,
+                    error: error.message
+                }
 
-            transactionConfirmationObservable.next(result);
-            return;
+                transactionConfirmationObservable.next(result);
+            }
         }
 
         /**
          * DEFAULT SIGNATURE
          */
 
-        const transactionResult = await trezor.nem2SignTransaction({
-            path: this.wallet.path,
-            transaction: transactionJSON,
-            generationHash: this.app.NetworkProperties.generationHash
-        })
-
-        if (transactionResult.success) {
-            const signedTransaction = new SignedTransaction(
-                transactionResult.payload.payload,
-                transactionResult.payload.hash,
-                this.wallet.publicKey,
-                transactionJSON.type,
-                this.wallet.networkType
-            );
+        try {
+            const signedTransaction = await trezorWallet.sign(transactionToSign)
 
             const result: SignTransaction = {
                 success: true,
@@ -176,11 +137,11 @@ export class TransactionConfirmationTs extends Vue {
             }
 
             transactionConfirmationObservable.next(result);
-        } else {
+        } catch (error) {
             const result: SignTransaction = {
                 success: false,
                 signedTransaction: null,
-                error: transactionResult.payload.error
+                error: error.message
             }
 
             transactionConfirmationObservable.next(result);
