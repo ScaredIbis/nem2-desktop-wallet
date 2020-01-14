@@ -1,10 +1,10 @@
 import {Address, Listener, BlockInfo, Transaction, TransactionStatusError} from 'nem2-sdk'
 import {Store} from 'vuex'
 import {filter} from 'rxjs/operators'
-import {formatAndSave} from '@/core/services/transactions'
-import {NetworkProperties, TRANSACTIONS_CATEGORIES, AppState, Notice, NoticeType} from '@/core/model'
+import {NetworkProperties, AppState, Notice, NoticeType, TransactionStatusGroups} from '@/core/model'
 import {Message, APP_PARAMS} from '@/config'
 import {httpToWs} from '@/core/utils'
+import {TransactionFormatter} from '../services'
 
 const {MAX_LISTENER_RECONNECT_TRIES} = APP_PARAMS
 
@@ -16,12 +16,17 @@ export class Listeners {
   private address: Address
 
   private constructor(
-    private store: Store<AppState>,
-    private NetworkProperties: NetworkProperties,
-  ) {}
+    private readonly store: Store<AppState>,
+    private readonly networkProperties: NetworkProperties,
+    private readonly transactionFormatter: TransactionFormatter,
+  ) { }
 
-  public static create(store: Store<AppState>, NetworkProperties: NetworkProperties) {
-    return new Listeners(store, NetworkProperties)
+  public static create(store: Store<AppState>) {
+    return new Listeners(
+      store,
+      store.state.app.networkProperties,
+      store.state.app.transactionFormatter,
+    )
   }
 
   public switchAddress(address: Address) {
@@ -62,19 +67,21 @@ export class Listeners {
       .open()
       .then(() => {
         this.listener.newBlock().subscribe((block: BlockInfo) => {
-          this.NetworkProperties.handleLastBlock(block, this.httpEndpoint)
+          this.networkProperties.handleLastBlock(block, this.httpEndpoint)
         })
 
         this.listener.status(address).subscribe((error: TransactionStatusError) => {
-          Notice.trigger(error.status.split('_').join(' '), NoticeType.error, store)
+          Notice.trigger(error.code.split('_').join(' '), NoticeType.error, store)
         })
 
         this.listener.cosignatureAdded(address).subscribe(() => {
           Notice.trigger(Message.NEW_COSIGNATURE, NoticeType.success, store)
+          store.state.account.wallet.setPartialTransactions(store)
         })
 
         this.listener.aggregateBondedAdded(address).subscribe(() => {
           Notice.trigger(Message.NEW_AGGREGATE_BONDED, NoticeType.success, store)
+          store.state.account.wallet.setPartialTransactions(store)
         })
 
         this.listener.confirmed(address)
@@ -82,13 +89,7 @@ export class Listeners {
           .subscribe((transaction: Transaction) => {
             Notice.trigger('Transaction_Reception', NoticeType.success, store)
 
-            formatAndSave(
-              // @ts-ignore
-              {...transaction, isTxConfirmed: true},
-              this.store,
-              true,
-              TRANSACTIONS_CATEGORIES.NORMAL,
-            )
+            this.transactionFormatter.formatAndSaveNewTransaction(transaction)
           })
 
         this.listener.unconfirmedAdded(this.address)
@@ -96,12 +97,9 @@ export class Listeners {
           .subscribe((transaction: Transaction) => {
             Notice.trigger('Transaction_sending', NoticeType.success, store)
 
-            formatAndSave(
-              // @ts-ignore
-              {...transaction, isTxConfirmed: false},
-              this.store,
-              false,
-              TRANSACTIONS_CATEGORIES.NORMAL,
+            this.transactionFormatter.formatAndSaveNewTransaction(
+              transaction,
+              {transactionStatusGroup: TransactionStatusGroups.unconfirmed},
             )
           })
       }, () => {

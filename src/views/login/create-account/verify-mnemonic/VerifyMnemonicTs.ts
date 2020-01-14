@@ -1,29 +1,22 @@
 import {Vue, Component} from 'vue-property-decorator'
 import MnemonicVerification from '@/components/mnemonic-verification/MnemonicVerification.vue'
-import {mapState} from "vuex"
-import {AppInfo, StoreAccount} from "@/core/model"
+import {mapState} from 'vuex'
+import {StoreAccount} from '@/core/model'
 
 @Component({
-    components: {
-        MnemonicVerification
-    },
-    computed: {
-        ...mapState({
-            activeAccount: 'account',
-            app: 'app'
-        })
-    }
+  components: {
+    MnemonicVerification,
+  },
+  computed: {
+    ...mapState({
+      activeAccount: 'account',
+    }),
+  },
 })
 export default class Step4Ts extends Vue {
-    activeAccount: StoreAccount
-    app: AppInfo
+  activeAccount: StoreAccount
 
-    get mnemonicWordsList(): string[] {
-        return this.app.loadingOverlay.temporaryInfo.mnemonic.split(' ')
-    }
-
-    verificationSuccess() {
-        this.$router.push('finishCreate')
-    }
-
+  get mnemonicWordsList(): string[] {
+    return this.activeAccount.temporaryLoginInfo.mnemonic.split(' ')
+  }
 }

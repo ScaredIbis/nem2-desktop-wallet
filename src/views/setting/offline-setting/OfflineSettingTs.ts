@@ -1,70 +1,55 @@
 import {Component, Provide, Vue} from 'vue-property-decorator'
-import {validation} from "@/core/validation"
+import {validation} from '@/core/validation'
 import ErrorTooltip from '@/components/other/forms/errorTooltip/ErrorTooltip.vue'
-import {formDataConfig, Message} from "@/config"
-import {cloneData} from "@/core/utils"
-import {mapState} from "vuex"
-import {StoreAccount, AppInfo} from "@/core/model"
+import {Message, defaultNetworkConfig} from '@/config'
+import {mapState} from 'vuex'
+import {StoreAccount, AppInfo, NetworkCurrency, Notice, NoticeType} from '@/core/model'
 
 @Component({
-    components: {
-        ErrorTooltip
-    },
-    computed: {
-        ...mapState({
-            activeAccount: 'account',
-            app: 'app',
-        })
-    }
+  components: {
+    ErrorTooltip,
+  },
+  computed: {
+    ...mapState({
+      activeAccount: 'account',
+      app: 'app',
+    }),
+  },
 })
 export default class extends Vue {
-    @Provide() validator: any = this.$validator
-    activeAccount: StoreAccount
-    app: AppInfo
-    validation = validation
-    formItems = cloneData(formDataConfig.offsetLineForm)
+  @Provide() validator: any = this.$validator
+  activeAccount: StoreAccount
+  app: AppInfo
+  validation = validation
+  generationHash = ''
+  networkCurrency: NetworkCurrency = defaultNetworkConfig.defaultNetworkMosaic
 
-    get generationHash() {
-        return this.app.NetworkProperties.generationHash
-    }
+  get NetworkProperties() {
+    return this.app.networkProperties
+  }
 
-    get networkCurrency() {
-        return this.activeAccount.networkCurrency
-    }
-    submit() {
-        this.$validator
-            .validate()
-            .then((valid) => {
-                if (!valid) return
-                this.setOfflineInfo()
-            })
-    }
+  submit() {
+    this.$validator
+      .validate()
+      .then((valid) => {
+        if (!valid) return
+        this.setOfflineSettings()
+      })
+  }
 
-    setOfflineInfo() {
-        const {generationHash, mosaicName, ticker, mosaicId, divisibility} = this.formItems
-        this.$store.commit('SET_GENERATION_HASH', generationHash)
-        this.$store.commit('SET_NETWORK_CURRENCY', {
-            hex: mosaicId,
-            divisibility,
-            name: mosaicName,
-            ticker
-        })
-        this.$Notice.success({
-            title: this.$t(Message.SUCCESS) + ''
-        })
-        this.resetForm()
-    }
+  setOfflineSettings() {
+    const {activeAccount, NetworkProperties, generationHash, networkCurrency} = this
+    const {node} = activeAccount
 
-    resetForm() {
-        this.formItems.generationHash = this.generationHash
-        this.formItems.mosaicId = this.networkCurrency.hex
-        this.formItems.divisibility = this.networkCurrency.divisibility
-        this.formItems.mosaicName = this.networkCurrency.name
-        this.formItems.ticker = this.networkCurrency.ticker
-        this.$nextTick(() => this.$validator.reset())
-    }
+    NetworkProperties.updateFromOfflineSettings({generationHash}, node)
+    this.$store.commit('SET_NETWORK_CURRENCY', {...networkCurrency})
+    Notice.trigger(Message.SUCCESS, NoticeType.success, this.$store)
+  }
 
-    mounted() {
-        this.resetForm()
-    }
+  mounted() {
+    this.generationHash = `${this.NetworkProperties.generationHash}`
+    this.networkCurrency = JSON.parse(
+      JSON.stringify(this.activeAccount.networkCurrency),
+    )
+  }
 }

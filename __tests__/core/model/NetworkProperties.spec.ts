@@ -13,7 +13,7 @@ import {block1} from '../../../__mocks__/network/block1'
 import {OnWalletChange} from '@/core/services/eventHandlers/onWalletChange'
 import {setWalletsBalances} from '@/core/services/wallets/setWalletsBalances'
 
-const {maxRollbackBlocks, defaultDynamicFeeMultiplier} = networkConfig
+const {maxDifficultyBlocks, defaultDynamicFeeMultiplier} = networkConfig
 
 jest.mock('@/core/model/Notice')
 jest.mock('@/core/services/eventHandlers/onWalletChange')
@@ -32,7 +32,7 @@ const mockGetBlockByHeight = blockNumber => of(blockNumber).pipe(
   switchMap(blockNumber => {
     if (blockNumber === '29248') return of(block29248)
     return of(block1)
-  })
+  }),
 )
 
 const mockGetBlockByHeightWithLimit = blockNumber => of(blockNumber).pipe(
@@ -40,7 +40,7 @@ const mockGetBlockByHeightWithLimit = blockNumber => of(blockNumber).pipe(
   switchMap(blockNumber => {
     if (blockNumber === '29248') return of([block29248])
     return of(block1)
-  })
+  }),
 )
 
 const mockGetBlockTransactions = (...args) => of(args).pipe(
@@ -301,7 +301,7 @@ describe('Network properties', () => {
       feeMultiplier: 10,
     }
     // @ts-ignore
-    networkProperties.lastBlocks = [...Array(maxRollbackBlocks + 10)].map(() => oldBlocks)
+    networkProperties.lastBlocks = [...Array(maxDifficultyBlocks + 10)].map(() => oldBlocks)
 
     // @ts-ignore
     networkProperties.handleLastBlock(newBlock, 'http://localhost:3000')
@@ -312,10 +312,10 @@ describe('Network properties', () => {
     expect(commitCall.NetworkProperties.healthy).toBe(true)
     expect(commitCall.NetworkProperties.height).toBe(1000)
     expect(commitCall.NetworkProperties.lastBlock).toBe(newBlock)
-    expect(commitCall.NetworkProperties.lastBlocks.length).toBe(maxRollbackBlocks)
+    expect(commitCall.NetworkProperties.lastBlocks.length).toBe(maxDifficultyBlocks)
     expect(commitCall.NetworkProperties.lastBlocks[0]).toBe(newBlock)
     expect(commitCall.NetworkProperties.lastBlocks)
-      .toStrictEqual([ newBlock, ...[...Array(maxRollbackBlocks - 1)].map(() => oldBlocks) ])
+      .toStrictEqual([ newBlock, ...[...Array(maxDifficultyBlocks - 1)].map(() => oldBlocks) ])
     expect(commitCall.NetworkProperties.lastBlockTimestamp).toBe(116060537287)
     expect(commitCall.NetworkProperties.loading).toBe(false)
     expect(commitCall.NetworkProperties.networkType).toBe(null)
@@ -386,5 +386,18 @@ describe('Network properties', () => {
     networkProperties.initializeLatestBlocks([block29248], 'http://localhost:3000')
     expect(networkProperties.getTimeFromBlockNumber(29888)).not.toBeNull()
     expect(networkProperties.getTimeFromBlockNumber(29888).length > 0).toBeTruthy()
+  })
+
+  it('updateFromOfflineSettings', () => {
+    // @ts-ignore
+    const networkProperties = NetworkProperties.create(store)
+    networkProperties.updateFromOfflineSettings(
+      {generationHash: 'mockGenerationHash'},
+      'mockEndpoint',
+    )
+    expect(mockDispatch.mock.calls[0][0]).toBe('SET_NETWORK_PROPERTIES')
+    const commitCall = mockDispatch.mock.calls[0][1]
+    expect(commitCall.endpoint).toBe('mockEndpoint')
+    expect(commitCall.NetworkProperties.generationHash).toBe('mockGenerationHash')
   })
 })

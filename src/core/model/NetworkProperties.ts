@@ -1,13 +1,17 @@
 import {BlockInfo, NetworkType} from 'nem2-sdk'
 import {Store} from 'vuex'
-import {networkConfig, nodeListConfig, NETWORK_CONSTANTS} from '@/config'
+import {networkConfig, defaultNodeList, NETWORK_CONSTANTS} from '@/config'
 import {formatTimestamp} from '@/core/utils'
 import {AppState} from '.'
 
-const {maxRollbackBlocks, defaultDynamicFeeMultiplier} = networkConfig
+const {maxDifficultyBlocks, defaultDynamicFeeMultiplier} = networkConfig
+
+export class OfflineSettingsParams {
+  generationHash: string
+}
 
 export class NetworkProperties {
-  fee: number
+  fee: number = defaultDynamicFeeMultiplier
   generationHash: string
   healthy: boolean
   height: number
@@ -16,7 +20,7 @@ export class NetworkProperties {
   lastBlockTimestamp: number
   loading: boolean
   networkType: NetworkType
-  nodeNumber: number = nodeListConfig.length
+  nodeNumber: number = defaultNodeList.length
   numTransactions: number
   signerPublicKey: string
   targetBlockTime: number = networkConfig.targetBlockTime
@@ -32,7 +36,7 @@ export class NetworkProperties {
   reset(endpoint: string) {
     this.setValuesToDefault()
     this.healthy = false
-    this.store.dispatch('SET_NETWORK_PROPERTIES', {endpoint, NetworkProperties: this})
+    this.dispatchChanges(endpoint)
   }
 
   private setValuesToDefault() {
@@ -51,20 +55,21 @@ export class NetworkProperties {
 
   setLoadingToTrue(endpoint: string) {
     this.loading = true
-    this.store.dispatch('SET_NETWORK_PROPERTIES', {endpoint, NetworkProperties: this})
-  }  
+    this.dispatchChanges(endpoint)
+  }
 
   setHealthyToFalse(endpoint: string) {
     this.healthy = false
-    this.store.dispatch('SET_NETWORK_PROPERTIES', {endpoint, NetworkProperties: this})
-  }  
+    this.loading = false
+    this.dispatchChanges(endpoint)
+  }
 
   setValuesFromFirstBlock(block: BlockInfo, endpoint: string) {
     this.generationHash = block.generationHash
     this.networkType = block.networkType
     this.healthy = true
     this.loading = false
-    this.store.dispatch('SET_NETWORK_PROPERTIES', {endpoint, NetworkProperties: this})
+    this.dispatchChanges(endpoint)
   }
 
   initializeLatestBlocks(blocks: BlockInfo[], endpoint: string) {
@@ -81,19 +86,19 @@ export class NetworkProperties {
     this.numTransactions = block.numTransactions
     this.signerPublicKey = block.signer.publicKey
     this.lastBlockTimestamp = block.timestamp.compact()
-    this.store.dispatch('SET_NETWORK_PROPERTIES', {endpoint, NetworkProperties: this})
+    this.dispatchChanges(endpoint)
   }
 
   handleLastBlock(block: BlockInfo, endpoint: string) {
     this.setLastBlock(block, endpoint)
-    if (this.lastBlocks.length > maxRollbackBlocks) this.lastBlocks.length = maxRollbackBlocks - 1
+    if (this.lastBlocks.length >= maxDifficultyBlocks) this.lastBlocks.length = maxDifficultyBlocks - 1
     this.lastBlocks.unshift(block)
     this.setNetworkFee(endpoint)
   }
 
   private setNetworkFee(endpoint: string) {
     this.fee = this.getMedianFee(this.getBlockFeeMultipliers())
-    this.store.dispatch('SET_NETWORK_PROPERTIES', {endpoint, NetworkProperties: this})
+    this.dispatchChanges(endpoint)
   }
 
   private getBlockFeeMultipliers() {
@@ -112,5 +117,14 @@ export class NetworkProperties {
 
     const numberOfBlock = blockNumber - this.height
     return formatTimestamp((numberOfBlock * this.targetBlockTime + highestBlockTimestamp) * 1000)
+  }
+
+  private dispatchChanges(endpoint: string) {
+    this.store.dispatch('SET_NETWORK_PROPERTIES', {endpoint, NetworkProperties: this})
+  }
+
+  updateFromOfflineSettings(offlineSettingsParams: OfflineSettingsParams, endpoint: string) {
+    this.generationHash = offlineSettingsParams.generationHash
+    this.dispatchChanges(endpoint)
   }
 }

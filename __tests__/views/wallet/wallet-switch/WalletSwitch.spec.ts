@@ -7,13 +7,13 @@ import VeeValidate from 'vee-validate'
 import WalletSwitch from '@/views/wallet/wallet-switch/WalletSwitch.vue'
 import {accountState} from '@/store/account'
 import {appState} from '@/store/app'
-import {veeValidateConfig} from "@/core/validation"
+import {veeValidateConfig} from '@/core/validation'
 import {
-    multisigAccountInfo,
-    mosaics,
-    networkCurrency,
-    hdAccount,
-} from "@MOCKS/index"
+  multisigAccountInfo,
+  mosaics,
+  networkCurrency,
+  hdAccount,
+} from '@MOCKS/index'
 
 // @ts-ignore
 const localVue = createLocalVue()
@@ -23,9 +23,9 @@ localVue.use(iView)
 localVue.use(Vuex)
 localVue.use(VeeValidate, veeValidateConfig)
 localVue.directive('focus', {
-    inserted: function (el, binding) {
-        el.focus()
-    }
+  inserted: function (el) {
+    el.focus()
+  },
 })
 
 jest.mock('nem2-qr-library')
@@ -33,57 +33,45 @@ jest.mock('nem2-qr-library')
 config.logModifiedComponents = false
 
 describe('WalletSwitch', () => {
-    let store
-    let wrapper
-    beforeEach(() => {
-        store = store = new Vuex.Store({
-                modules: {
-                  account: {
-                      state: Object.assign(accountState.state, {
-                        wallet: hdAccount.wallets[0],
-                        mosaics,
-                        networkCurrency,
-                        multisigAccountInfo,
-                        accountName: hdAccount.accountName,
-                      }),
-                  },
-                  app: {
-                    state: Object.assign(appState.state, {
-                      walletList: hdAccount.wallets
-                    }),
-                  },
-                }
-            })
-        wrapper = shallowMount(WalletSwitch, {
-            sync: false,
-            mocks: {
-                $t: (msg) => msg,
-            },
-            computed: {
-                cipher() {
-                    return hdAccount.password
-                },
-            },
-            localVue,
-            store,
-            router,
-        })
+  let store
+  let wrapper
+  beforeEach(() => {
+    store = store = new Vuex.Store({
+      modules: {
+        account: {
+          state: Object.assign(accountState.state, {
+            wallet: hdAccount.wallets[0],
+            mosaics,
+            networkCurrency,
+            multisigAccountInfo,
+            accountName: hdAccount.accountName,
+          }),
+        },
+        app: {
+          state: Object.assign(appState.state, {
+            walletList: hdAccount.wallets,
+          }),
+        },
+      },
     })
-
-    it('Component WalletSwitch is not null ', () => {
-        expect(wrapper).not.toBeNull()
+    wrapper = shallowMount(WalletSwitch, {
+      sync: false,
+      mocks: {
+        $t: (msg) => msg,
+      },
+      computed: {
+        cipher() {
+          return hdAccount.password
+        },
+      },
+      localVue,
+      store,
+      router,
     })
+  })
 
-    it('getPathNumber should return the appropriate value', () => {
-      const seedPathList1 = []
-      expect(wrapper.vm.getPathNumber(seedPathList1)).toBe(0)
-      const seedPathList2 = ['1', '2', '3']
-      expect(wrapper.vm.getPathNumber(seedPathList2)).toBe(0)
-      const seedPathList3 = ['0', '1', '2', '3']
-      expect(wrapper.vm.getPathNumber(seedPathList3)).toBe(4)
-      const seedPathList4 = ['0', '1', '3']
-      expect(wrapper.vm.getPathNumber(seedPathList4)).toBe(2)
-    })
+  it('Component WalletSwitch is not null ', () => {
+    expect(wrapper).not.toBeNull()
+  })
 
-  
 })

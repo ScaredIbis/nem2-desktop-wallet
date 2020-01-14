@@ -1,69 +1,90 @@
 import {Component, Vue} from 'vue-property-decorator'
-import {mapState} from "vuex"
-import {StoreAccount} from "@/core/model"
-import {networkConfig} from "@/config"
-import AccountLinkTransaction from '@/components/forms/account-link/AccountLinkTransaction.vue'
-import CreateRemoteAccount from '@/components/forms/create-remote-account/CreateRemoteAccount.vue'
-import PersistentDelegationRequest from '@/components/forms/persistent-delegation-request/PersistentDelegationRequest.vue'
+import {Address} from 'nem2-sdk'
+import {mapState} from 'vuex'
+import {StoreAccount, AppWallet, FormattedTransaction, AppInfo} from '@/core/model'
+import {networkConfig} from '@/config'
+import DelegatedDialog from '@/components/forms/delegated-dialog/DelegatedDialog.vue'
+import TransactionModal from '@/components/transaction-modal/TransactionModal.vue'
+import {tinyHash} from '@/core/utils'
 
 const {EMPTY_PUBLIC_KEY} = networkConfig
 
+const stepMap = {
+  AccountLink: 1,
+  NodeConfig: 2,
+  NodeLink: 3,
+}
+
 @Component({
-    components: { AccountLinkTransaction, CreateRemoteAccount, PersistentDelegationRequest },
-    computed: { ...mapState({ activeAccount: 'account' }) },
+  components: {DelegatedDialog, TransactionModal},
+  computed: {...mapState({activeAccount: 'account', app: 'app'})},
 })
 export class WalletHarvestingTs extends Vue {
-    activeAccount: StoreAccount
-    viewAccountPropertiesOnly = false
-    showAccountLinkTransactionForm = false
-    showCreateRemoteAccountForm = false
-    showPersistentDelegationForm = false
-    remoteAccountPrivatekey = null
+  activeAccount: StoreAccount
+  showTransactionModal = false
+  activeDelegationTransaction: FormattedTransaction = null
+  viewAccountPropertiesOnly = false
+  showDelegatedDialog = false
+  currentDelegatedStep = 0
+  miniHash = tinyHash
+  stepMap = stepMap
+  app: AppInfo
+  showDelegatedData = false
+  delegatedDataList = []
 
-    get wallet() {
-        return this.activeAccount.wallet
+  get wallet() {
+    return new AppWallet(this.activeAccount.wallet)
+  }
+
+  get persistentAccountRequestTransactions(): FormattedTransaction[] {
+    return this.wallet.getPersistentAccountRequests(this.$store)
+  }
+
+  get linkedAccountKey() {
+    return this.wallet.linkedAccountKey
+  }
+
+  get linkedAddress() {
+    return this.wallet.linkedAccountKey
+      ? Address.createFromPublicKey(this.linkedAccountKey, this.wallet.networkType).pretty()
+      : null
+  }
+
+  get isLinked(): boolean {
+    return this.linkedAccountKey && this.linkedAccountKey !== EMPTY_PUBLIC_KEY
+  }
+
+  get remoteNodeConfig() {
+    return this.activeAccount.wallet.temporaryRemoteNodeConfig
+  }
+
+  get passwordInTemporary() {
+    if (!this.activeAccount.temporaryLoginInfo) return null
+    const {password} = this.activeAccount.temporaryLoginInfo
+    return password
+  }
+
+  get temporaryRemoteNodeConfig() {
+    return this.activeAccount.wallet.temporaryRemoteNodeConfig
+  }
+
+  showTransactionDetail(transaction: FormattedTransaction) {
+    this.activeDelegationTransaction = transaction
+    this.showTransactionModal = true
+  }
+
+  setCurrentDelegatedStep(index) {
+    this.currentDelegatedStep = index
+  }
+
+  switchDelegatedStep(index) {
+    this.showDelegatedDialog = true
+    this.currentDelegatedStep = index
+    if (this.currentDelegatedStep === stepMap.NodeLink && !this.temporaryRemoteNodeConfig) {
+      this.currentDelegatedStep = stepMap.NodeConfig
     }
-
-    get linkedAccountKey() {
-        return this.wallet.linkedAccountKey
+    if (this.currentDelegatedStep === stepMap.NodeConfig && !this.linkedAccountKey) {
+      this.currentDelegatedStep = stepMap.AccountLink
     }
-
-    get remoteAccount() {
-        return this.wallet.remoteAccount
-    }
-    
-    get remoteAccountPublicKey() {
-        if (this.linkedAccountKey) return this.linkedAccountKey
-        if (this.remoteAccount) return this.remoteAccount.publicKey
-        return null
-    }
-
-    get isLinked(): boolean {
-        return this.linkedAccountKey && this.linkedAccountKey !== EMPTY_PUBLIC_KEY
-    }
-
-    activateRemoteHarvesting() {
-        if (!this.remoteAccount) {
-            this.showCreateRemoteAccountForm = true
-            return
-        }
-
-        this.showPersistentDelegationForm = true
-    }
-
-    getActionButtonText(): string {
-        if (this.linkedAccountKey) return 'Unlink_now'
-        if (this.remoteAccount) return 'Link_now'
-        return 'Create_remote_account'
-    }
-
-    linkAccountClicked() {
-        this.viewAccountPropertiesOnly = false
-        if (this.linkedAccountKey || this.remoteAccount) {
-            this.showAccountLinkTransactionForm = true
-            return
-        }
-
-        this.showCreateRemoteAccountForm = true
-    }
+  }
 }

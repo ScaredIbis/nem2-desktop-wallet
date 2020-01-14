@@ -33,7 +33,7 @@ const mockGetBlockByHeight = blockNumber => of(blockNumber).pipe(
   switchMap(blockNumber => {
     if (blockNumber === '29248') return of(block29248)
     return of(block1)
-  })
+  }),
 )
 
 const mockGetBlockByHeightWithLimit = blockNumber => of(blockNumber).pipe(
@@ -41,7 +41,7 @@ const mockGetBlockByHeightWithLimit = blockNumber => of(blockNumber).pipe(
   switchMap(blockNumber => {
     if (blockNumber === '29248') return of([block29248])
     return of(block1)
-  })
+  }),
 )
 
 const mockGetBlockTransactions = (...args) => of(args).pipe(
@@ -81,16 +81,22 @@ const mockNetworkPropertiesSetHealthyToFalse = jest.fn()
 const mockNetworkPropertiesReset = jest.fn()
 const mockNetworkPropertiesSetValuesFromFirstBlock = jest.fn()
 const mockNetworkPropertiesInitializeLatestBlocks = jest.fn()
-const mockNetworkProperties = jest.fn().mockImplementation(function() {
-  return {
-    setLoadingToTrue: mockNetworkPropertiesSetLoadingToTrue,
-    setHealthyToFalse: mockNetworkPropertiesSetHealthyToFalse,
-    reset: mockNetworkPropertiesReset ,
-    setValuesFromFirstBlock: mockNetworkPropertiesSetValuesFromFirstBlock ,
-    initializeLatestBlocks: mockNetworkPropertiesInitializeLatestBlocks ,
-  }
-})
 
+const mockStore = {
+  dispatch: mockDispatch,
+  state: {
+    app: {
+      networkProperties: {
+        setLoadingToTrue: mockNetworkPropertiesSetLoadingToTrue,
+        setHealthyToFalse: mockNetworkPropertiesSetHealthyToFalse,
+        reset: mockNetworkPropertiesReset ,
+        setValuesFromFirstBlock: mockNetworkPropertiesSetValuesFromFirstBlock ,
+        initializeLatestBlocks: mockNetworkPropertiesInitializeLatestBlocks ,
+      },
+      listeners: jest.fn().mockImplementation(),
+    },
+  },
+}
 
 jest.mock('nem2-sdk/dist/src/infrastructure/BlockHttp', () => ({
   BlockHttp: jest.fn().mockImplementation(endpoint => {
@@ -115,6 +121,12 @@ jest.mock('nem2-sdk/dist/src/infrastructure/BlockHttp', () => ({
   }),
 }))
 
+jest.mock('nem2-sdk/dist/src/infrastructure/NamespaceHttp', () => ({
+  NamespaceHttp: jest.fn().mockImplementation((...args) => ({
+    endpoint: args,
+  })),
+}))
+
 jest.mock('nem2-sdk/dist/src/infrastructure/ChainHttp', () => ({
   ChainHttp: jest.fn().mockImplementation(endpoint => {
     if (endpoint === 'http://errored.endpoint:3000') {
@@ -126,7 +138,7 @@ jest.mock('nem2-sdk/dist/src/infrastructure/ChainHttp', () => ({
 
 jest.mock('nem2-sdk/dist/src/service/NamespaceService', () => ({
   NamespaceService: jest.fn().mockImplementation(namespaceHttp => {
-    const endpoint = namespaceHttp.namespaceRoutesApi._basePath
+    const [endpoint] = namespaceHttp.endpoint
     if (endpoint === 'http://cat.currency:3000') {
       return {namespace: mockCatNamespace}
     }
@@ -156,9 +168,8 @@ describe('switchNode', () => {
   })
 
   it('should call the proper methods when the generationHash did not change', async done => {
-    const store = {dispatch: mockDispatch}
     // @ts-ignore
-    const network = NetworkManager.create(store, new mockNetworkProperties(), mockListeners)
+    const network = NetworkManager.create(mockStore)
     const mockSetNodeInfoAndHealth = jest.fn()
     // @ts-ignore
     network.setNodeInfoAndHealth = mockSetNodeInfoAndHealth
@@ -182,15 +193,11 @@ describe('switchNode', () => {
   })
 
   it('should call NetworkProperties and wallets methods', async done => {
-    const store = {dispatch: mockDispatch}
     // @ts-ignore
-    const network = NetworkManager.create(store, new mockNetworkProperties(), mockListeners)
+    const network = NetworkManager.create(mockStore)
     // @ts-ignore
     network.switchEndpoint('http://localhost:3000')
 
-    const test = jest.fn()
-    // @ts-ignore
-    network.setNetworkMosaics = test
     await flushPromises()
 
     setTimeout(()=> {
@@ -202,21 +209,17 @@ describe('switchNode', () => {
       expect(mockTriggerNotice.mock.calls[0][0]).toBe(Message.NODE_CONNECTION_SUCCEEDED)
       expect(mockOnWalletChangeTrigger).toHaveBeenCalledTimes(1)
       // @ts-ignore
-      expect(mockOnWalletChangeTrigger.mock.calls[0][0]).toEqual(store)
-      // @ts-ignore
-      expect(mockOnWalletChangeTrigger.mock.calls[0][1]).toEqual(mockListeners)
+      expect(mockOnWalletChangeTrigger.mock.calls[0][0]).toEqual(mockStore)
       expect(setWalletsBalances).toHaveBeenCalledTimes(1)
       // @ts-ignore
-      expect(setWalletsBalances.mock.calls[0][0]).toEqual(store)
+      expect(setWalletsBalances.mock.calls[0][0]).toEqual(mockStore)
       done()
     }, 50)
   })
 
   it('should call setHealthyToFalse if BlockHttp does not return a generation hash', async done => {
-    const mockDispatch = jest.fn()
-    const store = {dispatch: mockDispatch}
     // @ts-ignore
-    const network = NetworkManager.create(store, new mockNetworkProperties(), mockListeners)
+    const network = NetworkManager.create(mockStore)
     network.switchEndpoint('http://errored.endpoint:3000')
 
     await flushPromises()
@@ -259,10 +262,8 @@ describe('setNetworkMosaics', () => {
   })
 
   it('should set network mosaic properly for a nem.xem network', async done => {
-    const mockDispatch = jest.fn()
-    const store = {dispatch: mockDispatch}
     // @ts-ignore
-    const network = NetworkManager.create(store, new mockNetworkProperties(), mockListeners)
+    const network = NetworkManager.create(mockStore)
 
     network.switchEndpoint('http://localhost:3000')
     await flushPromises()
@@ -285,10 +286,8 @@ describe('setNetworkMosaics', () => {
   })
 
   it('should set network mosaic properly for a cat.currency network', async done => {
-    const mockDispatch = jest.fn()
-    const store = {dispatch: mockDispatch}
     // @ts-ignore
-    const network = NetworkManager.create(store, new mockNetworkProperties(), mockListeners)
+    const network = NetworkManager.create(mockStore)
 
     network.switchEndpoint('http://cat.currency:3000')
     await flushPromises()

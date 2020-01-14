@@ -4,15 +4,8 @@ import {mapState} from 'vuex'
 import {asyncScheduler} from 'rxjs'
 import {throttleTime} from 'rxjs/operators'
 import {isWindows, APP_PARAMS} from '@/config'
-
-
-// import {checkInstall} from '@/core/utils'
 import {setMarketOpeningPrice, OnWalletChange, OnActiveMultisigAccountChange} from '@/core/services'
-import {
-  AppInfo, StoreAccount, Notice,
-  NetworkManager, Listeners, NetworkProperties,
-} from '@/core/model'
-
+import {AppInfo, StoreAccount, Notice, NetworkManager, Listeners} from '@/core/model'
 import DisabledUiOverlay from '@/components/disabled-ui-overlay/DisabledUiOverlay.vue'
 import TransactionConfirmation from '@/components/transaction-confirmation/TransactionConfirmation.vue'
 import LoadingOverlay from '@/components/loading-overlay/LoadingOverlay.vue'
@@ -58,8 +51,12 @@ export class AppTs extends Vue {
     return this.wallet.address
   }
 
-  created() {
-    this.initializeNetwork()
+  async created() {
+    try {
+      await this.$store.dispatch('INITIALIZE_SERVICES', this.$store)
+    } catch (error) {
+      console.error('AppTs -> created -> error', error)
+    }
     if (isWindows) checkInstall()
   }
 
@@ -71,40 +68,35 @@ export class AppTs extends Vue {
   }
 
   initializeNotice() {
-    this.$Notice.config({ duration: 4 })
+    this.$Notice.config({duration: 4})
     const messageTranslator = message => `${this.$t(message)}`
-
     this.$store.subscribe(async (mutation) => {
+
       if (mutation.type === 'TRIGGER_NOTICE') {
         const notice: Notice = mutation.payload
-        this.$Notice.destroy()
-        this.$Notice[notice.type]({title: messageTranslator(notice.message)})
+        try {
+          this.$Notice.destroy()
+          this.$Notice[notice.type]({title: messageTranslator(notice.message)})
+        } catch (error) {
+          console.error('initializeNotice -> error', error)
+        }
       }
     })
-  }
-
-  initializeNetwork() {
-    const networkProperties = NetworkProperties.create(this.$store)
-    this.$store.commit('INITIALIZE_NETWORK_PROPERTIES', networkProperties)
-    this.Listeners = Listeners.create(this.$store, networkProperties)
-    this.NetworkManager = NetworkManager.create(
-      this.$store, networkProperties, this.Listeners,
-    )
   }
 
   initializeEventsHandlers() {
     /**
      * ON ADDRESS CHANGE
      */
-    this.$watchAsObservable('address', {immediate: true})
+    this.$watchAsObservable('address')
       .pipe(
-        throttleTime(EVENTS_THROTTLING_TIME, asyncScheduler, {leading: true, trailing: true})
+        throttleTime(EVENTS_THROTTLING_TIME, asyncScheduler, {leading: true, trailing: true}),
       )
       .subscribe(async ({newValue, oldValue}) => {
         if (!newValue) return
 
         if ((!oldValue && newValue) || (oldValue && newValue !== oldValue)) {
-          await OnWalletChange.trigger(this.$store, this.Listeners, this.wallet)
+          await OnWalletChange.trigger(this.$store, this.wallet)
         }
       })
 
@@ -113,7 +105,7 @@ export class AppTs extends Vue {
      */
     this.$watchAsObservable('activeAccount.activeMultisigAccount')
       .pipe(
-        throttleTime(EVENTS_THROTTLING_TIME, asyncScheduler, {leading: true, trailing: true})
+        throttleTime(EVENTS_THROTTLING_TIME, asyncScheduler, {leading: true, trailing: true}),
       )
       .subscribe(({newValue, oldValue}) => {
         if (!newValue) return
@@ -126,14 +118,14 @@ export class AppTs extends Vue {
     /**
      * ON ENDPOINT CHANGE
      */
-    this.$watchAsObservable('node', { immediate: true })
+    this.$watchAsObservable('node', {immediate: true})
       .pipe(
-        throttleTime(EVENTS_THROTTLING_TIME, asyncScheduler, {leading: true, trailing: true})
+        throttleTime(EVENTS_THROTTLING_TIME, asyncScheduler, {leading: true, trailing: true}),
       )
       .subscribe(({newValue, oldValue}) => {
         if (newValue && oldValue !== newValue) {
-          this.NetworkManager.switchEndpoint(newValue)
-          this.Listeners.switchEndpoint(newValue)
+          this.app.networkManager.switchEndpoint(newValue)
+          this.app.listeners.switchEndpoint(newValue)
         }
       })
   }

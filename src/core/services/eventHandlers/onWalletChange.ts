@@ -1,39 +1,42 @@
 import {Store} from 'vuex'
-import {setMosaics, setNamespaces, setTransactionList} from '@/core/services'
+import {setMosaics, setNamespaces} from '@/core/services'
 import {Address} from 'nem2-sdk'
 import {localRead} from '@/core/utils'
 import {AppWallet, AppState, Listeners} from '@/core/model'
 
 export class OnWalletChange {
-  newWallet: AppWallet
+  private newWallet: AppWallet
+  private readonly listeners: Listeners
 
   private constructor(
     private readonly store: Store<AppState>,
-    private readonly listeners: Listeners,
     newWallet?: AppWallet,
   ) {
-    this.newWallet = newWallet ? new AppWallet(newWallet) : this.getWalletFromStore()
+    this.listeners = store.state.app.listeners
+    this.newWallet = newWallet ? AppWallet.createFromDTO(newWallet) : this.getWalletFromStore()
   }
 
   static async trigger(
     store: Store<AppState>,
-    listeners: Listeners,
     newWallet?: AppWallet,
   ): Promise <void> {
-    const that = new OnWalletChange(store, listeners, newWallet)
-    if (!that.newWallet) return
-    that.toggleLoadingStatesTo(true)
-    that.resetWalletAssets()
-    that.setMosaicsFromStorage()
-    await that.setWalletDataFromNetwork()
-    that.startListeners()
-    that.toggleLoadingStatesTo(false)
+    await new OnWalletChange(store, newWallet).start()
+  }
+
+  private async start() {
+    if (!this.newWallet) return
+    this.toggleLoadingStatesTo(true)
+    this.resetWalletAssets()
+    this.setMosaicsFromStorage()
+    await this.setWalletDataFromNetwork()
+    this.startListeners()
+    this.toggleLoadingStatesTo(false)
   }
 
   private getWalletFromStore() {
     const walletFromStore = this.store.state.account.wallet
     if (!walletFromStore) return null
-    return new AppWallet(walletFromStore)
+    return AppWallet.createFromDTO(walletFromStore)
   }
 
   private toggleLoadingStatesTo(bool: boolean) {
@@ -45,6 +48,7 @@ export class OnWalletChange {
 
   private resetWalletAssets() {
     this.store.commit('RESET_TRANSACTION_LIST')
+    this.store.commit('RESET_TRANSACTIONS_TO_COSIGN')
     this.store.commit('RESET_MOSAICS')
     this.store.commit('RESET_NAMESPACES')
   }
@@ -63,10 +67,12 @@ export class OnWalletChange {
   private async setWalletDataFromNetwork() {
     const {newWallet, store} = this
     await newWallet.setAccountInfo(store)
+    if(!newWallet.isKnownByTheNetwork) return
     await newWallet.setMultisigStatus(store.state.account.node, store)
     await setMosaics(newWallet, store)
     await setNamespaces(newWallet.address, store)
-    setTransactionList(newWallet.address, store)
+    await newWallet.setTransactionList(store)
+    newWallet.setPartialTransactions(store)
   }
 
   private startListeners() {

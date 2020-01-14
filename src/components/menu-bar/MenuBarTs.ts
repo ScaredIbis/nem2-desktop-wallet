@@ -1,181 +1,229 @@
-import {Message, isWindows} from "@/config/index.ts"
+import {isWindows, Message, defaultNodeList, routesWithoutAlert} from '@/config/index.ts'
 import monitorSelected from '@/common/img/window/windowSelected.png'
 import monitorUnselected from '@/common/img/window/windowUnselected.png'
-import {localRead, localSave} from "@/core/utils"
-import {Component, Vue} from 'vue-property-decorator'
+import {completeUrlWithHostAndProtocol, localSave} from '@/core/utils'
+import {Component, Provide, Vue} from 'vue-property-decorator'
 import {windowSizeChange, minWindow, maxWindow, unMaximize, closeWindow} from '@/core/utils/electron.ts'
 import {mapState} from 'vuex'
-import {NetworkType} from "nem2-sdk"
-import {languageConfig} from "@/config/view/language"
-import {nodeListConfig} from "@/config/view/node"
-import {StoreAccount, AppWallet, AppInfo, Endpoint} from "@/core/model"
+import {NetworkType} from 'nem2-sdk'
+import {languageConfig} from '@/config'
+import {StoreAccount, AppInfo, Notice, NoticeType, Endpoint} from '@/core/model'
 import routes from '@/router/routers'
-
+import {validation} from '@/core/validation'
+import ErrorTooltip from '@/components/other/forms/errorTooltip/ErrorTooltip.vue'
 @Component({
-    computed: {
-        ...mapState({
-            activeAccount: 'account',
-            app: 'app',
-        })
-    }
+  components: {
+    ErrorTooltip,
+  },
+  computed: {
+    ...mapState({
+      activeAccount: 'account',
+      app: 'app',
+    }),
+  },
 })
 export class MenuBarTs extends Vue {
-    app: AppInfo
-    nodeList: Endpoint[] = [] // @TODO: review node list
-    activeAccount: StoreAccount
-    showNodeList: boolean = false
-    isWindows = isWindows
-    inputNodeValue = ''
-    isNowWindowMax = false
-    monitorSelected = monitorSelected
-    monitorUnselected = monitorUnselected
-    languageList = languageConfig
-    NetworkType = NetworkType
-    closeWindow = closeWindow
+  @Provide() validator: any = this.$validator
+  activeAccount: StoreAccount
+  app: AppInfo
+  minWindow = minWindow
+  validation = validation
+  isWindows = isWindows
+  inputNodeValue = ''
+  isNowWindowMax = false
+  monitorSelected = monitorSelected
+  monitorUnselected = monitorUnselected
+  languageList = languageConfig
+  NetworkType = NetworkType
+  closeWindow = closeWindow
+  isShowNodeList = false
 
-    get routes() {
-        return routes[0].children
-            .filter(({meta}) => meta.clickable)
-            .map(({path, meta}) => ({path, meta}))
+  get routes() {
+    return routes[0].children
+      .filter(({meta}) => meta.clickable)
+      .map(({path, meta}) => ({path, meta}))
+  }
+
+  get NetworkProperties() {
+    return this.app.networkProperties
+  }
+
+  get isNodeHealthy() {
+    if (!this.NetworkProperties) return true
+    if(!this.activeAccount.node) return false
+    return this.NetworkProperties.healthy
+  }
+
+  get alert(): {show: boolean, message: string} {
+    const {NetworkProperties, networkType, activeAccount, wallet} = this
+    if (!NetworkProperties || !wallet || !wallet.networkType || routesWithoutAlert[this.$route.name]) {return {
+      show: false,
+      message: '',
+    }}
+
+    if (!activeAccount.node || !NetworkProperties.healthy) {return {
+      show: true,
+      message: 'Node_not_available_please_check_your_node_or_network_settings',
+    }}
+
+    if (networkType && NetworkProperties.networkType !== networkType) {return {
+      show: true,
+      message: 'Wallet_network_type_does_not_match_current_network_type',
+    }}
+
+    if (!wallet.isKnownByTheNetwork) {return {
+      show: true,
+      message: Message.ADDRESS_UNKNOWN_BY_NETWORK,
+    }}
+
+    return {
+      show: false,
+      message: '',
+    }
+  }
+
+  get wallet() {
+    return this.activeAccount.wallet || false
+  }
+
+  get walletList() {
+    return this.app.walletList || []
+  }
+
+  get networkType() {
+    return this.activeAccount.wallet ? this.activeAccount.wallet.networkType : false
+  }
+
+  get node() {
+    return this.activeAccount.node
+  }
+
+  set node(newNode: string) {
+    if (!this.wallet) return
+    const {networkType} = this
+    this.$store.commit('SET_NODE', {node: `${newNode}`, networkType})
+  }
+
+  get nodeList() {
+    const {networkType} = this
+    if(!networkType) return []
+    return [...this.app.nodeList].filter(item=>item.networkType === networkType)
+  }
+
+  set nodeList(nodeList: Endpoint[]) {
+    this.$store.commit('SET_NODE_LIST', nodeList)
+  }
+
+  get language() {
+    return this.$i18n.locale
+  }
+
+  set language(lang) {
+    this.$i18n.locale = lang
+    localSave('locale', lang)
+  }
+
+  get nodeNetworkTypeText() {
+    const {healthy, networkType} = this.app.networkProperties
+    if (!healthy) return this.$t('Invalid_node')
+    return networkType ? NetworkType[networkType] : this.$t('Loading')
+  }
+
+  get currentWalletAddress() {
+    if (!this.wallet) return null
+    return this.activeAccount.wallet.address
+  }
+
+  set currentWalletAddress(newActiveWalletAddress) {
+    const newActiveWallet = this.walletList.find(({address}) => address === newActiveWalletAddress)
+    this.$store.commit('SET_WALLET', newActiveWallet)
+  }
+
+  get accountName() {
+    return this.activeAccount.currentAccount.name
+  }
+
+  refreshValidate() {
+    this.inputNodeValue = ''
+    this.$validator.reset()
+  }
+
+  accountQuit() {
+    this.$store.commit('RESET_APP')
+    this.$store.commit('RESET_ACCOUNT')
+    this.$router.push('login')
+  }
+
+  maxWindow() {
+    this.isNowWindowMax = !this.isNowWindowMax
+    maxWindow()
+  }
+
+  unMaximize() {
+    this.isNowWindowMax = !this.isNowWindowMax
+    unMaximize()
+  }
+
+  removeNode(clickedNodeName: string) {
+    if (this.nodeList.length === 1) {
+      Notice.trigger(Message.NODE_ALL_DELETED, NoticeType.error, this.$store)
+      return
     }
 
-    get NetworkProperties() {
-        return this.app.NetworkProperties
-    }
+    this.nodeList = [...this.app.nodeList].filter(
+      ({value, networkType}) => !(value === clickedNodeName && networkType === this.networkType),
+    )
 
-    get isNodeHealthy() {
-        if (!this.NetworkProperties) return true
-        return this.NetworkProperties.healthy
+    if (clickedNodeName === this.node){
+      this.node = this.nodeList[0].value
     }
+  }
 
-    get nodeNetworkType() {
-        return this.NetworkProperties.networkType
-    }
+  selectEndpoint(index) {
+    if (this.node === this.nodeList[index].value) return
+    this.node = this.nodeList[index].value
+    this.refreshValidate()
+  }
 
-    get wallet() {
-        return this.activeAccount.wallet || false
-    }
+  submit() {
+    const {inputNodeValue} = this
+    this.$validator
+      .validate()
+      .then((valid) => {
+        if (!valid) return
+        this.inputNodeValue = completeUrlWithHostAndProtocol(inputNodeValue)
+        this.createNewNode()
+      })
+  }
 
-    get walletList() {
-        return this.app.walletList || []
-    }
+  createNewNode() {
+    const {inputNodeValue} = this
+    const {networkType} = this.activeAccount.wallet
+    const nodeList = [...this.app.nodeList]
+    const nodeIndexInList = nodeList.findIndex(item => item.value === inputNodeValue)
 
-    get networkType() {
-        return this.activeAccount.wallet ? NetworkType[this.activeAccount.wallet.networkType] : false
-    }
+    if (nodeIndexInList > -1) nodeList.splice(nodeIndexInList, 1)
 
-    get node() {
-        return this.activeAccount.node
-    }
+    nodeList.unshift({
+      value: inputNodeValue,
+      name: inputNodeValue,
+      url: inputNodeValue,
+      networkType,
+    })
 
-    get language() {
-        return this.$i18n.locale
-    }
+    this.nodeList = nodeList
+    this.selectEndpoint(0)
+  }
 
-    get nodeNetworkTypeText() {
-        const {healthy, networkType} = this.app.NetworkProperties
-        if (!healthy) return this.$t('Invalid_node')
-        return networkType ? NetworkType[networkType] : this.$t('Loading')
-    }
+  resetNodeListToDefault() {
+    const {networkType } = this
+    this.nodeList = [...this.app.nodeList]
+      .filter(item=>item.networkType !== networkType )
+      .concat(defaultNodeList.filter(item=>item.networkType === networkType))
+    this.selectEndpoint(0)
+  }
 
-    set language(lang) {
-        this.$i18n.locale = lang
-        localSave('locale', lang)
-    }
-
-    get currentWalletAddress() {
-        if (!this.wallet) return null
-        return this.activeAccount.wallet.address
-    }
-
-    get accountName() {
-        return this.activeAccount.currentAccount.name
-    }
-
-    set currentWalletAddress(newActiveWalletAddress) {
-        AppWallet.updateActiveWalletAddress(newActiveWalletAddress, this.$store)
-    }
-
-    get nodeLoading() {
-        return this.app.NetworkProperties.loading
-    }
-
-    navigationIconClicked(route: any): void {
-        if (!this.walletList.length) return
-        if (this.$route.matched.map(({path}) => path).includes(route.path)) return
-        this.$router.push(route.path).catch(err => {
-        })
-    }
-
-    accountQuit() {
-        this.$store.commit('RESET_APP')
-        this.$store.commit('RESET_ACCOUNT')
-        this.$router.push("login")
-    }
-
-    maxWindow() {
-        this.isNowWindowMax = !this.isNowWindowMax
-        maxWindow()
-    }
-
-    unMaximize() {
-        this.isNowWindowMax = !this.isNowWindowMax
-        unMaximize()
-    }
-
-    minWindow() {
-        minWindow()
-    }
-
-    removeNode(index) {
-        this.nodeList.splice(index, 1)
-        localSave('nodeList', JSON.stringify(this.nodeList))
-    }
-
-    async selectEndpoint(index) {
-        if (this.node == this.nodeList[index].value) return
-        this.nodeList.forEach(item => item.isSelected = false)
-        this.nodeList[index].isSelected = true
-        this.$store.commit('SET_NODE', this.nodeList[index].value)
-    }
-
-    checkNodeInput() {
-        let {nodeList, inputNodeValue} = this
-        if (inputNodeValue == '') {
-            this.$Message.destroy()
-            this.$Message.error(this['$t'](Message.NODE_NULL_ERROR))
-            return false
-        }
-        const flag = nodeList.find(item => item.url == inputNodeValue)
-        if (flag) {
-            this.$Message.destroy()
-            this.$Message.error(this['$t'](Message.NODE_EXISTS_ERROR))
-            return false
-        }
-        return true
-    }
-
-    // @VEEVALIDATE
-    changeEndpointByInput() {
-        let {nodeList, inputNodeValue} = this
-        if (!this.checkNodeInput()) return
-        nodeList.push({
-            value: `${inputNodeValue}`,
-            name: inputNodeValue,
-            url: inputNodeValue,
-            isSelected: false,
-        })
-        this.nodeList = nodeList
-        localSave('nodeList', JSON.stringify(nodeList))
-    }
-
-    initNodeList() {
-        const nodeListData = localRead('nodeList')
-        this.nodeList = nodeListData ? JSON.parse(nodeListData) : nodeListConfig
-    }
-
-    created() {
-        if (isWindows) windowSizeChange()
-        this.initNodeList()
-    }
+  created() {
+    if (isWindows) windowSizeChange()
+  }
 }
