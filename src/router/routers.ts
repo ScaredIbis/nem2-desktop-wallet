@@ -329,7 +329,7 @@ const routers = [
                   isTrezor: true,
                   icon: importTrezorStepImage.importTrezorStepImage1
                 },
-                component: () => import('@/views/components/forms/create-account-info/CreateAccountInfo.vue'),
+                component: () => import('@/components/forms/create-account-info/CreateAccountInfo.vue'),
             }, {
                 path: '/importTrezor',
                 name: 'importTrezor',
