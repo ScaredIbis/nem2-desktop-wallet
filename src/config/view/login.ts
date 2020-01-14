@@ -76,3 +76,15 @@ export const importTrezorStepImage = {
     importTrezorStepImage1,
     importTrezorStepImage2,
 }
+
+export const importStepIndex = {
+  inputAccountInfo: 1,
+  importMnemonic: 2,
+  walletChoose: 3,
+  finishImport: 4
+}
+
+export const importTrezorStepIndex = {
+  createAccountInfo: 1,
+  importAccount: 2
+}
