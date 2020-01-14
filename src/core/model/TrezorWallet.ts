@@ -1,8 +1,14 @@
-import { AggregateTransaction, SignedTransaction, Transaction, CosignatureTransaction, CosignatureSignedTransaction } from 'nem2-sdk';
-import { HardwareWallet } from './HardwareWallet';
+import {
+  AggregateTransaction,
+  SignedTransaction,
+  Transaction,
+  CosignatureTransaction,
+  CosignatureSignedTransaction,
+} from 'nem2-sdk'
+import { HardwareWallet } from './HardwareWallet'
 import trezor from '../utils/trezor'
-import { AppState } from './types';
-import { Store } from 'vuex';
+import { AppState } from './types'
+import { Store } from 'vuex'
 
 export class TrezorWallet extends HardwareWallet {
 
@@ -19,7 +25,7 @@ export class TrezorWallet extends HardwareWallet {
     const result = await trezor.nem2SignTransaction({
       transaction: transactionJSON,
       path: this.appWallet.path,
-      generationHash: this.generationHash
+      generationHash: this.generationHash,
     })
 
     if(!result.success) {
@@ -31,7 +37,7 @@ export class TrezorWallet extends HardwareWallet {
       result.payload.hash,
       this.appWallet.publicKey,
       transactionJSON.type,
-      this.appWallet.networkType
+      this.appWallet.networkType,
     )
   }
 
@@ -45,17 +51,21 @@ export class TrezorWallet extends HardwareWallet {
    * @return {{ signedLock: SignedTransaction, signedTransaction: SignedTransaction }}
    *
    */
-  async signPartialWithLock(aggregate: AggregateTransaction, transactionFee: number | undefined, store: Store<AppState>) {
+  async signPartialWithLock(
+    aggregate: AggregateTransaction,
+    transactionFee: number | undefined,
+    store: Store<AppState>,
+  ) {
     const transactionJSON = aggregate.toJSON().transaction
 
     const result = await trezor.nem2SignTransaction({
       transaction: transactionJSON,
       path: this.appWallet.path,
-      generationHash: this.generationHash
-    });
+      generationHash: this.generationHash,
+    })
 
     if(!result.success) {
-      throw new Error(result.payload.error);
+      throw new Error(result.payload.error)
     }
 
     const signedTransaction = new SignedTransaction(
@@ -63,34 +73,34 @@ export class TrezorWallet extends HardwareWallet {
       result.payload.hash,
       this.appWallet.publicKey,
       transactionJSON.type,
-      this.appWallet.networkType
-    );
+      this.appWallet.networkType,
+    )
 
     const hashLockTransaction = this.appWallet.getLockTransaction(
       signedTransaction,
       transactionFee,
-      store
-    );
+      store,
+    )
 
-    const hashLockTransactionJSON = hashLockTransaction.toJSON().transaction;
+    const hashLockTransactionJSON = hashLockTransaction.toJSON().transaction
 
     const hashLockResult = await trezor.nem2SignTransaction({
       transaction: hashLockTransactionJSON,
       path: this.appWallet.path,
-      generationHash: this.generationHash
-    });
+      generationHash: this.generationHash,
+    })
 
     const signedLock = new SignedTransaction(
       hashLockResult.payload.payload,
       hashLockResult.payload.hash,
       this.appWallet.publicKey,
       hashLockTransactionJSON.type,
-      this.appWallet.networkType
+      this.appWallet.networkType,
     )
 
     return {
       signedLock,
-      signedTransaction
+      signedTransaction,
     }
   }
 
@@ -101,14 +111,14 @@ export class TrezorWallet extends HardwareWallet {
    * @returns {CosignatureSignedTransaction}
    */
   async cosignPartial(aggregate: AggregateTransaction) {
-    const cosignatureTransaction = CosignatureTransaction.create(aggregate);
+    const cosignatureTransaction = CosignatureTransaction.create(aggregate)
 
     const result = await trezor.nem2SignTransaction({
       path: this.appWallet.path,
       transaction: {
-        cosigning: cosignatureTransaction.transactionToCosign.transactionInfo.hash
-      }
-    });
+        cosigning: cosignatureTransaction.transactionToCosign.transactionInfo.hash,
+      },
+    })
 
     if(!result.success) {
       throw new Error(result.payload.error)
@@ -117,7 +127,7 @@ export class TrezorWallet extends HardwareWallet {
     return new CosignatureSignedTransaction(
       result.payload.parent_hash,
       result.payload.signature,
-      this.appWallet.publicKey
-    );
+      this.appWallet.publicKey,
+    )
   }
 }

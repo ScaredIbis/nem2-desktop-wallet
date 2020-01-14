@@ -5,7 +5,7 @@ import {transactionConfirmationObservable} from '@/core/services'
 import {Message} from '@/config'
 import {
   CreateWalletType, StagedTransaction, SignTransaction,
-  AppInfo, StoreAccount, Notice, NoticeType, TrezorWallet
+  AppInfo, StoreAccount, Notice, NoticeType, TrezorWallet,
 } from '@/core/model'
 import TransactionDetails from '@/components/transaction-details/TransactionDetails.vue'
 
@@ -55,38 +55,38 @@ export class TransactionConfirmationTs extends Vue {
 
   async confirmTransactionViaTrezor() {
 
-    const trezorWallet = new TrezorWallet(this.wallet, this.app.networkProperties.generationHash);
+    const trezorWallet = new TrezorWallet(this.wallet, this.app.networkProperties.generationHash)
 
-    const {transactionToSign, lockParams} = this.stagedTransaction;
+    const {transactionToSign, lockParams} = this.stagedTransaction
 
     /**
      * AGGREGATE BONDED
      */
     if (transactionToSign instanceof AggregateTransaction && lockParams.announceInLock) {
 
-        try {
-            const {
-                signedLock,
-                signedTransaction
-            } = await trezorWallet.signPartialWithLock(transactionToSign, lockParams.transactionFee, this.$store);
+      try {
+        const {
+          signedLock,
+          signedTransaction,
+        } = await trezorWallet.signPartialWithLock(transactionToSign, lockParams.transactionFee, this.$store)
 
-            const result = {
-                success: true,
-                signedTransaction,
-                signedLock,
-                error: null
-            }
-
-            transactionConfirmationObservable.next(result);
-        } catch (error) {
-            const result = {
-                success: false,
-                signedTransaction: null,
-                error: error.message
-            };
-
-            transactionConfirmationObservable.next(result);
+        const result = {
+          success: true,
+          signedTransaction,
+          signedLock,
+          error: null,
         }
+
+        transactionConfirmationObservable.next(result)
+      } catch (error) {
+        const result = {
+          success: false,
+          signedTransaction: null,
+          error: error.message,
+        }
+
+        transactionConfirmationObservable.next(result)
+      }
     }
 
     /**
@@ -94,25 +94,25 @@ export class TransactionConfirmationTs extends Vue {
      */
     if (transactionToSign instanceof AggregateTransaction && transactionToSign.signer) {
 
-        try {
-            const signedTransaction = await trezorWallet.cosignPartial(transactionToSign)
+      try {
+        const signedTransaction = await trezorWallet.cosignPartial(transactionToSign)
 
-            const result: SignTransaction = {
-                success: true,
-                signedTransaction,
-                error: null
-            }
-
-            transactionConfirmationObservable.next(result);
-        } catch (error) {
-            const result: SignTransaction = {
-                success: false,
-                signedTransaction: null,
-                error: error.message
-            }
-
-            transactionConfirmationObservable.next(result);
+        const result: SignTransaction = {
+          success: true,
+          signedTransaction,
+          error: null,
         }
+
+        transactionConfirmationObservable.next(result)
+      } catch (error) {
+        const result: SignTransaction = {
+          success: false,
+          signedTransaction: null,
+          error: error.message,
+        }
+
+        transactionConfirmationObservable.next(result)
+      }
     }
 
     /**
@@ -120,23 +120,23 @@ export class TransactionConfirmationTs extends Vue {
      */
 
     try {
-        const signedTransaction = await trezorWallet.sign(transactionToSign)
+      const signedTransaction = await trezorWallet.sign(transactionToSign)
 
-        const result: SignTransaction = {
-            success: true,
-            signedTransaction,
-            error: null
-        }
+      const result: SignTransaction = {
+        success: true,
+        signedTransaction,
+        error: null,
+      }
 
-        transactionConfirmationObservable.next(result);
+      transactionConfirmationObservable.next(result)
     } catch (error) {
-        const result: SignTransaction = {
-            success: false,
-            signedTransaction: null,
-            error: error.message
-        }
+      const result: SignTransaction = {
+        success: false,
+        signedTransaction: null,
+        error: error.message,
+      }
 
-        transactionConfirmationObservable.next(result);
+      transactionConfirmationObservable.next(result)
     }
   }
 

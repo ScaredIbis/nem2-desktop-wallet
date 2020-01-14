@@ -4,7 +4,6 @@ import {networkTypeConfig} from '@/config/view/setting'
 import {formDataConfig} from '@/config/view/form'
 import trezor from '@/core/utils/trezor'
 import {Address, NetworkType} from 'nem2-sdk'
-import {ExtendedKey, KeyEncoding} from 'nem2-hd-wallets'
 import {AppInfo, StoreAccount, AppWallet} from '@/core/model'
 import {CreateWalletType} from '@/core/model/CreateWalletType'
 
@@ -65,46 +64,46 @@ export class WalletImportHardwareTs extends Vue {
   }
 
   async importAccountFromTrezor() {
-      const { accountIndex, networkType, walletName } = this.trezorForm
+    const { accountIndex, networkType, walletName } = this.trezorForm
+
+    this.$store.commit('SET_UI_DISABLED', {
+      isDisabled: true,
+      message: 'trezor_awaiting_interaction',
+    })
+
+    try {
+
+      const publicKeyResult = await trezor.nem2GetPublicKey({
+        path: `m/44'/43'/${accountIndex}'/0'/0'`,
+      })
+
+      if(publicKeyResult.success) {
+        const { publicKey, serializedPath } = publicKeyResult.payload
+
+        const address = Address.createFromPublicKey(publicKey, networkType)
+
+        new AppWallet().createFromTrezor(
+          walletName,
+          networkType,
+          serializedPath,
+          publicKey.toUpperCase(),
+          address.plain(),
+          this.$store,
+        )
+
+        this.toWalletDetails()
+      }
 
       this.$store.commit('SET_UI_DISABLED', {
-          isDisabled: true,
-          message: "trezor_awaiting_interaction"
-      });
+        isDisabled: false,
+        message: '',
+      })
 
-      try {
-
-          const publicKeyResult = await trezor.nem2GetPublicKey({
-              path: `m/44'/43'/${accountIndex}'/0'/0'`
-          })
-
-          if(publicKeyResult.success) {
-              const { publicKey, serializedPath } = publicKeyResult.payload;
-
-              const address = Address.createFromPublicKey(publicKey, networkType);
-
-              new AppWallet().createFromTrezor(
-                  walletName,
-                  networkType,
-                  serializedPath,
-                  publicKey.toUpperCase(),
-                  address.plain(),
-                  this.$store
-              );
-
-              this.toWalletDetails();
-          }
-
-          this.$store.commit('SET_UI_DISABLED', {
-              isDisabled: false,
-              message: ""
-          });
-
-      } catch (e) {
-          this.$store.commit('SET_UI_DISABLED', {
-              isDisabled: false,
-              message: ""
-          });
-      }
+    } catch (e) {
+      this.$store.commit('SET_UI_DISABLED', {
+        isDisabled: false,
+        message: '',
+      })
     }
   }
+}
