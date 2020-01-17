@@ -49,7 +49,7 @@
         <FormInput style="display:none" field-name="cipher" :form-model="formItems" />
       </ul>
       <span
-        :class="`submit-button${submitDisabled ? ' submit-button-disabled' : ''}`"
+        :class="`pointer submit-button ${submitDisabled ? ' submit-button-disabled' : ''}`"
         @click="submit"
       >{{ $t('confirm') }}</span>
     </div>

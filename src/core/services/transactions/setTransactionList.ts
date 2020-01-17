@@ -1,13 +1,14 @@
 import {Address, Transaction, AccountHttp, QueryParams} from 'nem2-sdk'
 import {AppState, TransactionStatusGroups} from '@/core/model'
 import {Store} from 'vuex'
+import {networkConfig} from '@/config'
 
 export const setTransactionList = (address: Address, store: Store<AppState>): void => {
   const {node} = store.state.account
   const {transactionFormatter} = store.state.app
   const accountHttp = new AccountHttp(node)
 
-  accountHttp.getAccountTransactions(address, new QueryParams(100))
+  accountHttp.getAccountTransactions(address, new QueryParams(networkConfig.maxNumberOfTransactions))
     .subscribe(
       (transactionList: Transaction[]) => {
         transactionFormatter.formatAndSaveTransactions(
@@ -18,7 +19,7 @@ export const setTransactionList = (address: Address, store: Store<AppState>): vo
       (error) => console.error('setTransactionList -> transactions -> error', error),
     )
 
-  accountHttp.getAccountUnconfirmedTransactions(address, new QueryParams(100))
+  accountHttp.getAccountUnconfirmedTransactions(address, new QueryParams(networkConfig.maxNumberOfTransactions))
     .subscribe(
       (transactionList: Transaction[]) => {
         transactionFormatter.formatAndSaveTransactions(

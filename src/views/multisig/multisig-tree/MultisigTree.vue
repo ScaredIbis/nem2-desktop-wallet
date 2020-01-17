@@ -23,5 +23,7 @@
 
 <script lang="ts">
 import {MultisigTreeTs} from './MultisigTreeTs'
-export default class MultisigTree extends MultisigTreeTs {}
+
+export default class MultisigTree extends MultisigTreeTs {
+}
 </script>

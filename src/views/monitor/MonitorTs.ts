@@ -65,9 +65,12 @@ export class MonitorTs extends Vue {
   }
 
   get mosaicList() {
-    const {mosaics} = this
+    const {mosaics, currentHeight} = this
     if (this.mosaicsLoading || !mosaics) return []
     return Object.values(this.mosaics)
+      .filter(mosaic => mosaic.balance && mosaic.balance >= 0
+        && (mosaic.expirationHeight === MosaicNamespaceStatusType.FOREVER
+          || currentHeight < mosaic.expirationHeight))
   }
 
   get filteredList() {

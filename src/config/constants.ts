@@ -142,6 +142,7 @@ export const networkConfig = {
   EMPTY_PUBLIC_KEY: '0000000000000000000000000000000000000000000000000000000000000000',
   PUBLIC_KEY_LENGTH: 64,
   NAMESPACE_MAX_LENGTH: 64,
+  maxNumberOfTransactions: 100,
 }
 
 export const NETWORK_CONSTANTS = {
@@ -152,6 +153,7 @@ export const NETWORK_CONSTANTS = {
   MIN_NAMESPACE_DURATION: 30 * 24 * 60 * 60 / networkConfig.targetBlockTime,
   PRIVATE_KEY_LENGTH: 64,
   NEMESIS_BLOCK_TIMESTAMP: Deadline.timestampNemesisBlock,
+  HASH_LOCK_DURATION: 48 * 60 * 60 / networkConfig.targetBlockTime,
 }
 export const Message = {
   ACCOUNT_NAME_EXISTS_ERROR: 'Account_name_already_exists',
@@ -239,7 +241,7 @@ export const Message = {
   WALLET_NAME_INPUT_ERROR: 'walletCreateWalletNameRemind',
   WRONG_PASSWORD_ERROR: 'password_error',
   WRONG_WALLET_NAME_ERROR: 'wrong_wallet_name_error',
-  SET_DEFAULT_EXPLORER:'set_default_explorer',
-  PASSWORD_IS_INVALID_ERROR:'password_is_invalid',
+  SET_DEFAULT_EXPLORER: 'set_default_explorer',
+  PASSWORD_IS_INVALID_ERROR: 'password_is_invalid',
   REMOTE_PUBLIC_KEY_MISSING: 'remote_public_key_missing_error',
 }

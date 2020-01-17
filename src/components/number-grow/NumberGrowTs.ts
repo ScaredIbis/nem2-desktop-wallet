@@ -19,7 +19,7 @@ export class NumberGrowTs extends Vue {
     const step = (this.value * 10) / (this.time * 1000)
     let current = 0
     let start = 0
-    let t = setInterval(function () {
+    let t = setInterval(()=>{
       start += step
       if (start > this.value) {
         clearInterval(t)

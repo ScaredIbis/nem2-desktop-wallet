@@ -62,7 +62,7 @@
               </ErrorTooltip>
             </span>
           </span>
-          <span class="add_mosaic_button radius" @click="addMosaic" />
+          <span class="add_mosaic_button radius pointer" @click="addMosaic" />
         </span>
       </div>
 
@@ -132,8 +132,6 @@
           </Select>
         </span>
       </div>
-      <!--      <span class="xem_tips">{{$t('the_more_you_set_the_cost_the_higher_the_processing_priority')}}</span>-->
-
       <div class="send_button pointer" @click="submit">
         {{ $t('send') }}
       </div>

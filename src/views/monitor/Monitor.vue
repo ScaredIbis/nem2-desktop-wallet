@@ -137,9 +137,8 @@
                 {{ $t('time') }}
                 <span class="title_txt">
                   {{ NetworkProperties.getTimeFromBlockNumber(NetworkProperties.height) }}
-                  span>
-                  an>
-                </span></span>
+                </span>
+              </span>
             </div>
             <img src="@/common/img/monitor/amount.png">
             <span class="txt_info">
@@ -156,7 +155,7 @@
             active ? 'active_navigator' : '',
             'outter_container',
             'radius',
-            active ? 'disabled' : 'pointer'
+            active ? '' : 'pointer'
           ]"
           @click="active ? '' : $router.push(path).catch(err => {})"
         >

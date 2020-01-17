@@ -24,7 +24,7 @@ import {
 } from 'nem2-sdk'
 import CryptoJS from 'crypto-js'
 import {filter, mergeMap} from 'rxjs/operators'
-import {Message, networkConfig, defaultNetworkConfig} from '@/config'
+import {Message, networkConfig, defaultNetworkConfig, NETWORK_CONSTANTS} from '@/config'
 import {
   localRead, localSave,
 } from '@/core/utils'
@@ -491,7 +491,7 @@ export class AppWallet {
       .create(
         Deadline.create(),
         new Mosaic(new MosaicId(networkCurrency.hex), UInt64.fromUint(DEFAULT_LOCK_AMOUNT)),
-        UInt64.fromUint(480),
+        UInt64.fromUint(NETWORK_CONSTANTS.HASH_LOCK_DURATION),
         signedTransaction,
         this.networkType,
         UInt64.fromUint(fee),
